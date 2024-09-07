@@ -19,16 +19,13 @@ type ItemLocation = z.infer<typeof ItemLocation>
 const ItemType = z.enum(['Stone', 'Wood'])
 type ItemType = z.infer<typeof ItemType>
 
+const Operator = z.enum(['lt', 'lte', 'gt', 'gte', 'eq'])
+type Operator = z.infer<typeof Operator>
+
 const Condition = z.strictObject({
   left: ItemType,
   right: z.number(),
-  operator: z.union([
-    z.literal('lt'),
-    z.literal('lte'),
-    z.literal('gt'),
-    z.literal('gte'),
-    z.literal('eq'),
-  ]),
+  operator: Operator,
 })
 type Condition = z.infer<typeof Condition>
 
@@ -150,7 +147,10 @@ export function App() {
         }}
       >
         {state.modal.type === ModalStateType.Edit && (
-          <EditoModalContent state={state} />
+          <EditoModalContent
+            state={state}
+            setState={setState}
+          />
         )}
       </Modal>
     </>
@@ -283,10 +283,12 @@ function ItemList({
 
 interface EditoModalContentProps {
   state: State
+  setState: Updater<State>
 }
 
 function EditoModalContent({
   state,
+  setState,
 }: EditoModalContentProps) {
   const { modal } = state
   invariant(modal.type === ModalStateType.Edit)
@@ -305,7 +307,7 @@ function EditoModalContent({
   )
 
   const dirty = useMemo(
-    () => isEqual(condition, item.condition),
+    () => !isEqual(condition, item.condition),
     [condition, item.condition],
   )
 
@@ -313,9 +315,10 @@ function EditoModalContent({
     <div>
       <div>{modal.itemId}</div>
       <div>Condition</div>
-      <div>
-        <div>
+      <div className="flex gap-2">
+        <div className="flex-1">
           <select
+            className="border"
             value={condition.left ?? ''}
             onChange={(e) => {
               setCondition((draft) => {
@@ -335,10 +338,55 @@ function EditoModalContent({
             )}
           </select>
         </div>
+        <div className="flex-1">
+          <select
+            className="border"
+            value={condition.operator ?? ''}
+            onChange={(e) => {
+              setCondition((draft) => {
+                draft.operator = Operator.parse(
+                  e.target.value,
+                )
+              })
+            }}
+          >
+            <option value="" disabled>
+              Choose Operator
+            </option>
+            {Object.values(Operator.enum).map(
+              (operator) => (
+                <option key={operator} value={operator}>
+                  {operator}
+                </option>
+              ),
+            )}
+          </select>
+        </div>
+        <div className="flex-1">
+          <input
+            className="border"
+            type="number"
+            value={condition.right ?? ''}
+            onChange={(e) => {
+              setCondition((draft) => {
+                draft.right = parseInt(e.target.value)
+              })
+            }}
+          />
+        </div>
       </div>
       <button
         className="disabled:opacity-50"
         disabled={!valid || !dirty}
+        onClick={() => {
+          setState((draft) => {
+            const item = draft.items.find(
+              ({ id }) => id === modal.itemId,
+            )
+            invariant(item)
+            item.condition = Condition.parse(condition)
+          })
+        }}
       >
         Save
       </button>
