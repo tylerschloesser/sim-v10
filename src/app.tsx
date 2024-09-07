@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { Fragment, useEffect } from 'react'
 import { useImmer } from 'use-immer'
 
 const TICK_INTERVAL: number = 1000
@@ -13,7 +13,7 @@ export function App() {
   const [state, setState] = useImmer<State>({
     tick: 0,
     queue: [],
-    available: [],
+    available: ['stone'],
   })
   useEffect(() => {
     const interval = setInterval(() => {
@@ -35,9 +35,13 @@ export function App() {
         <div className="flex-1 flex flex-col gap-2">
           <h2>Available</h2>
           <div>
-            <div className="border p-4 cursor-pointer hover:opacity-75">
-              Stone
-            </div>
+            {state.available.map((item, i) => (
+              <Fragment key={i}>
+                <div className="border p-4 cursor-pointer hover:opacity-75">
+                  {item}
+                </div>
+              </Fragment>
+            ))}
           </div>
         </div>
       </div>
