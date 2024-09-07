@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
@@ -46,27 +46,32 @@ export function App() {
     }
   }, [])
   return (
-    <div className="flex flex-col p-2 gap-2">
-      <div>Tick: {state.tick.toString()}</div>
-      <div className="flex gap-2">
-        <div className="flex-1 flex flex-col gap-2">
-          <h2>Queue</h2>
-          <ItemList
-            location={ItemLocation.enum.Queue}
-            state={state}
-            setState={setState}
-          />
-        </div>
-        <div className="flex-1 flex flex-col gap-2">
-          <h2>Available</h2>
-          <ItemList
-            location={ItemLocation.enum.Available}
-            state={state}
-            setState={setState}
-          />
+    <>
+      <div className="flex flex-col p-2 gap-2">
+        <div>Tick: {state.tick.toString()}</div>
+        <div className="flex gap-2">
+          <div className="flex-1 flex flex-col gap-2">
+            <h2>Queue</h2>
+            <ItemList
+              location={ItemLocation.enum.Queue}
+              state={state}
+              setState={setState}
+            />
+          </div>
+          <div className="flex-1 flex flex-col gap-2">
+            <h2>Available</h2>
+            <ItemList
+              location={ItemLocation.enum.Available}
+              state={state}
+              setState={setState}
+            />
+          </div>
         </div>
       </div>
-    </div>
+      <div className="fixed bottom-0 left-0 p-2 font-mono whitespace-pre opacity-50">
+        {JSON.stringify(state, null, 2)}
+      </div>
+    </>
   )
 }
 
@@ -76,29 +81,26 @@ interface CardProps {
 }
 
 function Card({ item, setState }: CardProps) {
-  const [drag, setDrag] = useState(false)
-  useEffect(() => {
-    setState((draft) => {
-      draft.drag = drag ? item.id : null
-    })
-  }, [drag, item.id])
   return (
     <div
       role="button"
       draggable
       onDragStart={(ev) => {
         ev.dataTransfer.setData('text/plain', item.id)
-        setDrag(true)
+        setState((draft) => {
+          draft.drag = item.id
+        })
       }}
       onDragEnd={(ev) => {
-        setDrag(false)
+        setState((draft) => {
+          draft.drag = null
+        })
       }}
       onDrop={(ev) => {
         console.log(ev)
       }}
       className={clsx(
-        'border p-4 cursor-pointer',
-        drag ? 'opacity-50' : 'hover:opacity-75',
+        'border p-4 cursor-pointer hover:opacity-75',
       )}
     >
       {item.name}
@@ -123,6 +125,7 @@ function ItemList({
         ev.preventDefault()
         const itemId = ev.dataTransfer.getData('text/plain')
         setState((draft) => {
+          draft.drag = null
           const item = draft.items.find(
             ({ id }) => id === itemId,
           )
