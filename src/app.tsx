@@ -86,7 +86,7 @@ export function App() {
           </div>
         </div>
       </div>
-      <div className="fixed bottom-0 left-0 p-2 font-mono whitespace-pre opacity-50">
+      <div className="fixed bottom-0 left-0 p-2 font-mono whitespace-pre opacity-25 pointer-events-none text-sm">
         {JSON.stringify(state, null, 2)}
       </div>
     </>
