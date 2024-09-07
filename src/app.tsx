@@ -123,10 +123,18 @@ function Card({ item, setState }: CardProps) {
         ev.preventDefault()
       }}
       className={clsx(
+        'flex justify-between items-center',
         'border p-4 cursor-pointer hover:opacity-75',
       )}
     >
-      {item.type}
+      <span>{item.type}</span>
+      <button
+        onClick={() => {
+          console.log('hi')
+        }}
+      >
+        edit
+      </button>
     </div>
   )
 }
