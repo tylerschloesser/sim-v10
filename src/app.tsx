@@ -37,9 +37,7 @@ export function App() {
           <div>
             {state.available.map((item, i) => (
               <Fragment key={i}>
-                <div className="border p-4 cursor-pointer hover:opacity-75">
-                  {item}
-                </div>
+                <Card item={item} />
               </Fragment>
             ))}
           </div>
@@ -49,4 +47,10 @@ export function App() {
   )
 }
 
-function Card() {}
+function Card({ item }: { item: string }) {
+  return (
+    <div className="border p-4 cursor-pointer hover:opacity-75">
+      {item}
+    </div>
+  )
+}
