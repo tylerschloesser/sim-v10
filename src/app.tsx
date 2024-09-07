@@ -26,6 +26,9 @@ const Condition = z.strictObject({
 })
 type Condition = z.infer<typeof Condition>
 
+const PartialCondition = Condition.partial()
+type PartialCondition = z.infer<typeof PartialCondition>
+
 const Item = z.strictObject({
   id: z.string(),
   location: ItemLocation,
@@ -279,14 +282,41 @@ interface EditoModalContentProps {
 function EditoModalContent({
   state,
 }: EditoModalContentProps) {
-  invariant(state.modal.type === ModalStateType.Edit)
+  const { modal } = state
+  invariant(modal.type === ModalStateType.Edit)
+
+  const item = state.items.find(
+    ({ id }) => id === modal.itemId,
+  )
+  invariant(item)
+
+  const [condition, setCondition] =
+    useImmer<PartialCondition>(item.condition ?? {})
+
   return (
     <div>
-      <div>{state.modal.itemId}</div>
+      <div>{modal.itemId}</div>
       <div>Condition</div>
       <div>
         <div>
-          <select></select>
+          <select
+            value={condition.left}
+            onChange={(e) => {
+              setCondition((draft) => {
+                condition.left = ItemType.parse(
+                  e.target.value,
+                )
+              })
+            }}
+          >
+            {Object.values(ItemType.enum).map(
+              (itemType) => (
+                <option key={itemType} value={itemType}>
+                  {itemType}
+                </option>
+              ),
+            )}
+          </select>
         </div>
       </div>
     </div>
