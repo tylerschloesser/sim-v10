@@ -115,7 +115,7 @@ function Card({ item, setState }: CardProps) {
         })
       }}
       onDrop={(ev) => {
-        console.log(ev)
+        ev.preventDefault()
       }}
       className={clsx(
         'border p-4 cursor-pointer hover:opacity-75',
@@ -153,7 +153,6 @@ function ItemList({
       }}
       onDragOver={(ev) => {
         ev.preventDefault()
-        console.log(ev)
       }}
       className={clsx(
         'min-h-96',
