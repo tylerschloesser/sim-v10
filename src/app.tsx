@@ -24,6 +24,7 @@ interface State {
   tick: number
   drag: string | null
   items: Item[]
+  inventory: Partial<Record<ItemType, number>>
 }
 
 export function App() {
@@ -37,11 +38,19 @@ export function App() {
       },
     ],
     drag: null,
+    inventory: {},
   })
   useEffect(() => {
     const interval = setInterval(() => {
       setState((draft) => {
         draft.tick += 1
+        for (const item of draft.items.filter(
+          ({ location }) =>
+            location === ItemLocation.enum.Queue,
+        )) {
+          draft.inventory[item.type] =
+            (draft.inventory[item.type] ?? 0) + 1
+        }
       })
     }, TICK_INTERVAL)
     return () => {
@@ -52,6 +61,12 @@ export function App() {
     <>
       <div className="flex flex-col p-2 gap-2">
         <div>Tick: {state.tick.toString()}</div>
+        <div>
+          Inventory:
+          {Object.entries(state.inventory)
+            .map(([type, count]) => `${type}: (${count})`)
+            .join(', ')}
+        </div>
         <div className="flex gap-2">
           <div className="flex-1 flex flex-col gap-2">
             <h2>Queue</h2>
