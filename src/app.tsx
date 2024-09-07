@@ -1,5 +1,11 @@
 import clsx from 'clsx'
-import { PropsWithChildren, useEffect, useRef } from 'react'
+import { isEqual } from 'lodash-es'
+import {
+  PropsWithChildren,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react'
 import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
@@ -293,6 +299,16 @@ function EditoModalContent({
   const [condition, setCondition] =
     useImmer<PartialCondition>(item.condition ?? {})
 
+  const valid = useMemo(
+    () => Condition.safeParse(condition).success,
+    [condition],
+  )
+
+  const dirty = useMemo(
+    () => isEqual(condition, item.condition),
+    [condition, item.condition],
+  )
+
   return (
     <div>
       <div>{modal.itemId}</div>
@@ -300,15 +316,16 @@ function EditoModalContent({
       <div>
         <div>
           <select
-            value={condition.left}
+            value={condition.left ?? ''}
             onChange={(e) => {
               setCondition((draft) => {
-                condition.left = ItemType.parse(
-                  e.target.value,
-                )
+                draft.left = ItemType.parse(e.target.value)
               })
             }}
           >
+            <option value="" disabled>
+              Choose Item
+            </option>
             {Object.values(ItemType.enum).map(
               (itemType) => (
                 <option key={itemType} value={itemType}>
@@ -319,6 +336,12 @@ function EditoModalContent({
           </select>
         </div>
       </div>
+      <button
+        className="disabled:opacity-50"
+        disabled={!valid || !dirty}
+      >
+        Save
+      </button>
     </div>
   )
 }
