@@ -5,10 +5,16 @@ const TICK_INTERVAL: number = 1000
 
 interface State {
   tick: number
+  queue: string[]
+  available: string[]
 }
 
 export function App() {
-  const [state, setState] = useImmer<State>({ tick: 0 })
+  const [state, setState] = useImmer<State>({
+    tick: 0,
+    queue: [],
+    available: [],
+  })
   useEffect(() => {
     const interval = setInterval(() => {
       setState((draft) => {
@@ -38,3 +44,5 @@ export function App() {
     </div>
   )
 }
+
+function Card() {}
