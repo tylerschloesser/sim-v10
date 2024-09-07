@@ -10,10 +10,13 @@ const TICK_INTERVAL: number = 1000
 const ItemLocation = z.enum(['Queue', 'Available'])
 type ItemLocation = z.infer<typeof ItemLocation>
 
+const ItemType = z.enum(['Stone', 'Wood'])
+type ItemType = z.infer<typeof ItemType>
+
 const Item = z.strictObject({
   id: z.string(),
-  name: z.string(),
   location: ItemLocation,
+  type: ItemType,
 })
 type Item = z.infer<typeof Item>
 
@@ -29,8 +32,8 @@ export function App() {
     items: [
       {
         id: shortId.generate(),
-        name: 'stone',
         location: ItemLocation.enum.Available,
+        type: ItemType.enum.Stone,
       },
     ],
     drag: null,
@@ -91,7 +94,7 @@ function Card({ item, setState }: CardProps) {
           draft.drag = item.id
         })
       }}
-      onDragEnd={(ev) => {
+      onDragEnd={() => {
         setState((draft) => {
           draft.drag = null
         })
@@ -103,7 +106,7 @@ function Card({ item, setState }: CardProps) {
         'border p-4 cursor-pointer hover:opacity-75',
       )}
     >
-      {item.name}
+      {item.type}
     </div>
   )
 }
