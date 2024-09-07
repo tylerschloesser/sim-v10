@@ -20,8 +20,19 @@ export function App() {
     }
   }, [])
   return (
-    <div>
+    <div className="flex flex-col p-2 gap-2">
       <div>Tick: {state.tick.toString()}</div>
+      <div className="flex gap-2">
+        <div className="flex-1">
+          <h2>Queue</h2>
+        </div>
+        <div className="flex-1 flex flex-col gap-2">
+          <h2>Available</h2>
+          <div>
+            <div className="border p-4">Stone</div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
