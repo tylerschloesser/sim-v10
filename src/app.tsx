@@ -36,6 +36,11 @@ export function App() {
         location: ItemLocation.enum.Available,
         type: ItemType.enum.Stone,
       },
+      {
+        id: shortId.generate(),
+        location: ItemLocation.enum.Available,
+        type: ItemType.enum.Wood,
+      },
     ],
     drag: null,
     inventory: {},
@@ -155,9 +160,10 @@ function ItemList({
         ev.preventDefault()
       }}
       className={clsx(
-        'min-h-96',
-        state.drag &&
-          'border-dashed border border-gray-400',
+        'min-h-96 border border-dashed flex flex-col gap-2',
+        state.drag
+          ? 'border-gray-400'
+          : 'border-transparent',
       )}
     >
       {state.items
