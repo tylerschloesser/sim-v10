@@ -1,18 +1,19 @@
 import clsx from 'clsx'
-import {
-  Fragment,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react'
+import { Fragment, useEffect, useState } from 'react'
+import shortId from 'short-uuid'
 import { Updater, useImmer } from 'use-immer'
 
 const TICK_INTERVAL: number = 1000
 
+interface Item {
+  id: string
+  name: string
+}
+
 interface State {
   tick: number
-  queue: string[]
-  available: string[]
+  queue: Item[]
+  available: Item[]
   drag: boolean
 }
 
@@ -20,7 +21,7 @@ export function App() {
   const [state, setState] = useImmer<State>({
     tick: 0,
     queue: [],
-    available: ['stone'],
+    available: [{ id: shortId.generate(), name: 'stone' }],
     drag: false,
   })
   useEffect(() => {
@@ -39,19 +40,13 @@ export function App() {
       <div className="flex gap-2">
         <div className="flex-1">
           <h2>Queue</h2>
-          <div
-            className={clsx(
-              'min-h-96',
-              state.drag &&
-                'border-dashed border border-gray-400',
-            )}
-          ></div>
+          <Queue state={state} />
         </div>
         <div className="flex-1 flex flex-col gap-2">
           <h2>Available</h2>
           <div>
-            {state.available.map((item, i) => (
-              <Fragment key={i}>
+            {state.available.map((item) => (
+              <Fragment key={item.id}>
                 <Card item={item} setState={setState} />
               </Fragment>
             ))}
@@ -63,7 +58,7 @@ export function App() {
 }
 
 interface CardProps {
-  item: string
+  item: Item
   setState: Updater<State>
 }
 
@@ -75,35 +70,52 @@ function Card({ item, setState }: CardProps) {
     })
   }, [drag])
 
-  const onPointerDown = useCallback(() => {
-    const controller = new AbortController()
-    const { signal } = controller
-
-    setDrag(true)
-    document.addEventListener(
-      'pointermove',
-      (ev) => {
-        console.log(ev)
-      },
-      { signal },
-    )
-
-    document.addEventListener(
-      'pointerup',
-      () => {
-        setDrag(false)
-        controller.abort()
-      },
-      { signal },
-    )
-  }, [setState])
-
   return (
     <div
-      className="border p-4 cursor-pointer hover:opacity-75"
-      onPointerDown={onPointerDown}
+      draggable
+      onDragStart={(ev) => {
+        ev.dataTransfer.setData(
+          'text/plain',
+          JSON.stringify(item),
+        )
+        setDrag(true)
+      }}
+      onDragEnd={(ev) => {
+        setDrag(false)
+      }}
+      onDrop={(ev) => {
+        console.log(ev)
+      }}
+      className={clsx(
+        'border p-4 cursor-pointer',
+        drag ? 'opacity-50' : 'hover:opacity-75',
+      )}
     >
-      {item}
+      {item.name}
     </div>
+  )
+}
+
+interface QueueProps {
+  state: State
+}
+
+function Queue({ state }: QueueProps) {
+  return (
+    <div
+      onDrop={(ev) => {
+        ev.preventDefault()
+        console.log(ev)
+      }}
+      onDragOver={(ev) => {
+        ev.preventDefault()
+        console.log(ev)
+      }}
+      className={clsx(
+        'min-h-96',
+        state.drag &&
+          'border-dashed border border-gray-400',
+      )}
+    ></div>
   )
 }
