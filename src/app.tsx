@@ -1,10 +1,5 @@
 import clsx from 'clsx'
-import {
-  PropsWithChildren,
-  useCallback,
-  useEffect,
-  useRef,
-} from 'react'
+import { PropsWithChildren, useEffect, useRef } from 'react'
 import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
@@ -30,12 +25,28 @@ interface State {
   drag: string | null
   items: Item[]
   inventory: Partial<Record<ItemType, number>>
-  modal: ModalState | null
+  modal: ModalState
 }
 
-interface ModalState {
+enum ModalStateType {
+  Initial = 'initial',
+  Edit = 'edit',
+}
+
+interface BaseModalState {
+  open: boolean
+}
+
+interface InitialModalState extends BaseModalState {
+  type: ModalStateType.Initial
+}
+
+interface EditModalState extends BaseModalState {
+  type: ModalStateType.Edit
   itemId: string
 }
+
+type ModalState = InitialModalState | EditModalState
 
 export function App() {
   const [state, setState] = useImmer<State>({
@@ -54,7 +65,7 @@ export function App() {
     ],
     drag: null,
     inventory: {},
-    modal: null,
+    modal: { type: ModalStateType.Initial, open: false },
   })
   useEffect(() => {
     const interval = setInterval(() => {
@@ -106,13 +117,17 @@ export function App() {
         {JSON.stringify(state, null, 2)}
       </div>
       <Modal
-        open={state.modal !== null}
+        open={state.modal.open}
         onClose={() => {
           setState((draft) => {
-            draft.modal = null
+            draft.modal.open = false
           })
         }}
-      />
+      >
+        {state.modal.type === ModalStateType.Edit && (
+          <EditoModalContent state={state} />
+        )}
+      </Modal>
     </>
   )
 }
@@ -150,7 +165,11 @@ function Card({ item, setState }: CardProps) {
       <button
         onClick={() =>
           setState((draft) => {
-            draft.modal = { itemId: item.id }
+            draft.modal = {
+              type: ModalStateType.Edit,
+              open: true,
+              itemId: item.id,
+            }
           })
         }
       >
@@ -235,4 +254,15 @@ function ItemList({
         ))}
     </div>
   )
+}
+
+interface EditoModalContentProps {
+  state: State
+}
+
+function EditoModalContent({
+  state,
+}: EditoModalContentProps) {
+  invariant(state.modal.type === ModalStateType.Edit)
+  return <div>{state.modal.itemId}</div>
 }
