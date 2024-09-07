@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
@@ -128,15 +128,44 @@ function Card({ item, setState }: CardProps) {
       )}
     >
       <span>{item.type}</span>
-      <button
-        onClick={() => {
-          console.log('hi')
-        }}
-      >
-        edit
-      </button>
+      <div>
+        <Modal>
+          {({ dialog, open }) => (
+            <>
+              {dialog}
+              <button onClick={open}>edit</button>
+            </>
+          )}
+        </Modal>
+      </div>
     </div>
   )
+}
+
+interface ModalProps {
+  children: (props: {
+    dialog: React.ReactNode
+    open: () => void
+  }) => React.ReactNode
+}
+function Modal({ children }: ModalProps) {
+  const ref = useRef<HTMLDialogElement>(null)
+  const open = useCallback(() => {
+    ref.current?.showModal()
+  }, [])
+  const dialog = (
+    <dialog ref={ref}>
+      Hello!
+      <button
+        onClick={() => {
+          ref.current?.close()
+        }}
+      >
+        Close
+      </button>
+    </dialog>
+  )
+  return children({ dialog, open })
 }
 
 interface ItemListProps {
