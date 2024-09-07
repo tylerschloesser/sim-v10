@@ -13,10 +13,24 @@ type ItemLocation = z.infer<typeof ItemLocation>
 const ItemType = z.enum(['Stone', 'Wood'])
 type ItemType = z.infer<typeof ItemType>
 
+const Condition = z.strictObject({
+  left: ItemType,
+  right: z.number(),
+  operator: z.union([
+    z.literal('lt'),
+    z.literal('lte'),
+    z.literal('gt'),
+    z.literal('gte'),
+    z.literal('eq'),
+  ]),
+})
+type Condition = z.infer<typeof Condition>
+
 const Item = z.strictObject({
   id: z.string(),
   location: ItemLocation,
   type: ItemType,
+  condition: Condition.nullable(),
 })
 type Item = z.infer<typeof Item>
 
@@ -56,11 +70,13 @@ export function App() {
         id: shortId.generate(),
         location: ItemLocation.enum.Available,
         type: ItemType.enum.Stone,
+        condition: null,
       },
       {
         id: shortId.generate(),
         location: ItemLocation.enum.Available,
         type: ItemType.enum.Wood,
+        condition: null,
       },
     ],
     drag: null,
@@ -264,5 +280,15 @@ function EditoModalContent({
   state,
 }: EditoModalContentProps) {
   invariant(state.modal.type === ModalStateType.Edit)
-  return <div>{state.modal.itemId}</div>
+  return (
+    <div>
+      <div>{state.modal.itemId}</div>
+      <div>Condition</div>
+      <div>
+        <div>
+          <select></select>
+        </div>
+      </div>
+    </div>
+  )
 }
