@@ -29,7 +29,9 @@ export function App() {
         <div className="flex-1 flex flex-col gap-2">
           <h2>Available</h2>
           <div>
-            <div className="border p-4">Stone</div>
+            <div className="border p-4 cursor-pointer hover:opacity-75">
+              Stone
+            </div>
           </div>
         </div>
       </div>
