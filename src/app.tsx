@@ -1,5 +1,10 @@
 import clsx from 'clsx'
-import { Fragment, useCallback, useEffect } from 'react'
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
 import { Updater, useImmer } from 'use-immer'
 
 const TICK_INTERVAL: number = 1000
@@ -63,14 +68,18 @@ interface CardProps {
 }
 
 function Card({ item, setState }: CardProps) {
+  const [drag, setDrag] = useState(false)
+  useEffect(() => {
+    setState((draft) => {
+      draft.drag = drag
+    })
+  }, [drag])
+
   const onPointerDown = useCallback(() => {
     const controller = new AbortController()
     const { signal } = controller
 
-    setState((draft) => {
-      draft.drag = true
-    })
-
+    setDrag(true)
     document.addEventListener(
       'pointermove',
       (ev) => {
@@ -82,10 +91,7 @@ function Card({ item, setState }: CardProps) {
     document.addEventListener(
       'pointerup',
       () => {
-        setState((draft) => {
-          draft.drag = false
-        })
-
+        setDrag(false)
         controller.abort()
       },
       { signal },
