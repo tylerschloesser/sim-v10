@@ -1,5 +1,10 @@
 import clsx from 'clsx'
-import { useCallback, useEffect, useRef } from 'react'
+import {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useRef,
+} from 'react'
 import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
@@ -25,6 +30,11 @@ interface State {
   drag: string | null
   items: Item[]
   inventory: Partial<Record<ItemType, number>>
+  modal: ModalState | null
+}
+
+interface ModalState {
+  itemId: string
 }
 
 export function App() {
@@ -44,6 +54,7 @@ export function App() {
     ],
     drag: null,
     inventory: {},
+    modal: null,
   })
   useEffect(() => {
     const interval = setInterval(() => {
@@ -94,6 +105,14 @@ export function App() {
       <div className="fixed bottom-0 left-0 p-2 font-mono whitespace-pre opacity-25 pointer-events-none text-sm">
         {JSON.stringify(state, null, 2)}
       </div>
+      <Modal
+        open={state.modal !== null}
+        onClose={() => {
+          setState((draft) => {
+            draft.modal = null
+          })
+        }}
+      />
     </>
   )
 }
@@ -128,44 +147,46 @@ function Card({ item, setState }: CardProps) {
       )}
     >
       <span>{item.type}</span>
-      <div>
-        <Modal>
-          {({ dialog, open }) => (
-            <>
-              {dialog}
-              <button onClick={open}>edit</button>
-            </>
-          )}
-        </Modal>
-      </div>
+      <button
+        onClick={() =>
+          setState((draft) => {
+            draft.modal = { itemId: item.id }
+          })
+        }
+      >
+        edit
+      </button>
     </div>
   )
 }
 
-interface ModalProps {
-  children: (props: {
-    dialog: React.ReactNode
-    open: () => void
-  }) => React.ReactNode
-}
-function Modal({ children }: ModalProps) {
+type ModalProps = PropsWithChildren<{
+  open: boolean
+  onClose: () => void
+}>
+function Modal({ open, onClose, children }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null)
-  const open = useCallback(() => {
-    ref.current?.showModal()
-  }, [])
-  const dialog = (
-    <dialog ref={ref}>
-      Hello!
-      <button
-        onClick={() => {
-          ref.current?.close()
-        }}
+  useEffect(() => {
+    if (open) {
+      ref.current?.showModal()
+    } else {
+      ref.current?.close()
+    }
+  }, [open])
+  return (
+    <dialog
+      ref={ref}
+      className="backdrop:bg-slate-400 backdrop:bg-opacity-30"
+    >
+      <form
+        method="dialog"
+        className="bg-gray-200 p-4 flex flex-col gap-2"
       >
-        Close
-      </button>
+        {children}
+        <button onClick={onClose}>Close</button>
+      </form>
     </dialog>
   )
-  return children({ dialog, open })
 }
 
 interface ItemListProps {
