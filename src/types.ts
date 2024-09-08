@@ -125,11 +125,13 @@ export const Item = z.discriminatedUnion('type', [
 ])
 export type Item = z.infer<typeof Item>
 
+export type Inventory = Partial<Record<ItemType, number>>
+
 export interface State {
   tick: number
   drag: string | null
   items: Item[]
-  inventory: Partial<Record<ItemType, number>>
+  inventory: Inventory
   modal: ModalState
 }
 

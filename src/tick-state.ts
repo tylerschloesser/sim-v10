@@ -3,11 +3,14 @@ import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
 import {
   Condition,
+  Inventory,
   Item,
   ItemLocation,
   ItemType,
   Operator,
   State,
+  Value,
+  ValueType,
 } from './types'
 
 export function tickState(draft: WritableDraft<State>) {
@@ -74,8 +77,8 @@ function isConditionSatisfied(
   if (condition === null) {
     return true
   }
-  const left = inventory[condition.left] ?? 0
-  const right = condition.right
+  const left = getValue(condition.left, inventory)
+  const right = getValue(condition.right, inventory)
   const operator = condition.operator
   return (
     (operator === Operator.enum.lt && left < right) ||
@@ -84,4 +87,21 @@ function isConditionSatisfied(
     (operator === Operator.enum.gte && left >= right) ||
     (operator === Operator.enum.eq && left === right)
   )
+}
+
+function getValue(
+  value: Value,
+  inventory: Inventory,
+): number {
+  switch (value.type) {
+    case ValueType.enum.Variable: {
+      const itemType = ItemType.parse(value.variable)
+      return inventory[itemType] ?? 0
+    }
+    case ValueType.enum.Constant: {
+      return value.constant
+    }
+    default:
+      invariant(false)
+  }
 }
