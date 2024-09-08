@@ -97,8 +97,31 @@ export function App() {
           ({ location }) =>
             location === ItemLocation.enum.Queue,
         )) {
-          draft.inventory[item.type] =
-            (draft.inventory[item.type] ?? 0) + 1
+          if (item.condition) {
+            const left =
+              draft.inventory[item.condition.left] ?? 0
+            const right = item.condition.right
+            const operator = item.condition.operator
+
+            if (
+              (operator === Operator.enum.lt &&
+                left < right) ||
+              (operator === Operator.enum.lte &&
+                left <= right) ||
+              (operator === Operator.enum.gt &&
+                left > right) ||
+              (operator === Operator.enum.gte &&
+                left >= right) ||
+              (operator === Operator.enum.eq &&
+                left === right)
+            ) {
+              draft.inventory[item.type] =
+                (draft.inventory[item.type] ?? 0) + 1
+            }
+          } else {
+            draft.inventory[item.type] =
+              (draft.inventory[item.type] ?? 0) + 1
+          }
         }
       })
     }, TICK_INTERVAL)
