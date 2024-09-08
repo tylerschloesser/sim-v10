@@ -2,9 +2,11 @@ import clsx from 'clsx'
 import { isEqual } from 'lodash-es'
 import {
   PropsWithChildren,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react'
 import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
@@ -17,7 +19,9 @@ import {
   ModalStateType,
   Operator,
   PartialCondition,
+  PartialValue,
   State,
+  ValueType,
 } from './types'
 import { useTickInterval } from './use-tick-interval'
 
@@ -49,9 +53,36 @@ const INITIAL_STATE: State = {
   modal: { type: ModalStateType.Initial, open: false },
 }
 
+function useScrollDebug() {
+  const [scrollDebug, setScrollDebug] = useState(false)
+  useEffect(() => {
+    const controller = new AbortController()
+    const { signal } = controller
+
+    // prettier-ignore
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'd') {
+        ev.preventDefault()
+        setScrollDebug(true)
+      }
+    }, { signal, })
+
+    // prettier-ignore
+    document.addEventListener('keyup', (ev) => {
+      if (ev.key === 'd') {
+        ev.preventDefault()
+        setScrollDebug(false)
+      }
+    }, { signal, })
+  }, [])
+
+  return scrollDebug
+}
+
 export function App() {
   const [state, setState] = useImmer<State>(INITIAL_STATE)
   useTickInterval(setState)
+  const scrollDebug = useScrollDebug()
   return (
     <>
       <div className="flex flex-col p-2 gap-2">
@@ -81,7 +112,12 @@ export function App() {
           </div>
         </div>
       </div>
-      <div className="fixed bottom-0 left-0 p-2 font-mono whitespace-pre opacity-25 pointer-events-none text-sm">
+      <div
+        className={clsx(
+          'fixed top-0 bottom-0 left-0 p-2 font-mono whitespace-pre opacity-25 text-sm overflow-scroll',
+          !scrollDebug && 'pointer-events-none',
+        )}
+      >
         {JSON.stringify(state, null, 2)}
       </div>
       <Modal
@@ -242,6 +278,51 @@ interface EditoModalContentProps {
   setState: Updater<State>
 }
 
+interface ConditionValueInputProps {
+  value: PartialValue | null
+  onChange: (value: PartialValue) => void
+}
+function ConditionValueInput({
+  value,
+  onChange,
+}: ConditionValueInputProps) {
+  return (
+    <fieldset>
+      <legend>Type</legend>
+      <label>
+        Constant
+        <input
+          type="radio"
+          name="type"
+          value={ValueType.enum.Constant}
+          checked={value?.type === ValueType.enum.Constant}
+          onChange={() =>
+            onChange({
+              type: ValueType.enum.Constant,
+              constant: null,
+            })
+          }
+        />
+      </label>
+      <label>
+        Variable
+        <input
+          type="radio"
+          name="type"
+          value={ValueType.enum.Variable}
+          checked={value?.type === ValueType.enum.Constant}
+          onChange={() =>
+            onChange({
+              type: ValueType.enum.Variable,
+              variable: null,
+            })
+          }
+        />
+      </label>
+    </fieldset>
+  )
+}
+
 function EditModalContent({
   state,
   setState,
@@ -255,7 +336,13 @@ function EditModalContent({
   invariant(item)
 
   const [condition, setCondition] =
-    useImmer<PartialCondition>(item.condition ?? {})
+    useImmer<PartialCondition>(
+      item.condition ?? {
+        left: null,
+        right: null,
+        operator: null,
+      },
+    )
 
   const valid = useMemo(
     () => Condition.safeParse(condition).success,
@@ -267,32 +354,34 @@ function EditModalContent({
     [condition, item.condition],
   )
 
+  const onChangeLeft = useCallback(
+    (value: PartialValue) => {
+      setCondition((draft) => {
+        draft.left = value
+      })
+    },
+    [setCondition],
+  )
+
+  const onChangeRight = useCallback(
+    (value: PartialValue) => {
+      setCondition((draft) => {
+        draft.right = value
+      })
+    },
+    [setCondition],
+  )
+
   return (
     <div>
       <div>{modal.itemId}</div>
       <div>Condition</div>
       <div className="flex gap-2">
         <div className="flex-1">
-          <select
-            className="border"
-            value={condition.left ?? ''}
-            onChange={(e) => {
-              setCondition((draft) => {
-                draft.left = ItemType.parse(e.target.value)
-              })
-            }}
-          >
-            <option value="" disabled>
-              Choose Item
-            </option>
-            {Object.values(ItemType.enum).map(
-              (itemType) => (
-                <option key={itemType} value={itemType}>
-                  {itemType}
-                </option>
-              ),
-            )}
-          </select>
+          <ConditionValueInput
+            value={condition.left ?? null}
+            onChange={onChangeLeft}
+          />
         </div>
         <div className="flex-1">
           <select
@@ -319,15 +408,9 @@ function EditModalContent({
           </select>
         </div>
         <div className="flex-1">
-          <input
-            className="border"
-            type="number"
-            value={condition.right ?? ''}
-            onChange={(e) => {
-              setCondition((draft) => {
-                draft.right = parseInt(e.target.value)
-              })
-            }}
+          <ConditionValueInput
+            value={condition.right ?? null}
+            onChange={onChangeRight}
           />
         </div>
       </div>

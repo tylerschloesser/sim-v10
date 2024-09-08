@@ -21,14 +21,61 @@ export const Operator = z.enum([
 ])
 export type Operator = z.infer<typeof Operator>
 
+export const ValueType = z.enum(['Variable', 'Constant'])
+export type ValueType = z.infer<typeof ValueType>
+
+export const VariableValue = z.strictObject({
+  type: z.literal(ValueType.enum.Variable),
+  variable: z.string(),
+})
+export type VariableValue = z.infer<typeof VariableValue>
+
+export const ConstantValue = z.strictObject({
+  type: z.literal(ValueType.enum.Constant),
+  constant: z.number(),
+})
+export type ConstantValue = z.infer<typeof ConstantValue>
+
+export const Value = z.discriminatedUnion('type', [
+  VariableValue,
+  ConstantValue,
+])
+export type Value = z.infer<typeof Value>
+
 export const Condition = z.strictObject({
-  left: ItemType,
-  right: z.number(),
+  left: Value,
+  right: Value,
   operator: Operator,
 })
 export type Condition = z.infer<typeof Condition>
 
-export const PartialCondition = Condition.partial()
+export const PartialVariableValue = z.strictObject({
+  type: z.literal(ValueType.enum.Variable),
+  variable: z.string().nullable(),
+})
+export type PartialVariableValue = z.infer<
+  typeof PartialVariableValue
+>
+
+export const PartialConstantValue = z.strictObject({
+  type: z.literal(ValueType.enum.Constant),
+  constant: z.number().nullable(),
+})
+export type PartialConstantValue = z.infer<
+  typeof PartialConstantValue
+>
+
+export const PartialValue = z.discriminatedUnion('type', [
+  PartialVariableValue,
+  PartialConstantValue,
+])
+export type PartialValue = z.infer<typeof PartialValue>
+
+export const PartialCondition = z.strictObject({
+  left: PartialValue.nullable(),
+  right: PartialValue.nullable(),
+  operator: Operator.nullable(),
+})
 export type PartialCondition = z.infer<
   typeof PartialCondition
 >
