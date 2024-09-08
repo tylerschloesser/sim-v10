@@ -430,7 +430,10 @@ function EditModalContent({
       >
         Save
       </button>
-      <pre>{JSON.stringify(condition, null, 2)}</pre>
+      <h2>Debug</h2>
+      <pre className="text-xs max-h-20 overflow-scroll border border-black opacity-50">
+        {JSON.stringify(condition, null, 2)}
+      </pre>
     </div>
   )
 }
