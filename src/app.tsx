@@ -102,7 +102,7 @@ export function App() {
         }}
       >
         {state.modal.type === ModalStateType.Edit && (
-          <EditoModalContent
+          <EditModalContent
             state={state}
             setState={setState}
           />
@@ -244,7 +244,7 @@ interface EditoModalContentProps {
   setState: Updater<State>
 }
 
-function EditoModalContent({
+function EditModalContent({
   state,
   setState,
 }: EditoModalContentProps) {
