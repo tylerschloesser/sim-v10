@@ -354,11 +354,8 @@ function EditoModalContent({
 
 function tickState(draft: WritableDraft<State>) {
   draft.tick += 1
-  for (const item of draft.items.filter(
-    ({ location }) => location === ItemLocation.enum.Queue,
-  )) {
+  for (const item of draft.items.filter(isInQueue)) {
     if (
-      item.condition === null ||
       isConditionSatisfied(item.condition, draft.inventory)
     ) {
       draft.inventory[item.type] =
@@ -367,10 +364,17 @@ function tickState(draft: WritableDraft<State>) {
   }
 }
 
+function isInQueue(item: Item): boolean {
+  return item.location === ItemLocation.enum.Queue
+}
+
 function isConditionSatisfied(
-  condition: Condition,
+  condition: Condition | null,
   inventory: Partial<Record<ItemType, number>>,
 ): boolean {
+  if (condition === null) {
+    return true
+  }
   const left = inventory[condition.left] ?? 0
   const right = condition.right
   const operator = condition.operator
