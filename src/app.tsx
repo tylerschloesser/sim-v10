@@ -358,8 +358,28 @@ function tickState(draft: WritableDraft<State>) {
     if (
       isConditionSatisfied(item.condition, draft.inventory)
     ) {
-      draft.inventory[item.type] =
-        (draft.inventory[item.type] ?? 0) + 1
+      switch (item.type) {
+        case ItemType.enum.Stone:
+        case ItemType.enum.Wood: {
+          draft.inventory[item.type] =
+            (draft.inventory[item.type] ?? 0) + 1
+          break
+        }
+        case ItemType.enum.ResearchStone: {
+          item.progress += 1
+          if (item.progress === 100) {
+            draft.items.push({
+              id: shortId.generate(),
+              location: ItemLocation.enum.Available,
+              type: ItemType.enum.StoneFurnace,
+              condition: null,
+            })
+          }
+          break
+        }
+        default:
+          invariant(false)
+      }
     }
   }
 }
