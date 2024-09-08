@@ -209,7 +209,10 @@ function Card({ item, setState }: CardProps) {
         'border p-4 cursor-pointer hover:opacity-75',
       )}
     >
-      <span>{item.type}</span>
+      <span>
+        <span>{item.type}</span>
+        {item.condition && <span>[Condition]</span>}
+      </span>
       <button
         onClick={() =>
           setState((draft) => {
