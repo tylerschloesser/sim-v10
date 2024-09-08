@@ -51,6 +51,10 @@ export function tickState(draft: WritableDraft<State>) {
         default:
           invariant(false)
       }
+
+      // TODO
+      // only allow a single item to be processed per tick
+      break
     }
   }
 
