@@ -51,8 +51,7 @@ const INITIAL_STATE: State = {
   modal: { type: ModalStateType.Initial, open: false },
 }
 
-export function App() {
-  const [state, setState] = useImmer<State>(INITIAL_STATE)
+function useTickInterval(setState: Updater<State>) {
   useEffect(() => {
     const interval = setInterval(() => {
       setState(tickState)
@@ -61,6 +60,11 @@ export function App() {
       clearInterval(interval)
     }
   }, [])
+}
+
+export function App() {
+  const [state, setState] = useImmer<State>(INITIAL_STATE)
+  useTickInterval(setState)
   return (
     <>
       <div className="flex flex-col p-2 gap-2">
