@@ -22,27 +22,29 @@ import {
 
 const TICK_INTERVAL: number = 1000
 
+const INITIAL_STATE: State = {
+  tick: 0,
+  items: [
+    {
+      id: shortId.generate(),
+      location: ItemLocation.enum.Available,
+      type: ItemType.enum.Stone,
+      condition: null,
+    },
+    {
+      id: shortId.generate(),
+      location: ItemLocation.enum.Available,
+      type: ItemType.enum.Wood,
+      condition: null,
+    },
+  ],
+  drag: null,
+  inventory: {},
+  modal: { type: ModalStateType.Initial, open: false },
+}
+
 export function App() {
-  const [state, setState] = useImmer<State>({
-    tick: 0,
-    items: [
-      {
-        id: shortId.generate(),
-        location: ItemLocation.enum.Available,
-        type: ItemType.enum.Stone,
-        condition: null,
-      },
-      {
-        id: shortId.generate(),
-        location: ItemLocation.enum.Available,
-        type: ItemType.enum.Wood,
-        condition: null,
-      },
-    ],
-    drag: null,
-    inventory: {},
-    modal: { type: ModalStateType.Initial, open: false },
-  })
+  const [state, setState] = useImmer<State>(INITIAL_STATE)
   useEffect(() => {
     const interval = setInterval(() => {
       setState((draft) => {
