@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import { WritableDraft } from 'immer'
 import { isEqual } from 'lodash-es'
 import {
   PropsWithChildren,
@@ -54,39 +55,7 @@ export function App() {
   const [state, setState] = useImmer<State>(INITIAL_STATE)
   useEffect(() => {
     const interval = setInterval(() => {
-      setState((draft) => {
-        draft.tick += 1
-        for (const item of draft.items.filter(
-          ({ location }) =>
-            location === ItemLocation.enum.Queue,
-        )) {
-          if (item.condition) {
-            const left =
-              draft.inventory[item.condition.left] ?? 0
-            const right = item.condition.right
-            const operator = item.condition.operator
-
-            if (
-              (operator === Operator.enum.lt &&
-                left < right) ||
-              (operator === Operator.enum.lte &&
-                left <= right) ||
-              (operator === Operator.enum.gt &&
-                left > right) ||
-              (operator === Operator.enum.gte &&
-                left >= right) ||
-              (operator === Operator.enum.eq &&
-                left === right)
-            ) {
-              draft.inventory[item.type] =
-                (draft.inventory[item.type] ?? 0) + 1
-            }
-          } else {
-            draft.inventory[item.type] =
-              (draft.inventory[item.type] ?? 0) + 1
-          }
-        }
-      })
+      setState(tickState)
     }, TICK_INTERVAL)
     return () => {
       clearInterval(interval)
@@ -380,5 +349,36 @@ function EditoModalContent({
         Save
       </button>
     </div>
+  )
+}
+
+function tickState(draft: WritableDraft<State>) {
+  draft.tick += 1
+  for (const item of draft.items.filter(
+    ({ location }) => location === ItemLocation.enum.Queue,
+  )) {
+    if (
+      item.condition === null ||
+      isConditionSatisfied(item.condition, draft.inventory)
+    ) {
+      draft.inventory[item.type] =
+        (draft.inventory[item.type] ?? 0) + 1
+    }
+  }
+}
+
+function isConditionSatisfied(
+  condition: Condition,
+  inventory: Partial<Record<ItemType, number>>,
+): boolean {
+  const left = inventory[condition.left] ?? 0
+  const right = condition.right
+  const operator = condition.operator
+  return (
+    (operator === Operator.enum.lt && left < right) ||
+    (operator === Operator.enum.lte && left <= right) ||
+    (operator === Operator.enum.gt && left > right) ||
+    (operator === Operator.enum.gte && left >= right) ||
+    (operator === Operator.enum.eq && left === right)
   )
 }
