@@ -9,64 +9,18 @@ import {
 import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
-import { z } from 'zod'
+import {
+  Condition,
+  Item,
+  ItemLocation,
+  ItemType,
+  ModalStateType,
+  Operator,
+  PartialCondition,
+  State,
+} from './types'
 
 const TICK_INTERVAL: number = 1000
-
-const ItemLocation = z.enum(['Queue', 'Available'])
-type ItemLocation = z.infer<typeof ItemLocation>
-
-const ItemType = z.enum(['Stone', 'Wood'])
-type ItemType = z.infer<typeof ItemType>
-
-const Operator = z.enum(['lt', 'lte', 'gt', 'gte', 'eq'])
-type Operator = z.infer<typeof Operator>
-
-const Condition = z.strictObject({
-  left: ItemType,
-  right: z.number(),
-  operator: Operator,
-})
-type Condition = z.infer<typeof Condition>
-
-const PartialCondition = Condition.partial()
-type PartialCondition = z.infer<typeof PartialCondition>
-
-const Item = z.strictObject({
-  id: z.string(),
-  location: ItemLocation,
-  type: ItemType,
-  condition: Condition.nullable(),
-})
-type Item = z.infer<typeof Item>
-
-interface State {
-  tick: number
-  drag: string | null
-  items: Item[]
-  inventory: Partial<Record<ItemType, number>>
-  modal: ModalState
-}
-
-enum ModalStateType {
-  Initial = 'initial',
-  Edit = 'edit',
-}
-
-interface BaseModalState {
-  open: boolean
-}
-
-interface InitialModalState extends BaseModalState {
-  type: ModalStateType.Initial
-}
-
-interface EditModalState extends BaseModalState {
-  type: ModalStateType.Edit
-  itemId: string
-}
-
-type ModalState = InitialModalState | EditModalState
 
 export function App() {
   const [state, setState] = useImmer<State>({
