@@ -136,28 +136,35 @@ function Card({ item, setState }: CardProps) {
       onDrop={(ev) => {
         ev.preventDefault()
       }}
-      className={clsx(
-        'flex justify-between items-center',
-        'border p-4 cursor-pointer hover:opacity-75',
-      )}
+      className="relative border p-4 cursor-pointer hover:opacity-75"
     >
-      <span>
-        <span>{item.type}</span>
-        {item.condition && <span>[Condition]</span>}
-      </span>
-      <button
-        onClick={() =>
-          setState((draft) => {
-            draft.modal = {
-              type: ModalStateType.Edit,
-              open: true,
-              itemId: item.id,
-            }
-          })
-        }
-      >
-        edit
-      </button>
+      {item.type === ItemType.enum.ResearchStone && (
+        <div
+          className="absolute top-0 left-0 h-full bg-green-400 w-full origin-top-left transition-transform"
+          style={{
+            transform: `scaleX(${Math.min(item.progress / 100, 1)})`,
+          }}
+        ></div>
+      )}
+      <div className="relative flex justify-between items-center">
+        <span>
+          <span>{item.type}</span>
+          {item.condition && <span>[Condition]</span>}
+        </span>
+        <button
+          onClick={() =>
+            setState((draft) => {
+              draft.modal = {
+                type: ModalStateType.Edit,
+                open: true,
+                itemId: item.id,
+              }
+            })
+          }
+        >
+          edit
+        </button>
+      </div>
     </div>
   )
 }
@@ -374,6 +381,17 @@ function tickState(draft: WritableDraft<State>) {
               type: ItemType.enum.StoneFurnace,
               condition: null,
             })
+          }
+          break
+        }
+        case ItemType.enum.StoneFurnace: {
+          if (
+            (draft.inventory[ItemType.enum.Stone] ?? 0) >= 2
+          ) {
+            draft.inventory[ItemType.enum.Stone]! -= 2
+            draft.inventory[ItemType.enum.StoneBrick] =
+              (draft.inventory[ItemType.enum.StoneBrick] ??
+                0) + 1
           }
           break
         }

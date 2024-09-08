@@ -8,6 +8,7 @@ export const ItemType = z.enum([
   'Wood',
   'ResearchStone',
   'StoneFurnace',
+  'StoneBrick',
 ])
 export type ItemType = z.infer<typeof ItemType>
 
@@ -63,11 +64,17 @@ export type StoneFurnaceItem = z.infer<
   typeof StoneFurnaceItem
 >
 
+export const StoneBrickItem = ItemBase.extend({
+  type: z.literal(ItemType.enum.StoneBrick),
+})
+export type StoneBrickItem = z.infer<typeof StoneBrickItem>
+
 export const Item = z.discriminatedUnion('type', [
   StoneItem,
   WoodItem,
   ResearchStoneItem,
   StoneFurnaceItem,
+  StoneBrickItem,
 ])
 export type Item = z.infer<typeof Item>
 
