@@ -287,37 +287,79 @@ function ConditionValueInput({
   onChange,
 }: ConditionValueInputProps) {
   return (
-    <fieldset>
-      <legend>Type</legend>
-      <label>
-        Constant
+    <div>
+      <fieldset className="flex flex-col">
+        <legend>Type</legend>
+        <label className="flex gap-1">
+          <input
+            type="radio"
+            value={ValueType.enum.Constant}
+            checked={
+              value?.type === ValueType.enum.Constant
+            }
+            onChange={() =>
+              onChange({
+                type: ValueType.enum.Constant,
+                constant: null,
+              })
+            }
+          />
+          Constant
+        </label>
+        <label className="flex gap-1">
+          <input
+            type="radio"
+            value={ValueType.enum.Variable}
+            checked={
+              value?.type === ValueType.enum.Variable
+            }
+            onChange={() =>
+              onChange({
+                type: ValueType.enum.Variable,
+                variable: null,
+              })
+            }
+          />
+          Variable
+        </label>
+      </fieldset>
+      {value?.type === ValueType.enum.Constant && (
         <input
-          type="radio"
-          value={ValueType.enum.Constant}
-          checked={value?.type === ValueType.enum.Constant}
-          onChange={() =>
+          type="number"
+          value={value.constant ?? ''}
+          onChange={(e) =>
             onChange({
               type: ValueType.enum.Constant,
-              constant: null,
+              constant: parseInt(e.target.value),
             })
           }
         />
-      </label>
-      <label>
-        Variable
-        <input
-          type="radio"
-          value={ValueType.enum.Variable}
-          checked={value?.type === ValueType.enum.Variable}
-          onChange={() =>
+      )}
+      {value?.type === ValueType.enum.Variable && (
+        <select
+          value={value.variable ?? ''}
+          onChange={(e) =>
             onChange({
               type: ValueType.enum.Variable,
-              variable: null,
+              variable: e.target.value,
             })
           }
-        />
-      </label>
-    </fieldset>
+        >
+          <option value="" disabled></option>
+          {Object.values(ItemType.Values).map(
+            (itemType) => (
+              <option key={itemType} value={itemType}>
+                {itemType}
+              </option>
+            ),
+          )}
+        </select>
+      )}
+
+      {value === null && (
+        <input type="text" value="" disabled />
+      )}
+    </div>
   )
 }
 
@@ -395,9 +437,7 @@ function EditModalContent({
               })
             }}
           >
-            <option value="" disabled>
-              Choose Operator
-            </option>
+            <option value="" disabled></option>
             {Object.values(Operator.enum).map(
               (operator) => (
                 <option key={operator} value={operator}>
