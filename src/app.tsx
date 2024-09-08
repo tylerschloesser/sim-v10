@@ -293,7 +293,6 @@ function ConditionValueInput({
         Constant
         <input
           type="radio"
-          name="type"
           value={ValueType.enum.Constant}
           checked={value?.type === ValueType.enum.Constant}
           onChange={() =>
@@ -308,9 +307,8 @@ function ConditionValueInput({
         Variable
         <input
           type="radio"
-          name="type"
           value={ValueType.enum.Variable}
-          checked={value?.type === ValueType.enum.Constant}
+          checked={value?.type === ValueType.enum.Variable}
           onChange={() =>
             onChange({
               type: ValueType.enum.Variable,
@@ -378,12 +376,14 @@ function EditModalContent({
       <div>Condition</div>
       <div className="flex gap-2">
         <div className="flex-1">
+          <h2>Left</h2>
           <ConditionValueInput
             value={condition.left ?? null}
             onChange={onChangeLeft}
           />
         </div>
         <div className="flex-1">
+          <h2>Operator</h2>
           <select
             className="border"
             value={condition.operator ?? ''}
@@ -408,6 +408,7 @@ function EditModalContent({
           </select>
         </div>
         <div className="flex-1">
+          <h2>Right</h2>
           <ConditionValueInput
             value={condition.right ?? null}
             onChange={onChangeRight}
@@ -429,6 +430,7 @@ function EditModalContent({
       >
         Save
       </button>
+      <pre>{JSON.stringify(condition, null, 2)}</pre>
     </div>
   )
 }
