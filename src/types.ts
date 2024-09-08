@@ -31,12 +31,32 @@ export type PartialCondition = z.infer<
   typeof PartialCondition
 >
 
-export const Item = z.strictObject({
+const ItemBase = z.strictObject({
   id: z.string(),
   location: ItemLocation,
-  type: ItemType,
   condition: Condition.nullable(),
 })
+
+export const StoneItem = ItemBase.extend({
+  type: z.literal(ItemType.enum.Stone),
+})
+export type StoneItem = z.infer<typeof StoneItem>
+
+export const WoodItem = ItemBase.extend({
+  type: z.literal(ItemType.enum.Wood),
+})
+export type WoodItem = z.infer<typeof WoodItem>
+
+export const ResearchStoneItem = ItemBase.extend({
+  type: z.literal(ItemType.enum.ResearchStone),
+  progress: z.number().min(0).max(100),
+})
+
+export const Item = z.discriminatedUnion('type', [
+  StoneItem,
+  WoodItem,
+  ResearchStoneItem,
+])
 export type Item = z.infer<typeof Item>
 
 export interface State {
@@ -52,15 +72,15 @@ export enum ModalStateType {
   Edit = 'edit',
 }
 
-export interface BaseModalState {
+export interface ModalStateBase {
   open: boolean
 }
 
-export interface InitialModalState extends BaseModalState {
+export interface InitialModalState extends ModalStateBase {
   type: ModalStateType.Initial
 }
 
-export interface EditModalState extends BaseModalState {
+export interface EditModalState extends ModalStateBase {
   type: ModalStateType.Edit
   itemId: string
 }
