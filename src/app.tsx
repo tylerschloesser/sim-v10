@@ -361,6 +361,7 @@ function EditModalContent({
 
 function tickState(draft: WritableDraft<State>) {
   draft.tick += 1
+  const itemsToDelete = new Set<Item>()
   for (const item of draft.items.filter(isInQueue)) {
     if (
       isConditionSatisfied(item.condition, draft.inventory)
@@ -381,6 +382,7 @@ function tickState(draft: WritableDraft<State>) {
               type: ItemType.enum.StoneFurnace,
               condition: null,
             })
+            itemsToDelete.add(item)
           }
           break
         }
@@ -400,6 +402,10 @@ function tickState(draft: WritableDraft<State>) {
       }
     }
   }
+
+  draft.items = draft.items.filter(
+    (item) => !itemsToDelete.has(item),
+  )
 }
 
 function isInQueue(item: Item): boolean {
