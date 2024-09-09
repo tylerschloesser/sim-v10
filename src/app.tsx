@@ -209,6 +209,11 @@ function Modal({ open, onClose, children }: ModalProps) {
       ref.current?.close()
     }
   }, [open])
+
+  useEffect(() => {
+    invariant(ref.current)
+    ref.current.addEventListener('close', onClose)
+  }, [])
   return (
     <dialog
       ref={ref}
@@ -219,7 +224,13 @@ function Modal({ open, onClose, children }: ModalProps) {
         className="bg-gray-200 p-4 flex flex-col gap-2"
       >
         {children}
-        <button onClick={onClose}>Close</button>
+        <button
+          onClick={() => {
+            ref.current?.close()
+          }}
+        >
+          Close
+        </button>
       </form>
     </dialog>
   )
