@@ -28,6 +28,7 @@ const INITIAL_STATE: State = {
       location: ItemLocation.enum.Available,
       type: ItemType.enum.Stone,
       condition: null,
+      output: null,
     },
     {
       id: shortId.generate(),

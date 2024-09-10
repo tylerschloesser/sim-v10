@@ -71,8 +71,8 @@ export function EditModalContent({
 
   return (
     <div className="flex flex-col gap-2">
-      <div>{modal.itemId}</div>
-      <div>Condition</div>
+      <div className="text-sm">Item ID: {modal.itemId}</div>
+      <div className="font-bold">Condition</div>
       <div className="flex gap-2">
         <div className="flex-1">
           <h2>Left</h2>
@@ -112,6 +112,12 @@ export function EditModalContent({
           />
         </div>
       </div>
+      {item.type === ItemType.enum.Stone && (
+        <>
+          <div className="font-bold">Output</div>
+          <div>{item.output ?? '[None]'}</div>
+        </>
+      )}
       <button
         className="border border-black p-2 disabled:opacity-50 hover:opacity-75 active:opacity-50"
         disabled={!valid || !dirty}
