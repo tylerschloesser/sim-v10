@@ -12,6 +12,25 @@ export const ItemType = z.enum([
 ])
 export type ItemType = z.infer<typeof ItemType>
 
+export const VariableType = z.enum(['Item', 'Custom'])
+export type VariableType = z.infer<typeof VariableType>
+
+export const ItemVariable = z.strictObject({
+  type: z.literal(VariableType.enum.Item),
+  id: z.string(),
+  name: z.string(),
+  item: ItemType,
+  value: z.number().nonnegative(),
+})
+export type ItemVariable = z.infer<typeof ItemVariable>
+
+export const CustomVariable = z.strictObject({
+  type: z.literal(VariableType.enum.Custom),
+  id: z.string(),
+  name: z.string(),
+  value: z.number(),
+})
+
 export const Operator = z.enum([
   'lt',
   'lte',

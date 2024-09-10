@@ -88,10 +88,16 @@ export function App() {
       <div className="flex flex-col p-2 gap-2">
         <div>Tick: {state.tick.toString()}</div>
         <div>
-          Inventory:
+          Inventory:{' '}
           {Object.entries(state.inventory)
             .map(([type, count]) => `${type}: (${count})`)
             .join(', ')}
+        </div>
+        <div>Variables</div>
+        <div>
+          <button className="border p-2 hover:opacity-75 active:opacity-50">
+            New Variable
+          </button>
         </div>
         <div className="flex gap-2">
           <div className="flex-1 flex flex-col gap-2">
@@ -163,7 +169,7 @@ function Card({ item, setState }: CardProps) {
       onDrop={(ev) => {
         ev.preventDefault()
       }}
-      className="relative border p-4 cursor-pointer hover:opacity-75"
+      className="relative border p-4 cursor-pointer hover:opacity-75 active:opacity-50"
     >
       {item.type === ItemType.enum.ResearchStone && (
         <div
