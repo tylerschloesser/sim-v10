@@ -290,11 +290,6 @@ function ItemList({
   )
 }
 
-interface EditoModalContentProps {
-  state: State
-  setState: Updater<State>
-}
-
 interface ConditionValueInputProps {
   value: PartialValue | null
   onChange: (value: PartialValue) => void
@@ -380,10 +375,15 @@ function ConditionValueInput({
   )
 }
 
+interface EditModalContentProps {
+  state: State
+  setState: Updater<State>
+}
+
 function EditModalContent({
   state,
   setState,
-}: EditoModalContentProps) {
+}: EditModalContentProps) {
   const { modal } = state
   invariant(modal.type === ModalStateType.Edit)
 
