@@ -16,11 +16,13 @@ import {
 export interface EditModalContentProps {
   state: State
   setState: Updater<State>
+  onClose(): void
 }
 
 export function EditModalContent({
   state,
   setState,
+  onClose,
 }: EditModalContentProps) {
   const { modal } = state
   invariant(modal.type === ModalStateType.Edit)
@@ -68,7 +70,7 @@ export function EditModalContent({
   )
 
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       <div>{modal.itemId}</div>
       <div>Condition</div>
       <div className="flex gap-2">
@@ -111,7 +113,7 @@ export function EditModalContent({
         </div>
       </div>
       <button
-        className="disabled:opacity-50"
+        className="border border-black p-2 disabled:opacity-50 hover:opacity-75 active:opacity-50"
         disabled={!valid || !dirty}
         onClick={() => {
           setState((draft) => {
@@ -121,6 +123,7 @@ export function EditModalContent({
             invariant(item)
             item.condition = Condition.parse(condition)
           })
+          onClose()
         }}
       >
         Save

@@ -1,6 +1,7 @@
 import clsx from 'clsx'
 import {
   PropsWithChildren,
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -77,6 +78,13 @@ export function App() {
   const [state, setState] = useImmer<State>(INITIAL_STATE)
   useTickInterval(setState)
   const scrollDebug = useScrollDebug()
+
+  const onCloseModal = useCallback(() => {
+    setState((draft) => {
+      draft.modal.open = false
+    })
+  }, [])
+
   return (
     <>
       <div className="flex flex-col p-2 gap-2">
@@ -131,18 +139,25 @@ export function App() {
         {JSON.stringify(state, null, 2)}
       </div>
       <Modal
+        title={(() => {
+          switch (state.modal.type) {
+            case ModalStateType.Edit:
+              return 'Edit'
+            case ModalStateType.Variable:
+              return 'New Variable'
+            default:
+              return '[Missing Title]'
+          }
+        })()}
         open={state.modal.open}
-        onClose={() => {
-          setState((draft) => {
-            draft.modal.open = false
-          })
-        }}
+        onClose={onCloseModal}
       >
         <>
           {state.modal.type === ModalStateType.Edit && (
             <EditModalContent
               state={state}
               setState={setState}
+              onClose={onCloseModal}
             />
           )}
           {state.modal.type === ModalStateType.Initial && (
@@ -212,11 +227,17 @@ function Card({ item, setState }: CardProps) {
 }
 
 type ModalProps = PropsWithChildren<{
+  title: string
   open: boolean
   onClose: () => void
 }>
 
-function Modal({ open, onClose, children }: ModalProps) {
+function Modal({
+  title,
+  open,
+  onClose,
+  children,
+}: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null)
   useEffect(() => {
     if (open) {
@@ -237,17 +258,20 @@ function Modal({ open, onClose, children }: ModalProps) {
     >
       <form
         method="dialog"
-        className="bg-gray-200 p-4 flex flex-col gap-2"
+        className="bg-gray-200 flex flex-col"
       >
-        {children}
-        <button
-          className="border border-black p-2 hover:opacity-75 active:opacity-50"
-          onClick={() => {
-            ref.current?.close()
-          }}
-        >
-          Close
-        </button>
+        <div className="border-b border-black p-4 gap-4 flex justify-between items-center">
+          <h2 className="text-xl font-bold">{title}</h2>
+          <button
+            className="border border-black p-2 hover:opacity-75 active:opacity-50"
+            onClick={() => {
+              ref.current?.close()
+            }}
+          >
+            Close
+          </button>
+        </div>
+        <div className="p-4">{children}</div>
       </form>
     </dialog>
   )
