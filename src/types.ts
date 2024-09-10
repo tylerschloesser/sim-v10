@@ -15,21 +15,17 @@ export type ItemType = z.infer<typeof ItemType>
 export const VariableType = z.enum(['Item', 'Custom'])
 export type VariableType = z.infer<typeof VariableType>
 
-export const ItemVariable = z.strictObject({
-  type: z.literal(VariableType.enum.Item),
-  id: z.string(),
-  name: z.string(),
-  item: ItemType,
-  value: z.number().nonnegative(),
+export const Variable = z.strictObject({
+  id: z.string().min(1),
 })
-export type ItemVariable = z.infer<typeof ItemVariable>
+export type Variable = z.infer<typeof Variable>
 
-export const CustomVariable = z.strictObject({
-  type: z.literal(VariableType.enum.Custom),
-  id: z.string(),
-  name: z.string(),
-  value: z.number(),
+export const PartialVariable = z.strictObject({
+  id: z.string().nullable(),
 })
+export type PartialVariable = z.infer<
+  typeof PartialVariable
+>
 
 export const Operator = z.enum([
   'lt',
@@ -152,6 +148,7 @@ export interface State {
   items: Item[]
   inventory: Inventory
   modal: ModalState
+  variables: Record<string, Variable>
 }
 
 export enum ModalStateType {

@@ -46,6 +46,7 @@ const INITIAL_STATE: State = {
   drag: null,
   inventory: {},
   modal: { type: ModalStateType.Initial, open: false },
+  variables: {},
 }
 
 function useScrollDebug() {
@@ -96,6 +97,13 @@ export function App() {
             .join(', ')}
         </div>
         <div>Variables</div>
+        <div>
+          {Object.values(state.variables).map(
+            (variable) => (
+              <div key={variable.id}>{variable.id}</div>
+            ),
+          )}
+        </div>
         <div>
           <button
             className="border p-2 hover:opacity-75 active:opacity-50"
@@ -160,8 +168,14 @@ export function App() {
               onClose={onCloseModal}
             />
           )}
-          {state.modal.type === ModalStateType.Initial && (
-            <VariableModalContent />
+          {state.modal.type === ModalStateType.Variable && (
+            <VariableModalContent
+              onSave={(variable) => {
+                setState((draft) => {
+                  draft.variables[variable.id] = variable
+                })
+              }}
+            />
           )}
         </>
       </Modal>
