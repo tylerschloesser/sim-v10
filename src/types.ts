@@ -157,6 +157,7 @@ export interface State {
 export enum ModalStateType {
   Initial = 'initial',
   Edit = 'edit',
+  Variable = 'variable',
 }
 
 export interface ModalStateBase {
@@ -172,4 +173,11 @@ export interface EditModalState extends ModalStateBase {
   itemId: string
 }
 
-export type ModalState = InitialModalState | EditModalState
+export interface VariableModalState extends ModalStateBase {
+  type: ModalStateType.Variable
+}
+
+export type ModalState =
+  | InitialModalState
+  | EditModalState
+  | VariableModalState

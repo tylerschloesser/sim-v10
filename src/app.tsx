@@ -1,10 +1,7 @@
 import clsx from 'clsx'
-import { isEqual } from 'lodash-es'
 import {
   PropsWithChildren,
-  useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -13,18 +10,14 @@ import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { EditModalContent } from './edit-modal'
 import {
-  Condition,
   Item,
   ItemLocation,
   ItemType,
   ModalStateType,
-  Operator,
-  PartialCondition,
-  PartialValue,
   State,
-  ValueType,
 } from './types'
 import { useTickInterval } from './use-tick-interval'
+import { VariableModalContent } from './variable-modal'
 
 const INITIAL_STATE: State = {
   tick: 0,
@@ -96,7 +89,17 @@ export function App() {
         </div>
         <div>Variables</div>
         <div>
-          <button className="border p-2 hover:opacity-75 active:opacity-50">
+          <button
+            className="border p-2 hover:opacity-75 active:opacity-50"
+            onClick={() => {
+              setState((draft) => {
+                draft.modal = {
+                  type: ModalStateType.Variable,
+                  open: true,
+                }
+              })
+            }}
+          >
             New Variable
           </button>
         </div>
@@ -135,12 +138,17 @@ export function App() {
           })
         }}
       >
-        {state.modal.type === ModalStateType.Edit && (
-          <EditModalContent
-            state={state}
-            setState={setState}
-          />
-        )}
+        <>
+          {state.modal.type === ModalStateType.Edit && (
+            <EditModalContent
+              state={state}
+              setState={setState}
+            />
+          )}
+          {state.modal.type === ModalStateType.Initial && (
+            <VariableModalContent />
+          )}
+        </>
       </Modal>
     </>
   )
@@ -207,6 +215,7 @@ type ModalProps = PropsWithChildren<{
   open: boolean
   onClose: () => void
 }>
+
 function Modal({ open, onClose, children }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null)
   useEffect(() => {
@@ -232,6 +241,7 @@ function Modal({ open, onClose, children }: ModalProps) {
       >
         {children}
         <button
+          className="border border-black p-2 hover:opacity-75 active:opacity-50"
           onClick={() => {
             ref.current?.close()
           }}
