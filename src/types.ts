@@ -172,6 +172,7 @@ export interface EditModalState extends ModalStateBase {
 
 export interface VariableModalState extends ModalStateBase {
   type: ModalStateType.Variable
+  variable: Variable | null
 }
 
 export type ModalState =

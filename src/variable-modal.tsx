@@ -1,20 +1,30 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import shortId from 'short-uuid'
 import { useImmer } from 'use-immer'
 import { PartialVariable, Variable } from './types'
 
 export interface VariableModalContentProps {
   onSave(variable: Variable): void
+  variable: Variable | null
 }
 
 export function VariableModalContent({
   onSave,
+  ...props
 }: VariableModalContentProps) {
   const [variable, setVariable] = useImmer<PartialVariable>(
     {
-      id: shortId().generate(),
+      id: null,
     },
   )
+
+  useEffect(() => {
+    if (props.variable) {
+      setVariable({ ...props.variable })
+    } else {
+      setVariable({ id: shortId().generate() })
+    }
+  }, [props.variable])
 
   const valid = useMemo(
     () => Variable.safeParse(variable).success,
@@ -26,12 +36,10 @@ export function VariableModalContent({
       <label className="flex flex-col">
         <span>ID</span>
         <input
-          className="border border-black p-2"
+          className="border border-black p-2 read-only:bg-inherit"
           type="text"
           value={variable.id ?? ''}
-          onChange={(e) =>
-            setVariable({ id: e.target.value })
-          }
+          readOnly
         />
       </label>
       <button

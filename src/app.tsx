@@ -100,7 +100,25 @@ export function App() {
         <div>
           {Object.values(state.variables).map(
             (variable) => (
-              <div key={variable.id}>{variable.id}</div>
+              <div key={variable.id} className="flex gap-2">
+                <div>{variable.id}</div>
+                <a
+                  href="#"
+                  className="text-blue-300"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setState((draft) => {
+                      draft.modal = {
+                        type: ModalStateType.Variable,
+                        open: true,
+                        variable,
+                      }
+                    })
+                  }}
+                >
+                  Edit
+                </a>
+              </div>
             ),
           )}
         </div>
@@ -112,6 +130,7 @@ export function App() {
                 draft.modal = {
                   type: ModalStateType.Variable,
                   open: true,
+                  variable: null,
                 }
               })
             }}
@@ -175,6 +194,7 @@ export function App() {
                   draft.variables[variable.id] = variable
                 })
               }}
+              variable={state.modal.variable}
             />
           )}
         </>
