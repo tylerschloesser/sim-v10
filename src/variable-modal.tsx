@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import shortId from 'short-uuid'
+import invariant from 'tiny-invariant'
 import { useImmer } from 'use-immer'
 import {
   CustomVariable,
@@ -60,7 +61,10 @@ export function VariableModalContent({
   }, [props.variable, state.variables])
 
   const functionOptions = useMemo(() => {
-    return [CustomVariableFunctionType.enum.Identity]
+    return [
+      CustomVariableFunctionType.enum.Identity,
+      CustomVariableFunctionType.enum.Multiply,
+    ]
   }, [])
 
   return (
@@ -81,10 +85,28 @@ export function VariableModalContent({
           value={variable.fn?.type ?? ''}
           onChange={(e) => {
             setVariable((draft) => {
-              draft.fn = {
-                type: CustomVariableFunctionType.parse(
-                  e.target.value,
-                ),
+              const type = CustomVariableFunctionType.parse(
+                e.target.value,
+              )
+              switch (type) {
+                case CustomVariableFunctionType.enum
+                  .Identity:
+                  draft.fn = {
+                    type: CustomVariableFunctionType.enum
+                      .Identity,
+                    input: null,
+                  }
+                  break
+                case CustomVariableFunctionType.enum
+                  .Multiply:
+                  draft.fn = {
+                    type: CustomVariableFunctionType.enum
+                      .Multiply,
+                    inputs: [null, null],
+                  }
+                  break
+                default:
+                  invariant(false)
               }
             })
           }}
@@ -99,24 +121,14 @@ export function VariableModalContent({
           ))}
         </select>
       </label>
-      <select
-        value={variable.input ?? ''}
-        onChange={(e) => {
-          setVariable((draft) => {
-            draft.input = e.target.value
-          })
-        }}
-        className="p-2 border border-black"
-      >
-        <option value="" disabled>
-          Choose Input
-        </option>
-        {inputOptions.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+      {variable.fn?.type ===
+        CustomVariableFunctionType.enum.Identity && (
+        <IdentityCustomVariableFunctionForm />
+      )}
+      {variable.fn?.type ===
+        CustomVariableFunctionType.enum.Multiply && (
+        <MultiplyCustomVariableFunctionForm />
+      )}
       <button
         className="border border-black p-2 hover:opacity-75 active:opacity-50 disabled:opacity-50"
         disabled={!valid}
@@ -128,4 +140,12 @@ export function VariableModalContent({
       </button>
     </div>
   )
+}
+
+function IdentityCustomVariableFunctionForm() {
+  return <div>Identity</div>
+}
+
+function MultiplyCustomVariableFunctionForm() {
+  return <div>Multiply</div>
 }
