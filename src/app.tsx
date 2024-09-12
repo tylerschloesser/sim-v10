@@ -16,9 +16,12 @@ import {
   ItemType,
   ModalStateType,
   State,
+  VariableType,
 } from './types'
 import { useTickInterval } from './use-tick-interval'
 import { VariableModalContent } from './variable-modal'
+
+const INITIAL_VARIABLES: State['variables'] = {}
 
 const INITIAL_STATE: State = {
   tick: 0,
@@ -47,7 +50,7 @@ const INITIAL_STATE: State = {
   drag: null,
   inventory: {},
   modal: { type: ModalStateType.Initial, open: false },
-  variables: {},
+  variables: INITIAL_VARIABLES,
 }
 
 function useScrollDebug() {
@@ -103,22 +106,25 @@ export function App() {
             (variable) => (
               <div key={variable.id} className="flex gap-2">
                 <div>{variable.id}</div>
-                <a
-                  href="#"
-                  className="text-blue-300"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    setState((draft) => {
-                      draft.modal = {
-                        type: ModalStateType.Variable,
-                        open: true,
-                        variable,
-                      }
-                    })
-                  }}
-                >
-                  Edit
-                </a>
+                {variable.type ===
+                  VariableType.enum.Custom && (
+                  <a
+                    href="#"
+                    className="text-blue-300"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setState((draft) => {
+                        draft.modal = {
+                          type: ModalStateType.Variable,
+                          open: true,
+                          variable,
+                        }
+                      })
+                    }}
+                  >
+                    Edit
+                  </a>
+                )}
               </div>
             ),
           )}

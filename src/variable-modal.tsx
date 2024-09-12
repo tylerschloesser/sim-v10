@@ -1,28 +1,36 @@
 import { useEffect, useMemo } from 'react'
 import shortId from 'short-uuid'
 import { useImmer } from 'use-immer'
-import { PartialVariable, Variable } from './types'
+import {
+  CustomVariable,
+  PartialCustomVariable,
+  Variable,
+  VariableType,
+} from './types'
 
 export interface VariableModalContentProps {
-  onSave(variable: Variable): void
-  variable: Variable | null
+  onSave(variable: CustomVariable): void
+  variable: CustomVariable | null
 }
 
 export function VariableModalContent({
   onSave,
   ...props
 }: VariableModalContentProps) {
-  const [variable, setVariable] = useImmer<PartialVariable>(
-    {
-      id: null,
-    },
-  )
+  const [variable, setVariable] =
+    useImmer<PartialCustomVariable>({
+      id: shortId().generate(),
+      type: VariableType.enum.Custom,
+    })
 
   useEffect(() => {
     if (props.variable) {
       setVariable({ ...props.variable })
     } else {
-      setVariable({ id: shortId().generate() })
+      setVariable({
+        id: shortId().generate(),
+        type: VariableType.enum.Custom,
+      })
     }
   }, [props.variable])
 
@@ -46,7 +54,7 @@ export function VariableModalContent({
         className="border border-black p-2 hover:opacity-75 active:opacity-50 disabled:opacity-50"
         disabled={!valid}
         onClick={() => {
-          onSave(Variable.parse(variable))
+          onSave(CustomVariable.parse(variable))
         }}
       >
         Save

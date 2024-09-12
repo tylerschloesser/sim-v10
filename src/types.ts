@@ -12,17 +12,36 @@ export const ItemType = z.enum([
 ])
 export type ItemType = z.infer<typeof ItemType>
 
-export const Variable = z.strictObject({
+export const VariableType = z.enum(['Item', 'Custom'])
+export type VariableType = z.infer<typeof VariableType>
+
+export const VariableBase = z.strictObject({
   id: z.string().min(1),
 })
-export type Variable = z.infer<typeof Variable>
 
-export const PartialVariable = z.strictObject({
-  id: z.string().nullable(),
+export const ItemVariable = VariableBase.extend({
+  type: z.literal(VariableType.enum.Item),
+  item: ItemType,
 })
-export type PartialVariable = z.infer<
-  typeof PartialVariable
+export type ItemVariable = z.infer<typeof ItemVariable>
+
+export const CustomVariable = VariableBase.extend({
+  type: z.literal(VariableType.enum.Custom),
+})
+export type CustomVariable = z.infer<typeof CustomVariable>
+
+export const PartialCustomVariable = CustomVariable.extend({
+  type: z.literal(VariableType.enum.Custom),
+})
+export type PartialCustomVariable = z.infer<
+  typeof PartialCustomVariable
 >
+
+export const Variable = z.discriminatedUnion('type', [
+  ItemVariable,
+  CustomVariable,
+])
+export type Variable = z.infer<typeof Variable>
 
 export const Operator = z.enum([
   'lt',
@@ -170,7 +189,7 @@ export interface EditModalState extends ModalStateBase {
 
 export interface VariableModalState extends ModalStateBase {
   type: ModalStateType.Variable
-  variable: Variable | null
+  variable: CustomVariable | null
 }
 
 export type ModalState =
