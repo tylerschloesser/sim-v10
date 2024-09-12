@@ -14,6 +14,7 @@ import { Updater, useImmer } from 'use-immer'
 import { EditModalContent } from './edit-modal'
 import {
   CustomVariableFunctionType,
+  FunctionInputType,
   Item,
   ItemLocation,
   ItemType,
@@ -110,9 +111,16 @@ function getVariableValue(
     case VariableType.enum.Custom: {
       switch (variable.fn.type) {
         case CustomVariableFunctionType.enum.Identity: {
-          const input = state.variables[variable.input]
-          invariant(input)
-          return getVariableValue(input, state)
+          switch (variable.fn.input.type) {
+            case FunctionInputType.enum.Constant:
+              invariant(false, 'TODO')
+            case FunctionInputType.enum.Variable: {
+              const input =
+                state.variables[variable.fn.input.id]
+              invariant(input)
+              return getVariableValue(input, state)
+            }
+          }
         }
         default:
           invariant(false)

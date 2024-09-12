@@ -1,10 +1,11 @@
 import { useEffect, useMemo } from 'react'
 import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
-import { useImmer } from 'use-immer'
+import { Updater, useImmer } from 'use-immer'
 import {
   CustomVariable,
   CustomVariableFunctionType,
+  FunctionInputType,
   PartialCustomVariable,
   State,
   Variable,
@@ -123,7 +124,11 @@ export function VariableModalContent({
       </label>
       {variable.fn?.type ===
         CustomVariableFunctionType.enum.Identity && (
-        <IdentityCustomVariableFunctionForm />
+        <IdentityCustomVariableFunctionForm
+          variable={variable}
+          setVariable={setVariable}
+          inputOptions={inputOptions}
+        />
       )}
       {variable.fn?.type ===
         CustomVariableFunctionType.enum.Multiply && (
@@ -142,8 +147,58 @@ export function VariableModalContent({
   )
 }
 
-function IdentityCustomVariableFunctionForm() {
-  return <div>Identity</div>
+interface IdentityCustomVariableFunctionFormProps {
+  inputOptions: { value: string; label: string }[]
+  variable: PartialCustomVariable
+  setVariable: Updater<PartialCustomVariable>
+}
+
+function IdentityCustomVariableFunctionForm({
+  inputOptions,
+  variable,
+  setVariable,
+}: IdentityCustomVariableFunctionFormProps) {
+  const { fn } = variable
+  invariant(
+    fn?.type === CustomVariableFunctionType.enum.Identity,
+  )
+  const { input } = fn
+  if (input?.type === FunctionInputType.enum.Constant) {
+    invariant(false)
+  }
+  return (
+    <>
+      <label className="flex flex-col">
+        <span>Input</span>
+        <select
+          className="p-2 border border-black"
+          value={input?.id ?? ''}
+          onChange={(e) => {
+            setVariable((draft) => {
+              const { fn } = draft
+              invariant(
+                fn?.type ===
+                  CustomVariableFunctionType.enum.Identity,
+              )
+              fn.input = {
+                type: FunctionInputType.enum.Variable,
+                id: e.target.value,
+              }
+            })
+          }}
+        >
+          <option value="" disabled>
+            Choose
+          </option>
+          {inputOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
+    </>
+  )
 }
 
 function MultiplyCustomVariableFunctionForm() {
