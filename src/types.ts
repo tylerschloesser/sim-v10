@@ -12,9 +12,6 @@ export const ItemType = z.enum([
 ])
 export type ItemType = z.infer<typeof ItemType>
 
-export const VariableType = z.enum(['Item', 'Custom'])
-export type VariableType = z.infer<typeof VariableType>
-
 export const Variable = z.strictObject({
   id: z.string().min(1),
 })
