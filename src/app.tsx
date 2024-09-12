@@ -23,6 +23,17 @@ import { VariableModalContent } from './variable-modal'
 
 const INITIAL_VARIABLES: State['variables'] = {}
 
+function addItemVariable(item: ItemType): void {
+  INITIAL_VARIABLES[item] = {
+    id: shortId.generate(),
+    type: VariableType.enum.Item,
+    item,
+  }
+}
+
+addItemVariable(ItemType.enum.Stone)
+addItemVariable(ItemType.enum.Wood)
+
 const INITIAL_STATE: State = {
   tick: 0,
   items: [
@@ -101,13 +112,14 @@ export function App() {
             .join(', ')}
         </div>
         <div>Variables</div>
-        <div>
+        <div className="grid grid-cols-[min-content,min-content,min-content] gap-4">
           {Object.values(state.variables).map(
             (variable) => (
-              <div key={variable.id} className="flex gap-2">
+              <>
+                <div>{variable.type}</div>
                 <div>{variable.id}</div>
                 {variable.type ===
-                  VariableType.enum.Custom && (
+                VariableType.enum.Custom ? (
                   <a
                     href="#"
                     className="text-blue-300"
@@ -124,8 +136,10 @@ export function App() {
                   >
                     Edit
                   </a>
+                ) : (
+                  <span />
                 )}
-              </div>
+              </>
             ),
           )}
         </div>
