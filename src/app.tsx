@@ -27,8 +27,9 @@ import { VariableModalContent } from './variable-modal'
 const INITIAL_VARIABLES: State['variables'] = {}
 
 function addItemVariable(item: ItemType): void {
-  INITIAL_VARIABLES[item] = {
-    id: shortId.generate(),
+  const id = shortId.generate()
+  INITIAL_VARIABLES[id] = {
+    id,
     type: VariableType.enum.Item,
     item,
   }
@@ -98,19 +99,26 @@ export interface VariableValueProps {
   state: State
 }
 
+function getInputValue(variable: Variable, state: State) {
+  switch (variable.type) {
+    case VariableType.enum.Item:
+      return state.inventory[variable.item] ?? 0
+    case VariableType.enum.Custom: {
+      const input = state.variables[variable.input]
+      invariant(input)
+      return getInputValue(input, state)
+    }
+  }
+}
+
 function VariableValue({
   variable,
   state,
 }: VariableValueProps) {
-  const value = useMemo(() => {
-    switch (variable.type) {
-      case VariableType.enum.Item:
-        return state.inventory[variable.item] ?? 0
-      case VariableType.enum.Custom:
-        return null
-    }
-  }, [variable, state.inventory])
-
+  const value = useMemo(
+    () => getInputValue(variable, state),
+    [variable, state],
+  )
   return <>{JSON.stringify(value)}</>
 }
 
@@ -240,6 +248,7 @@ export function App() {
           )}
           {state.modal.type === ModalStateType.Variable && (
             <VariableModalContent
+              state={state}
               onSave={(variable) => {
                 setState((draft) => {
                   draft.variables[variable.id] = variable

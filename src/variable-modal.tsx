@@ -4,16 +4,19 @@ import { useImmer } from 'use-immer'
 import {
   CustomVariable,
   PartialCustomVariable,
+  State,
   Variable,
   VariableType,
 } from './types'
 
 export interface VariableModalContentProps {
+  state: State
   onSave(variable: CustomVariable): void
   variable: CustomVariable | null
 }
 
 export function VariableModalContent({
+  state,
   onSave,
   ...props
 }: VariableModalContentProps) {
@@ -21,6 +24,7 @@ export function VariableModalContent({
     useImmer<PartialCustomVariable>({
       id: shortId().generate(),
       type: VariableType.enum.Custom,
+      input: null,
     })
 
   useEffect(() => {
@@ -30,6 +34,7 @@ export function VariableModalContent({
       setVariable({
         id: shortId().generate(),
         type: VariableType.enum.Custom,
+        input: null,
       })
     }
   }, [props.variable])
@@ -38,6 +43,20 @@ export function VariableModalContent({
     () => Variable.safeParse(variable).success,
     [variable],
   )
+
+  const inputOptions = useMemo(() => {
+    return Object.values(state.variables)
+      .filter(
+        (variable) => variable.id !== props.variable?.id,
+      )
+      .map((variable) => ({
+        value: variable.id,
+        label:
+          variable.type === VariableType.enum.Item
+            ? variable.item
+            : variable.id,
+      }))
+  }, [props.variable, state.variables])
 
   return (
     <div className="flex flex-col gap-2 min-w-80">
@@ -50,6 +69,21 @@ export function VariableModalContent({
           readOnly
         />
       </label>
+      <select
+        value={variable.input ?? ''}
+        onChange={(e) => {
+          setVariable((draft) => {
+            draft.input = e.target.value
+          })
+        }}
+        className="p-2 border border-black"
+      >
+        {inputOptions.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
       <button
         className="border border-black p-2 hover:opacity-75 active:opacity-50 disabled:opacity-50"
         disabled={!valid}

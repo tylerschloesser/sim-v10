@@ -27,11 +27,13 @@ export type ItemVariable = z.infer<typeof ItemVariable>
 
 export const CustomVariable = VariableBase.extend({
   type: z.literal(VariableType.enum.Custom),
+  input: z.string(),
 })
 export type CustomVariable = z.infer<typeof CustomVariable>
 
-export const PartialCustomVariable = CustomVariable.extend({
+export const PartialCustomVariable = VariableBase.extend({
   type: z.literal(VariableType.enum.Custom),
+  input: z.string().nullable(),
 })
 export type PartialCustomVariable = z.infer<
   typeof PartialCustomVariable
