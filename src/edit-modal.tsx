@@ -115,7 +115,33 @@ export function EditModalContent({
       {item.type === ItemType.enum.Stone && (
         <>
           <div className="font-bold">Output</div>
-          <div>{item.output ?? '[None]'}</div>
+          <div>
+            <select
+              value={item.output ?? ''}
+              onChange={(e) => {
+                setState((draft) => {
+                  const item = draft.items.find(
+                    ({ id }) => id === modal.itemId,
+                  )
+                  invariant(
+                    item?.type === ItemType.enum.Stone,
+                  )
+                  item.output = e.target.value
+                })
+              }}
+            >
+              <option value="" disabled>
+                Choose Variable
+              </option>
+              {Object.values(state.variables).map(
+                (variable) => (
+                  <option key={variable.id}>
+                    {variable.id}
+                  </option>
+                ),
+              )}
+            </select>
+          </div>
         </>
       )}
       <button

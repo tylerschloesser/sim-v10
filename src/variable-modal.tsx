@@ -32,7 +32,7 @@ export function VariableModalContent({
   )
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 min-w-80">
       <label className="flex flex-col">
         <span>ID</span>
         <input

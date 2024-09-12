@@ -172,7 +172,9 @@ export function App() {
             case ModalStateType.Edit:
               return 'Edit'
             case ModalStateType.Variable:
-              return 'New Variable'
+              return state.modal.variable
+                ? 'Edit Variable'
+                : 'New Variable'
             default:
               return '[Missing Title]'
           }
