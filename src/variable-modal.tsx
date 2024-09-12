@@ -3,6 +3,7 @@ import shortId from 'short-uuid'
 import { useImmer } from 'use-immer'
 import {
   CustomVariable,
+  CustomVariableFunctionType,
   PartialCustomVariable,
   State,
   Variable,
@@ -25,6 +26,7 @@ export function VariableModalContent({
       id: shortId().generate(),
       type: VariableType.enum.Custom,
       input: null,
+      fn: null,
     })
 
   useEffect(() => {
@@ -35,6 +37,7 @@ export function VariableModalContent({
         id: shortId().generate(),
         type: VariableType.enum.Custom,
         input: null,
+        fn: null,
       })
     }
   }, [props.variable])
@@ -58,6 +61,10 @@ export function VariableModalContent({
       }))
   }, [props.variable, state.variables])
 
+  const functionOptions = useMemo(() => {
+    return [CustomVariableFunctionType.enum.Identity]
+  }, [])
+
   return (
     <div className="flex flex-col gap-2 min-w-80">
       <label className="flex flex-col">
@@ -69,6 +76,31 @@ export function VariableModalContent({
           readOnly
         />
       </label>
+      <label className="flex flex-col">
+        <span>Function</span>
+        <select
+          className="p-2 border border-black"
+          value={variable.fn?.type ?? ''}
+          onChange={(e) => {
+            setVariable((draft) => {
+              draft.fn = {
+                type: CustomVariableFunctionType.parse(
+                  e.target.value,
+                ),
+              }
+            })
+          }}
+        >
+          <option value="" disabled>
+            Choose
+          </option>
+          {functionOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </label>
       <select
         value={variable.input ?? ''}
         onChange={(e) => {
@@ -78,6 +110,9 @@ export function VariableModalContent({
         }}
         className="p-2 border border-black"
       >
+        <option value="" disabled>
+          Choose Input
+        </option>
         {inputOptions.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}

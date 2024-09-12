@@ -25,15 +25,42 @@ export const ItemVariable = VariableBase.extend({
 })
 export type ItemVariable = z.infer<typeof ItemVariable>
 
+export const CustomVariableFunctionType = z.enum([
+  'Identity',
+])
+export type CustomVariableFunctionType = z.infer<
+  typeof CustomVariableFunctionType
+>
+
+export const IdentityCustomVariableFunction =
+  z.strictObject({
+    type: z.literal(
+      CustomVariableFunctionType.enum.Identity,
+    ),
+  })
+export type IdentityCustomVariableFunction = z.infer<
+  typeof IdentityCustomVariableFunction
+>
+
+export const CustomVariableFunction = z.discriminatedUnion(
+  'type',
+  [IdentityCustomVariableFunction],
+)
+export type CustomVariableFunction = z.infer<
+  typeof CustomVariableFunction
+>
+
 export const CustomVariable = VariableBase.extend({
   type: z.literal(VariableType.enum.Custom),
   input: z.string(),
+  fn: CustomVariableFunction,
 })
 export type CustomVariable = z.infer<typeof CustomVariable>
 
 export const PartialCustomVariable = VariableBase.extend({
   type: z.literal(VariableType.enum.Custom),
   input: z.string().nullable(),
+  fn: CustomVariableFunction.nullable(),
 })
 export type PartialCustomVariable = z.infer<
   typeof PartialCustomVariable
