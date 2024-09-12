@@ -13,6 +13,7 @@ import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { EditModalContent } from './edit-modal'
 import {
+  CustomVariableFunctionType,
   Item,
   ItemLocation,
   ItemType,
@@ -107,9 +108,15 @@ function getVariableValue(
     case VariableType.enum.Item:
       return state.inventory[variable.item] ?? 0
     case VariableType.enum.Custom: {
-      const input = state.variables[variable.input]
-      invariant(input)
-      return getVariableValue(input, state)
+      switch (variable.fn.type) {
+        case CustomVariableFunctionType.enum.Identity: {
+          const input = state.variables[variable.input]
+          invariant(input)
+          return getVariableValue(input, state)
+        }
+        default:
+          invariant(false)
+      }
     }
   }
 }
