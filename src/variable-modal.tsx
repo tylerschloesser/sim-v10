@@ -25,7 +25,6 @@ export function VariableModalContent({
     useImmer<PartialCustomVariable>({
       id: shortId().generate(),
       type: VariableType.enum.Custom,
-      input: null,
       fn: null,
     })
 
@@ -36,7 +35,6 @@ export function VariableModalContent({
       setVariable({
         id: shortId().generate(),
         type: VariableType.enum.Custom,
-        input: null,
         fn: null,
       })
     }

@@ -27,40 +27,118 @@ export type ItemVariable = z.infer<typeof ItemVariable>
 
 export const CustomVariableFunctionType = z.enum([
   'Identity',
+  'Multiply',
 ])
 export type CustomVariableFunctionType = z.infer<
   typeof CustomVariableFunctionType
 >
+
+export const FunctionInputType = z.enum([
+  'Variable',
+  'Constant',
+])
+export type FunctionInputType = z.infer<
+  typeof FunctionInputType
+>
+
+export const VariableFunctionInput = z.strictObject({
+  type: z.literal(FunctionInputType.enum.Variable),
+  id: z.string(),
+})
+export type VariableFunctionInput = z.infer<
+  typeof VariableFunctionInput
+>
+
+export const ConstantFunctionInput = z.strictObject({
+  type: z.literal(FunctionInputType.enum.Constant),
+  value: z.number(),
+})
+export type ConstantFunctionInput = z.infer<
+  typeof ConstantFunctionInput
+>
+
+export const FunctionInput = z.discriminatedUnion('type', [
+  VariableFunctionInput,
+  ConstantFunctionInput,
+])
+export type FunctionInput = z.infer<typeof FunctionInput>
 
 export const IdentityCustomVariableFunction =
   z.strictObject({
     type: z.literal(
       CustomVariableFunctionType.enum.Identity,
     ),
+    input: FunctionInput,
   })
 export type IdentityCustomVariableFunction = z.infer<
   typeof IdentityCustomVariableFunction
 >
 
+export const PartialIdentityCustomVariableFunction =
+  z.strictObject({
+    type: z.literal(
+      CustomVariableFunctionType.enum.Identity,
+    ),
+    input: FunctionInput.nullable(),
+  })
+export type PartialIdentityCustomVariableFunction = z.infer<
+  typeof PartialIdentityCustomVariableFunction
+>
+
+export const MultiplyCustomVariableFunction =
+  z.strictObject({
+    type: z.literal(
+      CustomVariableFunctionType.enum.Multiply,
+    ),
+    inputs: z.tuple([FunctionInput, FunctionInput]),
+  })
+export type MultiplyCustomVariableFunction = z.infer<
+  typeof MultiplyCustomVariableFunction
+>
+
+export const PartialMultiplyCustomVariableFunction =
+  z.strictObject({
+    type: z.literal(
+      CustomVariableFunctionType.enum.Multiply,
+    ),
+    inputs: z.tuple([
+      FunctionInput.nullable(),
+      FunctionInput.nullable(),
+    ]),
+  })
+export type PartialMultiplyCustomVariableFunction = z.infer<
+  typeof PartialMultiplyCustomVariableFunction
+>
+
 export const CustomVariableFunction = z.discriminatedUnion(
   'type',
-  [IdentityCustomVariableFunction],
+  [
+    IdentityCustomVariableFunction,
+    MultiplyCustomVariableFunction,
+  ],
 )
 export type CustomVariableFunction = z.infer<
   typeof CustomVariableFunction
 >
 
+export const PartialCustomVariableFunction =
+  z.discriminatedUnion('type', [
+    PartialIdentityCustomVariableFunction,
+    PartialMultiplyCustomVariableFunction,
+  ])
+export type PartialCustomVariableFunction = z.infer<
+  typeof PartialCustomVariableFunction
+>
+
 export const CustomVariable = VariableBase.extend({
   type: z.literal(VariableType.enum.Custom),
-  input: z.string(),
   fn: CustomVariableFunction,
 })
 export type CustomVariable = z.infer<typeof CustomVariable>
 
 export const PartialCustomVariable = VariableBase.extend({
   type: z.literal(VariableType.enum.Custom),
-  input: z.string().nullable(),
-  fn: CustomVariableFunction.nullable(),
+  fn: PartialCustomVariableFunction.nullable(),
 })
 export type PartialCustomVariable = z.infer<
   typeof PartialCustomVariable
