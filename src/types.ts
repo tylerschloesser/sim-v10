@@ -49,6 +49,14 @@ export type VariableFunctionInput = z.infer<
   typeof VariableFunctionInput
 >
 
+export const PartialVariableFunctionInput = z.strictObject({
+  type: z.literal(FunctionInputType.enum.Variable),
+  id: z.string().nullable(),
+})
+export type PartialVariableFunctionInput = z.infer<
+  typeof PartialVariableFunctionInput
+>
+
 export const ConstantFunctionInput = z.strictObject({
   type: z.literal(FunctionInputType.enum.Constant),
   value: z.number(),
@@ -57,11 +65,30 @@ export type ConstantFunctionInput = z.infer<
   typeof ConstantFunctionInput
 >
 
+export const PartialConstantFunctionInput = z.strictObject({
+  type: z.literal(FunctionInputType.enum.Constant),
+  value: z.number().nullable(),
+})
+export type PartialConstantFunctionInput = z.infer<
+  typeof PartialConstantFunctionInput
+>
+
 export const FunctionInput = z.discriminatedUnion('type', [
   VariableFunctionInput,
   ConstantFunctionInput,
 ])
 export type FunctionInput = z.infer<typeof FunctionInput>
+
+export const PartialFunctionInput = z.discriminatedUnion(
+  'type',
+  [
+    PartialVariableFunctionInput,
+    PartialConstantFunctionInput,
+  ],
+)
+export type PartialFunctionInput = z.infer<
+  typeof PartialFunctionInput
+>
 
 export const IdentityCustomVariableFunction =
   z.strictObject({
@@ -79,7 +106,7 @@ export const PartialIdentityCustomVariableFunction =
     type: z.literal(
       CustomVariableFunctionType.enum.Identity,
     ),
-    input: FunctionInput.nullable(),
+    input: PartialFunctionInput.nullable(),
   })
 export type PartialIdentityCustomVariableFunction = z.infer<
   typeof PartialIdentityCustomVariableFunction
@@ -102,8 +129,8 @@ export const PartialMultiplyCustomVariableFunction =
       CustomVariableFunctionType.enum.Multiply,
     ),
     inputs: z.tuple([
-      FunctionInput.nullable(),
-      FunctionInput.nullable(),
+      PartialFunctionInput.nullable(),
+      PartialFunctionInput.nullable(),
     ]),
   })
 export type PartialMultiplyCustomVariableFunction = z.infer<

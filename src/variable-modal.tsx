@@ -5,8 +5,10 @@ import { Updater, useImmer } from 'use-immer'
 import {
   CustomVariable,
   CustomVariableFunctionType,
+  FunctionInput,
   FunctionInputType,
   PartialCustomVariable,
+  PartialFunctionInput,
   State,
   Variable,
   VariableType,
@@ -153,6 +155,92 @@ interface IdentityCustomVariableFunctionFormProps {
   setVariable: Updater<PartialCustomVariable>
 }
 
+interface FunctionInputFormProps {
+  input: PartialFunctionInput | null
+  onChange: (value: PartialFunctionInput) => void
+  inputOptions: { value: string; label: string }[]
+}
+
+function FunctionInputForm({
+  input,
+  onChange,
+  inputOptions,
+}: FunctionInputFormProps) {
+  return (
+    <>
+      <fieldset>
+        <label>
+          Constant
+          <input
+            type="radio"
+            value={FunctionInputType.enum.Constant}
+            checked={
+              input?.type ===
+              FunctionInputType.enum.Constant
+            }
+            onChange={() =>
+              onChange({
+                type: FunctionInputType.enum.Constant,
+                value: null,
+              })
+            }
+          />
+        </label>
+        <label>
+          Variable
+          <input
+            type="radio"
+            value={FunctionInputType.enum.Variable}
+            checked={
+              input?.type ===
+              FunctionInputType.enum.Variable
+            }
+            onChange={() =>
+              onChange({
+                type: FunctionInputType.enum.Variable,
+                id: null,
+              })
+            }
+          />
+        </label>
+      </fieldset>
+      {input?.type === FunctionInputType.enum.Constant && (
+        <label>
+          <span>Constant</span>
+          <input type="number" value={input.value ?? ''} />
+        </label>
+      )}
+      {input?.type === FunctionInputType.enum.Variable && (
+        <label>
+          <span>Variable</span>
+          <select
+            className="p-2 border border-black"
+            value={input.id ?? ''}
+            onChange={(e) =>
+              onChange({
+                type: FunctionInputType.enum.Variable,
+                id: e.target.value,
+              })
+            }
+          >
+            <option value="" disabled>
+              Choose
+            </option>
+            {inputOptions.map((option) => (
+              <option
+                key={option.value}
+                value={option.value}
+              >
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+    </>
+  )
+}
+
 function IdentityCustomVariableFunctionForm({
   inputOptions,
   variable,
@@ -162,42 +250,20 @@ function IdentityCustomVariableFunctionForm({
   invariant(
     fn?.type === CustomVariableFunctionType.enum.Identity,
   )
-  const { input } = fn
-  if (input?.type === FunctionInputType.enum.Constant) {
-    invariant(false)
-  }
   return (
-    <>
-      <label className="flex flex-col">
-        <span>Input</span>
-        <select
-          className="p-2 border border-black"
-          value={input?.id ?? ''}
-          onChange={(e) => {
-            setVariable((draft) => {
-              const { fn } = draft
-              invariant(
-                fn?.type ===
-                  CustomVariableFunctionType.enum.Identity,
-              )
-              fn.input = {
-                type: FunctionInputType.enum.Variable,
-                id: e.target.value,
-              }
-            })
-          }}
-        >
-          <option value="" disabled>
-            Choose
-          </option>
-          {inputOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </label>
-    </>
+    <FunctionInputForm
+      input={fn.input}
+      onChange={(input) => {
+        setVariable((draft) => {
+          invariant(
+            draft.fn?.type ===
+              CustomVariableFunctionType.enum.Identity,
+          )
+          draft.fn!.input = input
+        })
+      }}
+      inputOptions={inputOptions}
+    />
   )
 }
 
