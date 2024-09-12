@@ -1,8 +1,10 @@
 import clsx from 'clsx'
 import {
+  Fragment,
   PropsWithChildren,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
@@ -16,6 +18,7 @@ import {
   ItemType,
   ModalStateType,
   State,
+  Variable,
   VariableType,
 } from './types'
 import { useTickInterval } from './use-tick-interval'
@@ -90,6 +93,27 @@ function useScrollDebug() {
   return scrollDebug
 }
 
+export interface VariableValueProps {
+  variable: Variable
+  state: State
+}
+
+function VariableValue({
+  variable,
+  state,
+}: VariableValueProps) {
+  const value = useMemo(() => {
+    switch (variable.type) {
+      case VariableType.enum.Item:
+        return state.inventory[variable.item] ?? 0
+      case VariableType.enum.Custom:
+        return null
+    }
+  }, [variable, state.inventory])
+
+  return <>{JSON.stringify(value)}</>
+}
+
 export function App() {
   const [state, setState] = useImmer<State>(INITIAL_STATE)
   useTickInterval(setState)
@@ -105,19 +129,23 @@ export function App() {
     <>
       <div className="flex flex-col p-2 gap-2">
         <div>Tick: {state.tick.toString()}</div>
-        <div>
-          Inventory:{' '}
-          {Object.entries(state.inventory)
-            .map(([type, count]) => `${type}: (${count})`)
-            .join(', ')}
-        </div>
         <div>Variables</div>
-        <div className="grid grid-cols-[min-content,min-content,min-content] gap-4">
+        <div className="grid grid-cols-[repeat(4,min-content)] gap-4">
           {Object.values(state.variables).map(
             (variable) => (
-              <>
+              <Fragment key={variable.id}>
                 <div>{variable.type}</div>
-                <div>{variable.id}</div>
+                <div>
+                  {variable.type === VariableType.enum.Item
+                    ? variable.item
+                    : variable.id}
+                </div>
+                <div>
+                  <VariableValue
+                    variable={variable}
+                    state={state}
+                  />
+                </div>
                 {variable.type ===
                 VariableType.enum.Custom ? (
                   <a
@@ -139,7 +167,7 @@ export function App() {
                 ) : (
                   <span />
                 )}
-              </>
+              </Fragment>
             ),
           )}
         </div>
