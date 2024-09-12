@@ -99,14 +99,17 @@ export interface VariableValueProps {
   state: State
 }
 
-function getInputValue(variable: Variable, state: State) {
+function getVariableValue(
+  variable: Variable,
+  state: State,
+) {
   switch (variable.type) {
     case VariableType.enum.Item:
       return state.inventory[variable.item] ?? 0
     case VariableType.enum.Custom: {
       const input = state.variables[variable.input]
       invariant(input)
-      return getInputValue(input, state)
+      return getVariableValue(input, state)
     }
   }
 }
@@ -116,7 +119,7 @@ function VariableValue({
   state,
 }: VariableValueProps) {
   const value = useMemo(
-    () => getInputValue(variable, state),
+    () => getVariableValue(variable, state),
     [variable, state],
   )
   return <>{JSON.stringify(value)}</>
