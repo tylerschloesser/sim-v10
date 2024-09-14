@@ -9,8 +9,6 @@ import {
   ModalStateType,
   Operator,
   PartialCondition,
-  PartialValue,
-  ValueType,
 } from './types'
 
 export function EditModalContent() {
@@ -26,8 +24,7 @@ export function EditModalContent() {
   const [condition, setCondition] =
     useImmer<PartialCondition>(
       item.condition ?? {
-        left: null,
-        right: null,
+        inputs: [null, null],
         operator: null,
       },
     )
@@ -43,18 +40,18 @@ export function EditModalContent() {
   )
 
   const onChangeLeft = useCallback(
-    (value: PartialValue) => {
+    (value: string) => {
       setCondition((draft) => {
-        draft.left = value
+        draft.inputs[0] = value
       })
     },
     [setCondition],
   )
 
   const onChangeRight = useCallback(
-    (value: PartialValue) => {
+    (value: string) => {
       setCondition((draft) => {
-        draft.right = value
+        draft.inputs[1] = value
       })
     },
     [setCondition],
@@ -67,8 +64,8 @@ export function EditModalContent() {
       <div className="flex gap-2">
         <div className="flex-1">
           <h2>Left</h2>
-          <ConditionValueInput
-            value={condition.left ?? null}
+          <ConditionInput
+            value={condition.inputs[0]}
             onChange={onChangeLeft}
           />
         </div>
@@ -97,8 +94,8 @@ export function EditModalContent() {
         </div>
         <div className="flex-1">
           <h2>Right</h2>
-          <ConditionValueInput
-            value={condition.right ?? null}
+          <ConditionInput
+            value={condition.inputs[1]}
             onChange={onChangeRight}
           />
         </div>
@@ -158,88 +155,14 @@ export function EditModalContent() {
   )
 }
 
-interface ConditionValueInputProps {
-  value: PartialValue | null
-  onChange: (value: PartialValue) => void
+interface ConditionInputProps {
+  value: string | null
+  onChange: (value: string) => void
 }
 
-function ConditionValueInput({
+function ConditionInput({
   value,
   onChange,
-}: ConditionValueInputProps) {
-  return (
-    <div>
-      <fieldset className="flex flex-col">
-        <legend>Type</legend>
-        <label className="flex gap-1">
-          <input
-            type="radio"
-            value={ValueType.enum.Constant}
-            checked={
-              value?.type === ValueType.enum.Constant
-            }
-            onChange={() =>
-              onChange({
-                type: ValueType.enum.Constant,
-                constant: null,
-              })
-            }
-          />
-          Constant
-        </label>
-        <label className="flex gap-1">
-          <input
-            type="radio"
-            value={ValueType.enum.Variable}
-            checked={
-              value?.type === ValueType.enum.Variable
-            }
-            onChange={() =>
-              onChange({
-                type: ValueType.enum.Variable,
-                variable: null,
-              })
-            }
-          />
-          Variable
-        </label>
-      </fieldset>
-      {value?.type === ValueType.enum.Constant && (
-        <input
-          type="number"
-          value={value.constant ?? ''}
-          onChange={(e) =>
-            onChange({
-              type: ValueType.enum.Constant,
-              constant: parseInt(e.target.value),
-            })
-          }
-        />
-      )}
-      {value?.type === ValueType.enum.Variable && (
-        <select
-          value={value.variable ?? ''}
-          onChange={(e) =>
-            onChange({
-              type: ValueType.enum.Variable,
-              variable: e.target.value,
-            })
-          }
-        >
-          <option value="" disabled></option>
-          {Object.values(ItemType.Values).map(
-            (itemType) => (
-              <option key={itemType} value={itemType}>
-                {itemType}
-              </option>
-            ),
-          )}
-        </select>
-      )}
-
-      {value === null && (
-        <input type="text" value="" disabled />
-      )}
-    </div>
-  )
+}: ConditionInputProps) {
+  return <div></div>
 }

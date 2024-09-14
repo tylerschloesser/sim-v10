@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Updater } from 'use-immer'
-import { tickContext } from './tick-state'
+import { tickContext } from './tick-context'
 import { Context } from './types'
 
 const TICK_INTERVAL: number = 1000

@@ -4,6 +4,7 @@ import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { AppContext } from './context'
+import { getVariableLabel } from './get-variable-label'
 import {
   CustomVariable,
   CustomVariableFunctionType,
@@ -19,15 +20,6 @@ import {
 export interface VariableModalContentProps {
   onSave(variable: CustomVariable): void
   variable: CustomVariable | null
-}
-
-function newVariable(): PartialCustomVariable {
-  return {
-    id: shortId().generate(),
-    type: VariableType.enum.Custom,
-    name: null,
-    fn: null,
-  }
 }
 
 export function VariableModalContent({
@@ -65,7 +57,7 @@ export function VariableModalContent({
         Name
         <input
           className="p-2 border border-black placeholder-shown:text-opacity-50"
-          placeholder={state.id}
+          placeholder={getVariableLabel(state)}
           type="text"
           value={state.name ?? ''}
           onChange={(e) => {
@@ -209,7 +201,7 @@ function FunctionInputForm({
             onChange={(e) =>
               onChange({
                 type: FunctionInputType.enum.Constant,
-                value: parseInt(e.target.value),
+                value: parseFloat(e.target.value),
               })
             }
           />
@@ -332,10 +324,16 @@ function useInputOptions(stateId: string) {
       .filter(({ id }) => id !== stateId)
       .map((variable) => ({
         value: variable.id,
-        label:
-          variable.type === VariableType.enum.Item
-            ? variable.item
-            : variable.id,
+        label: getVariableLabel(variable),
       }))
   }, [stateId, context.variables])
+}
+
+function newVariable(): PartialCustomVariable {
+  return {
+    id: shortId().generate(),
+    type: VariableType.enum.Custom,
+    name: null,
+    fn: null,
+  }
 }

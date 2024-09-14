@@ -26,7 +26,6 @@ function useScrollDebug() {
     // prettier-ignore
     document.addEventListener('keydown', (ev) => {
       if (ev.key === 'd') {
-        ev.preventDefault()
         setScrollDebug(true)
       }
     }, { signal, })
@@ -34,7 +33,6 @@ function useScrollDebug() {
     // prettier-ignore
     document.addEventListener('keyup', (ev) => {
       if (ev.key === 'd') {
-        ev.preventDefault()
         setScrollDebug(false)
       }
     }, { signal, })

@@ -10,6 +10,7 @@ import { Updater, useImmer } from 'use-immer'
 import { AppDebug } from './app-debug'
 import { AppContext, INITIAL_CONTEXT } from './context'
 import { EditModalContent } from './edit-modal'
+import { getVariableLabel } from './get-variable-label'
 import { Modal } from './modal'
 import { RenderVariableValue } from './render-variable-value'
 import {
@@ -177,11 +178,7 @@ function AppVariables() {
           (variable) => (
             <Fragment key={variable.id}>
               <div>{variable.type}</div>
-              <div>
-                {variable.type === VariableType.enum.Item
-                  ? variable.item
-                  : variable.id}
-              </div>
+              <div>{getVariableLabel(variable)}</div>
               <div>
                 <RenderVariableValue
                   variable={variable}

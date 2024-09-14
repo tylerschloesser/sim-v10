@@ -1,25 +1,22 @@
 import { WritableDraft } from 'immer'
 import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
+import { getVariableValue } from './get-variable-value'
 import {
   Condition,
-  Inventory,
   Item,
   ItemLocation,
   ItemType,
   Operator,
   Context,
-  Value,
-  ValueType,
+  Variable,
 } from './types'
 
 export function tickContext(draft: WritableDraft<Context>) {
   draft.tick += 1
   const itemsToDelete = new Set<Item>()
   for (const item of draft.items.filter(isInQueue)) {
-    if (
-      isConditionSatisfied(item.condition, draft.inventory)
-    ) {
+    if (isConditionSatisfied(item.condition, draft)) {
       switch (item.type) {
         case ItemType.enum.Stone:
         case ItemType.enum.Wood: {
@@ -72,14 +69,23 @@ function isInQueue(item: Item): boolean {
 
 function isConditionSatisfied(
   condition: Condition | null,
-  inventory: Partial<Record<ItemType, number>>,
+  context: Context,
 ): boolean {
   if (condition === null) {
     return true
   }
-  const left = getValue(condition.left, inventory)
-  const right = getValue(condition.right, inventory)
+  const inputs: [number, number] = [
+    getVariableValue(
+      getVariable(condition.inputs[0], context),
+      context,
+    ),
+    getVariableValue(
+      getVariable(condition.inputs[1], context),
+      context,
+    ),
+  ]
   const operator = condition.operator
+  const [left, right] = inputs
   return (
     (operator === Operator.enum.lt && left < right) ||
     (operator === Operator.enum.lte && left <= right) ||
@@ -89,19 +95,11 @@ function isConditionSatisfied(
   )
 }
 
-function getValue(
-  value: Value,
-  inventory: Inventory,
-): number {
-  switch (value.type) {
-    case ValueType.enum.Variable: {
-      const itemType = ItemType.parse(value.variable)
-      return inventory[itemType] ?? 0
-    }
-    case ValueType.enum.Constant: {
-      return value.constant
-    }
-    default:
-      invariant(false)
-  }
+function getVariable(
+  id: string,
+  context: Context,
+): Variable {
+  const variable = context.variables[id]
+  invariant(variable)
+  return variable
 }
