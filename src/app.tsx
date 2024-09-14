@@ -151,12 +151,6 @@ export function App() {
     useImmer<Context>(INITIAL_CONTEXT)
   useTickInterval(setContext)
 
-  const onCloseModal = useCallback(() => {
-    setContext((draft) => {
-      draft.modal.open = false
-    })
-  }, [])
-
   return (
     <AppContext.Provider
       value={useMemo(
@@ -187,44 +181,7 @@ export function App() {
         </div>
       </div>
       <AppDebug />
-      <Modal
-        title={(() => {
-          switch (context.modal.type) {
-            case ModalStateType.Edit:
-              return 'Edit'
-            case ModalStateType.Variable:
-              return context.modal.variable
-                ? 'Edit Variable'
-                : 'New Variable'
-            default:
-              return '[Missing Title]'
-          }
-        })()}
-        open={context.modal.open}
-        onClose={onCloseModal}
-      >
-        <>
-          {context.modal.type === ModalStateType.Edit && (
-            <EditModalContent
-              context={context}
-              setContext={setContext}
-              onClose={onCloseModal}
-            />
-          )}
-          {context.modal.type ===
-            ModalStateType.Variable && (
-            <VariableModalContent
-              context={context}
-              onSave={(variable) => {
-                setContext((draft) => {
-                  draft.variables[variable.id] = variable
-                })
-              }}
-              variable={context.modal.variable}
-            />
-          )}
-        </>
-      </Modal>
+      <AppModal />
     </AppContext.Provider>
   )
 }
@@ -463,5 +420,53 @@ function AppDebug() {
     >
       {JSON.stringify(context, null, 2)}
     </div>
+  )
+}
+
+function AppModal() {
+  const { context, setContext } = useContext(AppContext)
+  const onCloseModal = useCallback(() => {
+    setContext((draft) => {
+      draft.modal.open = false
+    })
+  }, [setContext])
+  return (
+    <Modal
+      title={(() => {
+        switch (context.modal.type) {
+          case ModalStateType.Edit:
+            return 'Edit'
+          case ModalStateType.Variable:
+            return context.modal.variable
+              ? 'Edit Variable'
+              : 'New Variable'
+          default:
+            return '[Missing Title]'
+        }
+      })()}
+      open={context.modal.open}
+      onClose={onCloseModal}
+    >
+      <>
+        {context.modal.type === ModalStateType.Edit && (
+          <EditModalContent
+            context={context}
+            setContext={setContext}
+            onClose={onCloseModal}
+          />
+        )}
+        {context.modal.type === ModalStateType.Variable && (
+          <VariableModalContent
+            context={context}
+            onSave={(variable) => {
+              setContext((draft) => {
+                draft.variables[variable.id] = variable
+              })
+            }}
+            variable={context.modal.variable}
+          />
+        )}
+      </>
+    </Modal>
   )
 }
