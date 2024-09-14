@@ -1,7 +1,8 @@
 import { isEqual } from 'lodash-es'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import invariant from 'tiny-invariant'
-import { Updater, useImmer } from 'use-immer'
+import { useImmer } from 'use-immer'
+import { AppContext } from './context'
 import {
   Condition,
   ItemType,
@@ -9,23 +10,19 @@ import {
   Operator,
   PartialCondition,
   PartialValue,
-  Context,
   ValueType,
 } from './types'
 
 export interface EditModalContentProps {
-  context: Context
-  setContext: Updater<Context>
   onClose(): void
 }
 
 export function EditModalContent({
-  context,
-  setContext,
   onClose,
 }: EditModalContentProps) {
+  const { context, setContext } = useContext(AppContext)
   const { modal } = context
-  invariant(modal.type === ModalStateType.Edit)
+  invariant(modal?.type === ModalStateType.Edit)
 
   const item = context.items.find(
     ({ id }) => id === modal.itemId,

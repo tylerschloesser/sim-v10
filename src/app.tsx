@@ -267,7 +267,6 @@ function AppModal() {
         )}
         {context.modal.type === ModalStateType.Variable && (
           <VariableModalContent
-            context={context}
             onSave={(variable) => {
               setContext((draft) => {
                 draft.variables[variable.id] = variable
