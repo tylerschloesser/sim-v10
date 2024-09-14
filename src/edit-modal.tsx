@@ -94,7 +94,7 @@ export function EditModalContent() {
         <div className="flex-1">
           <h2>Operator</h2>
           <select
-            className="border"
+            className="border border-black p-2"
             value={state?.operator ?? ''}
             onChange={(e) => {
               setState((draft) => {
@@ -141,10 +141,6 @@ export function EditModalContent() {
       >
         Save
       </button>
-      <h2>Debug</h2>
-      <pre className="text-xs max-h-20 overflow-scroll border border-black opacity-50">
-        {JSON.stringify(state, null, 2)}
-      </pre>
     </div>
   )
 }
@@ -171,6 +167,7 @@ function ConditionInput({
   return (
     <div>
       <select
+        className="border border-black p-2"
         value={value ?? ''}
         onChange={(e) => {
           onChange(e.target.value)
