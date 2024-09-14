@@ -1,8 +1,9 @@
 import clsx from 'clsx'
-import {
+import React, {
   Fragment,
   PropsWithChildren,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -140,6 +141,11 @@ function VariableValue({
   return <>{JSON.stringify(value)}</>
 }
 
+const AppContext = React.createContext<{
+  context: Context
+  setContext: Updater<Context>
+}>(null!)
+
 export function App() {
   const [context, setContext] =
     useImmer<Context>(INITIAL_CONTEXT)
@@ -153,51 +159,15 @@ export function App() {
   }, [])
 
   return (
-    <>
+    <AppContext.Provider
+      value={useMemo(
+        () => ({ context, setContext }),
+        [context, setContext],
+      )}
+    >
       <div className="flex flex-col p-2 gap-2">
         <div>Tick: {context.tick.toString()}</div>
-        <div>Variables</div>
-        <div className="grid grid-cols-[repeat(4,min-content)] gap-4">
-          {Object.values(context.variables).map(
-            (variable) => (
-              <Fragment key={variable.id}>
-                <div>{variable.type}</div>
-                <div>
-                  {variable.type === VariableType.enum.Item
-                    ? variable.item
-                    : variable.id}
-                </div>
-                <div>
-                  <VariableValue
-                    variable={variable}
-                    context={context}
-                  />
-                </div>
-                {variable.type ===
-                VariableType.enum.Custom ? (
-                  <a
-                    href="#"
-                    className="text-blue-300"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      setContext((draft) => {
-                        draft.modal = {
-                          type: ModalStateType.Variable,
-                          open: true,
-                          variable,
-                        }
-                      })
-                    }}
-                  >
-                    Edit
-                  </a>
-                ) : (
-                  <span />
-                )}
-              </Fragment>
-            ),
-          )}
-        </div>
+        <AppVariables />
         <div>
           <button
             className="border p-2 hover:opacity-75 active:opacity-50"
@@ -279,7 +249,7 @@ export function App() {
           )}
         </>
       </Modal>
-    </>
+    </AppContext.Provider>
   )
 }
 
@@ -436,5 +406,55 @@ function ItemList({
           />
         ))}
     </div>
+  )
+}
+
+function AppVariables() {
+  const { context, setContext } = useContext(AppContext)
+  return (
+    <>
+      <div>Variables</div>
+      <div className="grid grid-cols-[repeat(4,min-content)] gap-4">
+        {Object.values(context.variables).map(
+          (variable) => (
+            <Fragment key={variable.id}>
+              <div>{variable.type}</div>
+              <div>
+                {variable.type === VariableType.enum.Item
+                  ? variable.item
+                  : variable.id}
+              </div>
+              <div>
+                <VariableValue
+                  variable={variable}
+                  context={context}
+                />
+              </div>
+              {variable.type ===
+              VariableType.enum.Custom ? (
+                <a
+                  href="#"
+                  className="text-blue-300"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setContext((draft) => {
+                      draft.modal = {
+                        type: ModalStateType.Variable,
+                        open: true,
+                        variable,
+                      }
+                    })
+                  }}
+                >
+                  Edit
+                </a>
+              ) : (
+                <span />
+              )}
+            </Fragment>
+          ),
+        )}
+      </div>
+    </>
   )
 }
