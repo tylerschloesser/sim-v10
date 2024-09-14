@@ -13,13 +13,7 @@ import {
   ValueType,
 } from './types'
 
-export interface EditModalContentProps {
-  onClose(): void
-}
-
-export function EditModalContent({
-  onClose,
-}: EditModalContentProps) {
+export function EditModalContent() {
   const { context, setContext } = useContext(AppContext)
   const { modal } = context
   invariant(modal?.type === ModalStateType.Edit)
@@ -152,7 +146,6 @@ export function EditModalContent({
             invariant(item)
             item.condition = Condition.parse(condition)
           })
-          onClose()
         }}
       >
         Save

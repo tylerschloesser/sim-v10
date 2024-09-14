@@ -259,11 +259,7 @@ function AppModal() {
     >
       <>
         {context.modal.type === ModalStateType.Edit && (
-          <EditModalContent
-            context={context}
-            setContext={setContext}
-            onClose={onCloseModal}
-          />
+          <EditModalContent />
         )}
         {context.modal.type === ModalStateType.Variable && (
           <VariableModalContent
