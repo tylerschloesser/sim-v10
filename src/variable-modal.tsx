@@ -1,3 +1,4 @@
+import clsx from 'clsx'
 import { useContext, useMemo } from 'react'
 import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
@@ -135,15 +136,17 @@ interface FunctionInputFormProps {
   input: PartialFunctionInput | null
   onChange: (value: PartialFunctionInput) => void
   inputOptions: { value: string; label: string }[]
+  className?: string
 }
 
 function FunctionInputForm({
   input,
   onChange,
   inputOptions,
+  className,
 }: FunctionInputFormProps) {
   return (
-    <>
+    <div className={clsx('flex flex-col', className)}>
       <fieldset className="flex flex-col">
         <legend>Type</legend>
         <label className="flex gap-2">
@@ -224,7 +227,7 @@ function FunctionInputForm({
           </select>
         </label>
       )}
-    </>
+    </div>
   )
 }
 
@@ -244,6 +247,7 @@ function IdentityCustomVariableFunctionForm({
   const inputOptions = useInputOptions(state.id)
   return (
     <FunctionInputForm
+      className="flex-1"
       input={state.fn.input}
       onChange={(input) => {
         setState((draft) => {
@@ -279,13 +283,25 @@ function MultiplyCustomVariableFunctionForm({
   invariant(isMultiply(state.fn))
   const inputOptions = useInputOptions(state.id)
   return (
-    <div>
+    <div className="flex">
       <FunctionInputForm
+        className="flex-1"
         input={state.fn.inputs[0]}
         onChange={(input) => {
           setState((draft) => {
             invariant(isMultiply(draft.fn))
             draft.fn.inputs[0] = input
+          })
+        }}
+        inputOptions={inputOptions}
+      />
+      <FunctionInputForm
+        className="flex-1"
+        input={state.fn.inputs[1]}
+        onChange={(input) => {
+          setState((draft) => {
+            invariant(isMultiply(draft.fn))
+            draft.fn.inputs[1] = input
           })
         }}
         inputOptions={inputOptions}

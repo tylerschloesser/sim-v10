@@ -3,6 +3,7 @@ import invariant from 'tiny-invariant'
 import {
   Context,
   CustomVariableFunctionType,
+  FunctionInput,
   FunctionInputType,
   Variable,
   VariableType,
@@ -27,27 +28,38 @@ export function RenderVariableValue({
 function getVariableValue(
   variable: Variable,
   context: Context,
-) {
+): number {
   switch (variable.type) {
     case VariableType.enum.Item:
       return context.inventory[variable.item] ?? 0
     case VariableType.enum.Custom: {
       switch (variable.fn.type) {
         case CustomVariableFunctionType.enum.Identity: {
-          switch (variable.fn.input.type) {
-            case FunctionInputType.enum.Constant:
-              return variable.fn.input.value
-            case FunctionInputType.enum.Variable: {
-              const input =
-                context.variables[variable.fn.input.id]
-              invariant(input)
-              return getVariableValue(input, context)
-            }
-          }
+          return getFunctionInputValue(
+            variable.fn.input,
+            context,
+          )
         }
         default:
           invariant(false)
       }
     }
+  }
+}
+
+function getFunctionInputValue(
+  input: FunctionInput,
+  context: Context,
+): number {
+  switch (input.type) {
+    case FunctionInputType.enum.Constant:
+      return input.value
+    case FunctionInputType.enum.Variable: {
+      const variable = context.variables[input.id]
+      invariant(input)
+      return getVariableValue(variable, context)
+    }
+    default:
+      invariant(false)
   }
 }
