@@ -107,7 +107,6 @@ function Card({ item, setContext }: CardProps) {
             setContext((draft) => {
               draft.modal = {
                 type: ModalStateType.Edit,
-                open: true,
                 itemId: item.id,
               }
             })
@@ -199,7 +198,6 @@ function AppVariables() {
                     setContext((draft) => {
                       draft.modal = {
                         type: ModalStateType.Variable,
-                        open: true,
                         variable,
                       }
                     })
@@ -221,7 +219,6 @@ function AppVariables() {
             setContext((draft) => {
               draft.modal = {
                 type: ModalStateType.Variable,
-                open: true,
                 variable: null,
               }
             })
@@ -238,9 +235,12 @@ function AppModal() {
   const { context, setContext } = useContext(AppContext)
   const onCloseModal = useCallback(() => {
     setContext((draft) => {
-      draft.modal.open = false
+      draft.modal = null
     })
   }, [setContext])
+  if (context.modal === null) {
+    return null
+  }
   return (
     <Modal
       title={(() => {
@@ -255,7 +255,6 @@ function AppModal() {
             return '[Missing Title]'
         }
       })()}
-      open={context.modal.open}
       onClose={onCloseModal}
     >
       <>

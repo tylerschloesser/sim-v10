@@ -298,35 +298,23 @@ export interface Context {
   drag: string | null
   items: Item[]
   inventory: Inventory
-  modal: ModalState
+  modal: ModalState | null
   variables: Record<string, Variable>
 }
 
 export enum ModalStateType {
-  Initial = 'initial',
   Edit = 'edit',
   Variable = 'variable',
 }
 
-export interface ModalStateBase {
-  open: boolean
-}
-
-export interface InitialModalState extends ModalStateBase {
-  type: ModalStateType.Initial
-}
-
-export interface EditModalState extends ModalStateBase {
+export interface EditModalState {
   type: ModalStateType.Edit
   itemId: string
 }
 
-export interface VariableModalState extends ModalStateBase {
+export interface VariableModalState {
   type: ModalStateType.Variable
   variable: CustomVariable | null
 }
 
-export type ModalState =
-  | InitialModalState
-  | EditModalState
-  | VariableModalState
+export type ModalState = EditModalState | VariableModalState

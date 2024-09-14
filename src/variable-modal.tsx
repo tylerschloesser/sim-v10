@@ -19,6 +19,14 @@ export interface VariableModalContentProps {
   variable: CustomVariable | null
 }
 
+function newVariable(): PartialCustomVariable {
+  return {
+    id: shortId().generate(),
+    type: VariableType.enum.Custom,
+    fn: null,
+  }
+}
+
 export function VariableModalContent({
   onSave,
   context,
@@ -27,16 +35,12 @@ export function VariableModalContent({
   const [state, setState] =
     useImmer<PartialCustomVariable | null>(null)
 
-  const variable = useMemo(
-    () =>
-      state ??
-      props.variable ?? {
-        id: shortId().generate(),
-        type: VariableType.enum.Custom,
-        fn: null,
-      },
-    [props.variable, state],
-  )
+  const variable = useMemo(() => {
+    if (state && state.id !== props.variable?.id) {
+      return newVariable()
+    }
+    return state ?? props.variable ?? newVariable()
+  }, [props.variable, state])
 
   const valid = useMemo(
     () => Variable.safeParse(variable).success,
@@ -82,9 +86,9 @@ export function VariableModalContent({
           value={variable.fn?.type ?? ''}
           onChange={(e) => {
             setState((draft) => {
-              invariant(
-                draft?.type === VariableType.enum.Custom,
-              )
+              if (draft === null) {
+                draft = variable
+              }
               const type = CustomVariableFunctionType.parse(
                 e.target.value,
               )
@@ -108,6 +112,7 @@ export function VariableModalContent({
                 default:
                   invariant(false)
               }
+              return draft
             })
           }}
         >

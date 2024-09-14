@@ -3,25 +3,19 @@ import invariant from 'tiny-invariant'
 
 export type ModalProps = PropsWithChildren<{
   title: string
-  open: boolean
   onClose: () => void
 }>
 
 export function Modal({
   title,
-  open,
   onClose,
   children,
 }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null)
   useEffect(() => {
-    if (open) {
-      ref.current?.showModal()
-    } else {
-      ref.current?.close()
-    }
-  }, [open])
-
+    invariant(ref.current)
+    ref.current.showModal()
+  }, [])
   useEffect(() => {
     invariant(ref.current)
     ref.current.addEventListener('close', onClose)
