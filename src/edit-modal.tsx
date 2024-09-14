@@ -27,24 +27,27 @@ export function EditModalContent() {
     return action
   }, [context.actions, modal.actionId])
 
-  const [state, setState] = useImmer<PartialCondition>(
-    action.condition ?? newCondition,
-  )
+  const [state, setState] =
+    useImmer<PartialCondition | null>(action.condition)
 
   const valid = useMemo(
-    () => Condition.safeParse(state).success,
+    () => Condition.nullable().safeParse(state).success,
     [state],
   )
 
   const dirty = useMemo(
-    () => !isEqual(state, action.condition),
-    [state, action.condition],
+    () => valid && !isEqual(state, action.condition),
+    [valid, state, action.condition],
   )
 
   const onChangeLeft = useCallback(
     (value: string) => {
       setState((draft) => {
+        if (draft === null) {
+          draft = newCondition()
+        }
         draft.inputs[0] = value
+        return draft
       })
     },
     [setState],
@@ -53,7 +56,11 @@ export function EditModalContent() {
   const onChangeRight = useCallback(
     (value: string) => {
       setState((draft) => {
+        if (draft === null) {
+          draft = newCondition()
+        }
         draft.inputs[1] = value
+        return draft
       })
     },
     [setState],
@@ -62,12 +69,24 @@ export function EditModalContent() {
   return (
     <div className="flex flex-col gap-2">
       <div className="text-sm">Action ID: {action.id}</div>
-      <div className="font-bold">Condition</div>
+      <div className="flex justify-between items-center">
+        <span className="font-bold">Condition</span>
+
+        <button
+          onClick={(ev) => {
+            ev.preventDefault()
+            setState(null)
+          }}
+          className="text-blue-700"
+        >
+          Clear
+        </button>
+      </div>
       <div className="flex gap-2">
         <div className="flex-1">
           <h2>Left</h2>
           <ConditionInput
-            value={state.inputs[0]}
+            value={state?.inputs[0] ?? null}
             onChange={onChangeLeft}
             context={context}
           />
@@ -76,12 +95,16 @@ export function EditModalContent() {
           <h2>Operator</h2>
           <select
             className="border"
-            value={state.operator ?? ''}
+            value={state?.operator ?? ''}
             onChange={(e) => {
               setState((draft) => {
+                if (draft === null) {
+                  draft = newCondition()
+                }
                 draft.operator = Operator.parse(
                   e.target.value,
                 )
+                return draft
               })
             }}
           >
@@ -98,7 +121,7 @@ export function EditModalContent() {
         <div className="flex-1">
           <h2>Right</h2>
           <ConditionInput
-            value={state.inputs[1]}
+            value={state?.inputs[1] ?? null}
             onChange={onChangeRight}
             context={context}
           />
@@ -111,7 +134,8 @@ export function EditModalContent() {
           setContext((draft) => {
             const action = draft.actions[modal.actionId]
             invariant(action)
-            action.condition = Condition.parse(state)
+            action.condition =
+              Condition.nullable().parse(state)
           })
         }}
       >
