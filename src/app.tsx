@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import React, {
+import {
   Fragment,
   PropsWithChildren,
   useCallback,
@@ -7,10 +7,10 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
+import { AppDebug } from './app-debug'
 import { AppContext, INITIAL_CONTEXT } from './context'
 import { EditModalContent } from './edit-modal'
 import { RenderVariableValue } from './render-variable-value'
@@ -24,32 +24,6 @@ import {
 } from './types'
 import { useTickInterval } from './use-tick-interval'
 import { VariableModalContent } from './variable-modal'
-
-function useScrollDebug() {
-  const [scrollDebug, setScrollDebug] = useState(false)
-  useEffect(() => {
-    const controller = new AbortController()
-    const { signal } = controller
-
-    // prettier-ignore
-    document.addEventListener('keydown', (ev) => {
-      if (ev.key === 'd') {
-        ev.preventDefault()
-        setScrollDebug(true)
-      }
-    }, { signal, })
-
-    // prettier-ignore
-    document.addEventListener('keyup', (ev) => {
-      if (ev.key === 'd') {
-        ev.preventDefault()
-        setScrollDebug(false)
-      }
-    }, { signal, })
-  }, [])
-
-  return scrollDebug
-}
 
 export function App() {
   const [context, setContext] =
@@ -310,21 +284,6 @@ function AppVariables() {
         </button>
       </div>
     </>
-  )
-}
-
-function AppDebug() {
-  const { context } = useContext(AppContext)
-  const scrollDebug = useScrollDebug()
-  return (
-    <div
-      className={clsx(
-        'fixed top-0 bottom-0 left-0 p-2 font-mono whitespace-pre opacity-25 text-sm overflow-scroll',
-        !scrollDebug && 'pointer-events-none',
-      )}
-    >
-      {JSON.stringify(context, null, 2)}
-    </div>
   )
 }
 
