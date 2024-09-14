@@ -35,6 +35,7 @@ function addAction(type: ActionType): void {
     id,
     type,
     condition: null,
+    output: null,
   }
 }
 
@@ -47,4 +48,5 @@ export const INITIAL_CONTEXT: Context = {
   modal: null,
   variables: INITIAL_VARIABLES,
   actions: INITIAL_ACTIONS,
+  stores: {},
 }

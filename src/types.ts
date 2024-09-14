@@ -205,6 +205,7 @@ export type ActionType = z.infer<typeof ActionType>
 const ActionBase = z.strictObject({
   id: z.string(),
   condition: Condition.nullable(),
+  output: z.string().nullable(),
 })
 
 export const GatherStoneAction = ActionBase.extend({

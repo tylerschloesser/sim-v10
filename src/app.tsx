@@ -4,6 +4,7 @@ import {
   useContext,
   useMemo,
 } from 'react'
+import invariant from 'tiny-invariant'
 import { useImmer } from 'use-immer'
 import { AppDebug } from './app-debug'
 import { AppContext, INITIAL_CONTEXT } from './context'
@@ -12,8 +13,10 @@ import { getVariableLabel } from './get-variable-label'
 import { Modal } from './modal'
 import { RenderVariableValue } from './render-variable-value'
 import {
+  Condition,
   Context,
   ModalStateType,
+  Variable,
   VariableType,
 } from './types'
 import { useTickInterval } from './use-tick-interval'
@@ -70,17 +73,61 @@ function AppActions() {
             </button>
           </div>
           <div className="flex flex-col gap-2 p-4 pt-0">
-            {!action.condition && <>No condition</>}
-            {action.condition && (
-              <pre>
-                {JSON.stringify(action.condition, null, 2)}
-              </pre>
-            )}
+            <div>
+              Condition:{' '}
+              {action.condition
+                ? formatCondition(action.condition, context)
+                : '[None]'}
+            </div>
+            <div>
+              Output: {action.output ?? <>[None]</>}
+            </div>
           </div>
         </div>
       ))}
     </div>
   )
+}
+
+function formatOperator(operator: string): string {
+  switch (operator) {
+    case 'lt':
+      return '<'
+    case 'lte':
+      return '<='
+    case 'gt':
+      return '>'
+    case 'gte':
+      return '>='
+    case 'eq':
+      return '=='
+    default:
+      invariant(false)
+  }
+}
+
+function getVariable(
+  id: string,
+  context: Context,
+): Variable {
+  const variable = context.variables[id]
+  invariant(variable)
+  return variable
+}
+
+function formatCondition(
+  condition: Condition,
+  context: Context,
+): string {
+  return [
+    getVariableLabel(
+      getVariable(condition.inputs[0], context),
+    ),
+    formatOperator(condition.operator),
+    getVariableLabel(
+      getVariable(condition.inputs[1], context),
+    ),
+  ].join(' ')
 }
 
 function AppVariables() {
