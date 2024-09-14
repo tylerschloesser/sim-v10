@@ -14,7 +14,8 @@ export function getVariableValue(
 ): number {
   switch (variable.type) {
     case VariableType.enum.Item:
-      return context.inventory[variable.item] ?? 0
+      // TODO
+      return 0
     case VariableType.enum.Custom: {
       switch (variable.fn.type) {
         case CustomVariableFunctionType.enum.Identity: {

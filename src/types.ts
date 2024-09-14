@@ -1,8 +1,5 @@
 import { z } from 'zod'
 
-export const ItemLocation = z.enum(['Queue', 'Available'])
-export type ItemLocation = z.infer<typeof ItemLocation>
-
 export const ItemType = z.enum([
   'Stone',
   'Wood',
@@ -204,44 +201,6 @@ export type PartialCondition = z.infer<
   typeof PartialCondition
 >
 
-const ItemBase = z.strictObject({
-  id: z.string(),
-  location: ItemLocation,
-  condition: Condition.nullable(),
-})
-
-export const StoneItem = ItemBase.extend({
-  type: z.literal(ItemType.enum.Stone),
-})
-export type StoneItem = z.infer<typeof StoneItem>
-
-export const WoodItem = ItemBase.extend({
-  type: z.literal(ItemType.enum.Wood),
-})
-export type WoodItem = z.infer<typeof WoodItem>
-
-export const StoneFurnaceItem = ItemBase.extend({
-  type: z.literal(ItemType.enum.StoneFurnace),
-})
-export type StoneFurnaceItem = z.infer<
-  typeof StoneFurnaceItem
->
-
-export const StoneBrickItem = ItemBase.extend({
-  type: z.literal(ItemType.enum.StoneBrick),
-})
-export type StoneBrickItem = z.infer<typeof StoneBrickItem>
-
-export const Item = z.discriminatedUnion('type', [
-  StoneItem,
-  WoodItem,
-  StoneFurnaceItem,
-  StoneBrickItem,
-])
-export type Item = z.infer<typeof Item>
-
-export type Inventory = Partial<Record<ItemType, number>>
-
 export const ActionType = z.enum([
   'GatherStone',
   'GatherWood',
@@ -276,8 +235,6 @@ export type Action = z.infer<typeof Action>
 export interface Context {
   tick: number
   drag: string | null
-  items: Item[]
-  inventory: Inventory
   modal: ModalState | null
   variables: Record<string, Variable>
   actions: Record<string, Action>

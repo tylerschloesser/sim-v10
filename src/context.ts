@@ -4,7 +4,6 @@ import { Updater } from 'use-immer'
 import {
   ActionType,
   Context,
-  ItemLocation,
   ItemType,
   VariableType,
 } from './types'
@@ -44,22 +43,7 @@ addAction(ActionType.enum.GatherWood)
 
 export const INITIAL_CONTEXT: Context = {
   tick: 0,
-  items: [
-    {
-      id: shortId.generate(),
-      location: ItemLocation.enum.Available,
-      type: ItemType.enum.Stone,
-      condition: null,
-    },
-    {
-      id: shortId.generate(),
-      location: ItemLocation.enum.Available,
-      type: ItemType.enum.Wood,
-      condition: null,
-    },
-  ],
   drag: null,
-  inventory: {},
   modal: null,
   variables: INITIAL_VARIABLES,
   actions: INITIAL_ACTIONS,
