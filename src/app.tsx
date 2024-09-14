@@ -168,22 +168,6 @@ export function App() {
       <div className="flex flex-col p-2 gap-2">
         <div>Tick: {context.tick.toString()}</div>
         <AppVariables />
-        <div>
-          <button
-            className="border p-2 hover:opacity-75 active:opacity-50"
-            onClick={() => {
-              setContext((draft) => {
-                draft.modal = {
-                  type: ModalStateType.Variable,
-                  open: true,
-                  variable: null,
-                }
-              })
-            }}
-          >
-            New Variable
-          </button>
-        </div>
         <div className="flex gap-2">
           <div className="flex-1 flex flex-col gap-2">
             <h2>Queue</h2>
@@ -454,6 +438,22 @@ function AppVariables() {
             </Fragment>
           ),
         )}
+      </div>
+      <div>
+        <button
+          className="border p-2 hover:opacity-75 active:opacity-50"
+          onClick={() => {
+            setContext((draft) => {
+              draft.modal = {
+                type: ModalStateType.Variable,
+                open: true,
+                variable: null,
+              }
+            })
+          }}
+        >
+          New Variable
+        </button>
       </div>
     </>
   )
