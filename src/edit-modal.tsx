@@ -3,9 +3,10 @@ import { useCallback, useContext, useMemo } from 'react'
 import invariant from 'tiny-invariant'
 import { useImmer } from 'use-immer'
 import { AppContext } from './context'
+import { getVariableLabel } from './get-variable-label'
 import {
   Condition,
-  ItemType,
+  Context,
   ModalStateType,
   Operator,
   PartialCondition,
@@ -67,6 +68,7 @@ export function EditModalContent() {
           <ConditionInput
             value={condition.inputs[0]}
             onChange={onChangeLeft}
+            context={context}
           />
         </div>
         <div className="flex-1">
@@ -97,41 +99,10 @@ export function EditModalContent() {
           <ConditionInput
             value={condition.inputs[1]}
             onChange={onChangeRight}
+            context={context}
           />
         </div>
       </div>
-      {item.type === ItemType.enum.Stone && (
-        <>
-          <div className="font-bold">Output</div>
-          <div>
-            <select
-              value={item.output ?? ''}
-              onChange={(e) => {
-                setContext((draft) => {
-                  const item = draft.items.find(
-                    ({ id }) => id === modal.itemId,
-                  )
-                  invariant(
-                    item?.type === ItemType.enum.Stone,
-                  )
-                  item.output = e.target.value
-                })
-              }}
-            >
-              <option value="" disabled>
-                Choose Variable
-              </option>
-              {Object.values(context.variables).map(
-                (variable) => (
-                  <option key={variable.id}>
-                    {variable.id}
-                  </option>
-                ),
-              )}
-            </select>
-          </div>
-        </>
-      )}
       <button
         className="border border-black p-2 disabled:opacity-50 hover:opacity-75 active:opacity-50"
         disabled={!valid || !dirty}
@@ -158,11 +129,39 @@ export function EditModalContent() {
 interface ConditionInputProps {
   value: string | null
   onChange: (value: string) => void
+  context: Context
 }
 
 function ConditionInput({
   value,
   onChange,
+  context,
 }: ConditionInputProps) {
-  return <div></div>
+  const options = useMemo(() => {
+    return Object.values(context.variables).map(
+      (variable) => ({
+        value: variable.id,
+        label: getVariableLabel(variable),
+      }),
+    )
+  }, [context.variables])
+  return (
+    <div>
+      <select
+        value={value ?? ''}
+        onChange={(e) => {
+          onChange(e.target.value)
+        }}
+      >
+        <option value="" disabled>
+          Choose Variable
+        </option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
 }

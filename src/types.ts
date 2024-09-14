@@ -213,7 +213,6 @@ const ItemBase = z.strictObject({
 
 export const StoneItem = ItemBase.extend({
   type: z.literal(ItemType.enum.Stone),
-  output: z.string().nullable(),
 })
 export type StoneItem = z.infer<typeof StoneItem>
 
