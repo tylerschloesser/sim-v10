@@ -72,11 +72,16 @@ function AppActions() {
       {Object.values(context.actions).map((action) => (
         <div
           key={action.id}
-          className="border border-white border-opacity-50 p-2"
+          className="border border-white border-opacity-50"
         >
-          <h2 className="text-lg font-bold">
-            {action.type}
-          </h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-bold px-4">
+              {action.type}
+            </h2>
+            <button className="text-blue-300 py-2 px-4">
+              Edit
+            </button>
+          </div>
         </div>
       ))}
     </div>
