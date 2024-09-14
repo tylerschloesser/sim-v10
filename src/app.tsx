@@ -11,8 +11,8 @@ import React, {
 } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
+import { INITIAL_CONTEXT } from './context'
 import { EditModalContent } from './edit-modal'
-import { INITIAL_CONTEXT } from './initial-context'
 import { RenderVariableValue } from './render-variable-value'
 import {
   Context,
