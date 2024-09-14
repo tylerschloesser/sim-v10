@@ -159,12 +159,14 @@ export type PartialCustomVariableFunction = z.infer<
 
 export const CustomVariable = VariableBase.extend({
   type: z.literal(VariableType.enum.Custom),
+  name: z.string(),
   fn: CustomVariableFunction,
 })
 export type CustomVariable = z.infer<typeof CustomVariable>
 
 export const PartialCustomVariable = VariableBase.extend({
   type: z.literal(VariableType.enum.Custom),
+  name: z.string().nullable(),
   fn: PartialCustomVariableFunction.nullable(),
 })
 export type PartialCustomVariable = z.infer<

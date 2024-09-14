@@ -25,6 +25,7 @@ function newVariable(): PartialCustomVariable {
   return {
     id: shortId().generate(),
     type: VariableType.enum.Custom,
+    name: null,
     fn: null,
   }
 }
@@ -58,6 +59,20 @@ export function VariableModalContent({
           type="text"
           value={state.id}
           readOnly
+        />
+      </label>
+      <label className="flex flex-col">
+        Name
+        <input
+          className="p-2 border border-black placeholder-shown:text-opacity-50"
+          placeholder={state.id}
+          type="text"
+          value={state.name ?? ''}
+          onChange={(e) => {
+            setState((draft) => {
+              draft.name = e.target.value
+            })
+          }}
         />
       </label>
       <label className="flex flex-col">
