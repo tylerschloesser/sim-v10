@@ -33,7 +33,8 @@ export function Modal({
           <h2 className="text-xl font-bold">{title}</h2>
           <button
             className="border border-black p-2 hover:opacity-75 active:opacity-50"
-            onClick={() => {
+            onClick={(ev) => {
+              ev.preventDefault()
               ref.current?.close()
             }}
           >

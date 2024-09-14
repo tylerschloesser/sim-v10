@@ -110,9 +110,13 @@ export function VariableModalContent({
       )}
       {state.fn?.type ===
         CustomVariableFunctionType.enum.Multiply && (
-        <MultiplyCustomVariableFunctionForm />
+        <MultiplyCustomVariableFunctionForm
+          state={state}
+          setState={setState}
+        />
       )}
       <button
+        type="submit"
         className="border border-black p-2 hover:opacity-75 active:opacity-50 disabled:opacity-50"
         disabled={!valid}
         onClick={() => {
@@ -253,7 +257,19 @@ function IdentityCustomVariableFunctionForm({
   )
 }
 
-function MultiplyCustomVariableFunctionForm() {
+interface MultiplyCustomVariableFunctionFormProps {
+  state: PartialCustomVariable
+  setState: Updater<PartialCustomVariable>
+}
+
+function MultiplyCustomVariableFunctionForm({
+  state,
+  setState,
+}: MultiplyCustomVariableFunctionFormProps) {
+  invariant(
+    state.fn?.type ===
+      CustomVariableFunctionType.enum.Multiply,
+  )
   return <div>Multiply</div>
 }
 
