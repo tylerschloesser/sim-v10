@@ -68,9 +68,16 @@ export function App() {
 function AppActions() {
   const { context, setContext } = useContext(AppContext)
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       {Object.values(context.actions).map((action) => (
-        <div key={action.id}>{action.type}</div>
+        <div
+          key={action.id}
+          className="border border-white border-opacity-50 p-2"
+        >
+          <h2 className="text-lg font-bold">
+            {action.type}
+          </h2>
+        </div>
       ))}
     </div>
   )
