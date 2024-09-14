@@ -8,7 +8,9 @@ import {
   CustomVariableFunctionType,
   FunctionInputType,
   PartialCustomVariable,
+  PartialCustomVariableFunction,
   PartialFunctionInput,
+  PartialMultiplyCustomVariableFunction,
   Variable,
   VariableType,
 } from './types'
@@ -262,15 +264,34 @@ interface MultiplyCustomVariableFunctionFormProps {
   setState: Updater<PartialCustomVariable>
 }
 
+function isMultiply(
+  fn: PartialCustomVariableFunction | null,
+): fn is PartialMultiplyCustomVariableFunction {
+  return (
+    fn?.type === CustomVariableFunctionType.enum.Multiply
+  )
+}
+
 function MultiplyCustomVariableFunctionForm({
   state,
   setState,
 }: MultiplyCustomVariableFunctionFormProps) {
-  invariant(
-    state.fn?.type ===
-      CustomVariableFunctionType.enum.Multiply,
+  invariant(isMultiply(state.fn))
+  const inputOptions = useInputOptions(state.id)
+  return (
+    <div>
+      <FunctionInputForm
+        input={state.fn.inputs[0]}
+        onChange={(input) => {
+          setState((draft) => {
+            invariant(isMultiply(draft.fn))
+            draft.fn.inputs[0] = input
+          })
+        }}
+        inputOptions={inputOptions}
+      />
+    </div>
   )
-  return <div>Multiply</div>
 }
 
 function useInputOptions(stateId: string) {
