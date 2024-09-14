@@ -16,10 +16,10 @@ function newCondition(): PartialCondition {
   return { inputs: [null, null], operator: null }
 }
 
-export function EditModalContent() {
+export function ActionModalContent() {
   const { context, setContext } = useContext(AppContext)
   const { modal } = context
-  invariant(modal?.type === ModalStateType.Edit)
+  invariant(modal?.type === ModalStateType.Action)
 
   const action = useMemo(() => {
     const action = context.actions[modal.actionId]

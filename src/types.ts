@@ -245,12 +245,12 @@ export interface Context {
 }
 
 export enum ModalStateType {
-  Edit = 'edit',
+  Action = 'action',
   Variable = 'variable',
 }
 
-export interface EditModalState {
-  type: ModalStateType.Edit
+export interface ActionModalState {
+  type: ModalStateType.Action
   actionId: string
 }
 
@@ -259,4 +259,6 @@ export interface VariableModalState {
   variable: CustomVariable | null
 }
 
-export type ModalState = EditModalState | VariableModalState
+export type ModalState =
+  | ActionModalState
+  | VariableModalState

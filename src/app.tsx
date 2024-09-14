@@ -6,9 +6,9 @@ import {
 } from 'react'
 import invariant from 'tiny-invariant'
 import { useImmer } from 'use-immer'
+import { ActionModalContent } from './action-modal'
 import { AppDebug } from './app-debug'
 import { AppContext, INITIAL_CONTEXT } from './context'
-import { EditModalContent } from './edit-modal'
 import { getVariableLabel } from './get-variable-label'
 import { Modal } from './modal'
 import { RenderVariableValue } from './render-variable-value'
@@ -63,7 +63,7 @@ function AppActions() {
               onClick={() => {
                 setContext((draft) => {
                   draft.modal = {
-                    type: ModalStateType.Edit,
+                    type: ModalStateType.Action,
                     actionId: action.id,
                   }
                 })
@@ -163,8 +163,8 @@ function AppModal() {
     <Modal
       title={(() => {
         switch (context.modal.type) {
-          case ModalStateType.Edit:
-            return 'Edit'
+          case ModalStateType.Action:
+            return 'Edit Action'
           case ModalStateType.Variable:
             return context.modal.variable
               ? 'Edit Variable'
@@ -176,8 +176,8 @@ function AppModal() {
       onClose={onCloseModal}
     >
       <>
-        {context.modal.type === ModalStateType.Edit && (
-          <EditModalContent />
+        {context.modal.type === ModalStateType.Action && (
+          <ActionModalContent />
         )}
         {context.modal.type === ModalStateType.Variable && (
           <VariableModalContent
