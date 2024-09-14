@@ -293,7 +293,7 @@ export type Item = z.infer<typeof Item>
 
 export type Inventory = Partial<Record<ItemType, number>>
 
-export interface State {
+export interface Context {
   tick: number
   drag: string | null
   items: Item[]

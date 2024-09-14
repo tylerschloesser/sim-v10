@@ -8,19 +8,20 @@ import {
   FunctionInputType,
   PartialCustomVariable,
   PartialFunctionInput,
-  State,
+  Context,
   Variable,
   VariableType,
 } from './types'
 
 export interface VariableModalContentProps {
-  state: State
+  context: Context
   onSave(variable: CustomVariable): void
   variable: CustomVariable | null
 }
 
 export function VariableModalContent({
   onSave,
+  context,
   ...props
 }: VariableModalContentProps) {
   const [state, setState] =
@@ -43,7 +44,7 @@ export function VariableModalContent({
   )
 
   const inputOptions = useMemo(() => {
-    return Object.values(props.state.variables)
+    return Object.values(context.variables)
       .filter(
         (variable) => variable.id !== props.variable?.id,
       )
@@ -54,7 +55,7 @@ export function VariableModalContent({
             ? variable.item
             : variable.id,
       }))
-  }, [props.variable, props.state.variables])
+  }, [props.variable, context.variables])
 
   const functionOptions = useMemo(() => {
     return [

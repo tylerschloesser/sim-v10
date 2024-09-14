@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Updater } from 'use-immer'
-import { tickState } from './tick-state'
-import { State } from './types'
+import { tickContext } from './tick-state'
+import { Context } from './types'
 
 const TICK_INTERVAL: number = 1000
 const FAST_TICK_INTERVAL: number = TICK_INTERVAL * 0.01
 
-export function useTickInterval(setState: Updater<State>) {
+export function useTickInterval(
+  setContext: Updater<Context>,
+) {
   const [fast, setFast] = useState(false)
 
   useEffect(() => {
@@ -37,7 +39,7 @@ export function useTickInterval(setState: Updater<State>) {
   useEffect(() => {
     const interval = setInterval(
       () => {
-        setState(tickState)
+        setContext(tickContext)
       },
       fast ? FAST_TICK_INTERVAL : TICK_INTERVAL,
     )

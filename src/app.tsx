@@ -19,14 +19,14 @@ import {
   ItemLocation,
   ItemType,
   ModalStateType,
-  State,
+  Context,
   Variable,
   VariableType,
 } from './types'
 import { useTickInterval } from './use-tick-interval'
 import { VariableModalContent } from './variable-modal'
 
-const INITIAL_VARIABLES: State['variables'] = {}
+const INITIAL_VARIABLES: Context['variables'] = {}
 
 function addItemVariable(item: ItemType): void {
   const id = shortId.generate()
@@ -40,7 +40,7 @@ function addItemVariable(item: ItemType): void {
 addItemVariable(ItemType.enum.Stone)
 addItemVariable(ItemType.enum.Wood)
 
-const INITIAL_STATE: State = {
+const INITIAL_CONTEXT: Context = {
   tick: 0,
   items: [
     {
@@ -98,16 +98,16 @@ function useScrollDebug() {
 
 export interface VariableValueProps {
   variable: Variable
-  state: State
+  context: Context
 }
 
 function getVariableValue(
   variable: Variable,
-  state: State,
+  context: Context,
 ) {
   switch (variable.type) {
     case VariableType.enum.Item:
-      return state.inventory[variable.item] ?? 0
+      return context.inventory[variable.item] ?? 0
     case VariableType.enum.Custom: {
       switch (variable.fn.type) {
         case CustomVariableFunctionType.enum.Identity: {
@@ -116,9 +116,9 @@ function getVariableValue(
               return variable.fn.input.value
             case FunctionInputType.enum.Variable: {
               const input =
-                state.variables[variable.fn.input.id]
+                context.variables[variable.fn.input.id]
               invariant(input)
-              return getVariableValue(input, state)
+              return getVariableValue(input, context)
             }
           }
         }
@@ -131,22 +131,23 @@ function getVariableValue(
 
 function VariableValue({
   variable,
-  state,
+  context,
 }: VariableValueProps) {
   const value = useMemo(
-    () => getVariableValue(variable, state),
-    [variable, state],
+    () => getVariableValue(variable, context),
+    [variable, context],
   )
   return <>{JSON.stringify(value)}</>
 }
 
 export function App() {
-  const [state, setState] = useImmer<State>(INITIAL_STATE)
-  useTickInterval(setState)
+  const [context, setContext] =
+    useImmer<Context>(INITIAL_CONTEXT)
+  useTickInterval(setContext)
   const scrollDebug = useScrollDebug()
 
   const onCloseModal = useCallback(() => {
-    setState((draft) => {
+    setContext((draft) => {
       draft.modal.open = false
     })
   }, [])
@@ -154,10 +155,10 @@ export function App() {
   return (
     <>
       <div className="flex flex-col p-2 gap-2">
-        <div>Tick: {state.tick.toString()}</div>
+        <div>Tick: {context.tick.toString()}</div>
         <div>Variables</div>
         <div className="grid grid-cols-[repeat(4,min-content)] gap-4">
-          {Object.values(state.variables).map(
+          {Object.values(context.variables).map(
             (variable) => (
               <Fragment key={variable.id}>
                 <div>{variable.type}</div>
@@ -169,7 +170,7 @@ export function App() {
                 <div>
                   <VariableValue
                     variable={variable}
-                    state={state}
+                    context={context}
                   />
                 </div>
                 {variable.type ===
@@ -179,7 +180,7 @@ export function App() {
                     className="text-blue-300"
                     onClick={(e) => {
                       e.preventDefault()
-                      setState((draft) => {
+                      setContext((draft) => {
                         draft.modal = {
                           type: ModalStateType.Variable,
                           open: true,
@@ -201,7 +202,7 @@ export function App() {
           <button
             className="border p-2 hover:opacity-75 active:opacity-50"
             onClick={() => {
-              setState((draft) => {
+              setContext((draft) => {
                 draft.modal = {
                   type: ModalStateType.Variable,
                   open: true,
@@ -218,16 +219,16 @@ export function App() {
             <h2>Queue</h2>
             <ItemList
               location={ItemLocation.enum.Queue}
-              state={state}
-              setState={setState}
+              context={context}
+              setContext={setContext}
             />
           </div>
           <div className="flex-1 flex flex-col gap-2">
             <h2>Available</h2>
             <ItemList
               location={ItemLocation.enum.Available}
-              state={state}
-              setState={setState}
+              context={context}
+              setContext={setContext}
             />
           </div>
         </div>
@@ -238,41 +239,42 @@ export function App() {
           !scrollDebug && 'pointer-events-none',
         )}
       >
-        {JSON.stringify(state, null, 2)}
+        {JSON.stringify(context, null, 2)}
       </div>
       <Modal
         title={(() => {
-          switch (state.modal.type) {
+          switch (context.modal.type) {
             case ModalStateType.Edit:
               return 'Edit'
             case ModalStateType.Variable:
-              return state.modal.variable
+              return context.modal.variable
                 ? 'Edit Variable'
                 : 'New Variable'
             default:
               return '[Missing Title]'
           }
         })()}
-        open={state.modal.open}
+        open={context.modal.open}
         onClose={onCloseModal}
       >
         <>
-          {state.modal.type === ModalStateType.Edit && (
+          {context.modal.type === ModalStateType.Edit && (
             <EditModalContent
-              state={state}
-              setState={setState}
+              context={context}
+              setContext={setContext}
               onClose={onCloseModal}
             />
           )}
-          {state.modal.type === ModalStateType.Variable && (
+          {context.modal.type ===
+            ModalStateType.Variable && (
             <VariableModalContent
-              state={state}
+              context={context}
               onSave={(variable) => {
-                setState((draft) => {
+                setContext((draft) => {
                   draft.variables[variable.id] = variable
                 })
               }}
-              variable={state.modal.variable}
+              variable={context.modal.variable}
             />
           )}
         </>
@@ -283,22 +285,22 @@ export function App() {
 
 interface CardProps {
   item: Item
-  setState: Updater<State>
+  setContext: Updater<Context>
 }
 
-function Card({ item, setState }: CardProps) {
+function Card({ item, setContext }: CardProps) {
   return (
     <div
       role="button"
       draggable
       onDragStart={(ev) => {
         ev.dataTransfer.setData('text/plain', item.id)
-        setState((draft) => {
+        setContext((draft) => {
           draft.drag = item.id
         })
       }}
       onDragEnd={() => {
-        setState((draft) => {
+        setContext((draft) => {
           draft.drag = null
         })
       }}
@@ -322,7 +324,7 @@ function Card({ item, setState }: CardProps) {
         </span>
         <button
           onClick={() =>
-            setState((draft) => {
+            setContext((draft) => {
               draft.modal = {
                 type: ModalStateType.Edit,
                 open: true,
@@ -391,21 +393,21 @@ function Modal({
 
 interface ItemListProps {
   location: ItemLocation
-  state: State
-  setState: Updater<State>
+  context: Context
+  setContext: Updater<Context>
 }
 
 function ItemList({
   location,
-  state,
-  setState,
+  context,
+  setContext,
 }: ItemListProps) {
   return (
     <div
       onDrop={(ev) => {
         ev.preventDefault()
         const itemId = ev.dataTransfer.getData('text/plain')
-        setState((draft) => {
+        setContext((draft) => {
           draft.drag = null
           const item = draft.items.find(
             ({ id }) => id === itemId,
@@ -419,18 +421,18 @@ function ItemList({
       }}
       className={clsx(
         'min-h-96 border border-dashed flex flex-col gap-2',
-        state.drag
+        context.drag
           ? 'border-gray-400'
           : 'border-transparent',
       )}
     >
-      {state.items
+      {context.items
         .filter((item) => item.location === location)
         .map((item) => (
           <Card
             key={item.id}
             item={item}
-            setState={setState}
+            setContext={setContext}
           />
         ))}
     </div>

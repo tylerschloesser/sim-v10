@@ -9,25 +9,25 @@ import {
   Operator,
   PartialCondition,
   PartialValue,
-  State,
+  Context,
   ValueType,
 } from './types'
 
 export interface EditModalContentProps {
-  state: State
-  setState: Updater<State>
+  context: Context
+  setContext: Updater<Context>
   onClose(): void
 }
 
 export function EditModalContent({
-  state,
-  setState,
+  context,
+  setContext,
   onClose,
 }: EditModalContentProps) {
-  const { modal } = state
+  const { modal } = context
   invariant(modal.type === ModalStateType.Edit)
 
-  const item = state.items.find(
+  const item = context.items.find(
     ({ id }) => id === modal.itemId,
   )
   invariant(item)
@@ -119,7 +119,7 @@ export function EditModalContent({
             <select
               value={item.output ?? ''}
               onChange={(e) => {
-                setState((draft) => {
+                setContext((draft) => {
                   const item = draft.items.find(
                     ({ id }) => id === modal.itemId,
                   )
@@ -133,7 +133,7 @@ export function EditModalContent({
               <option value="" disabled>
                 Choose Variable
               </option>
-              {Object.values(state.variables).map(
+              {Object.values(context.variables).map(
                 (variable) => (
                   <option key={variable.id}>
                     {variable.id}
@@ -148,7 +148,7 @@ export function EditModalContent({
         className="border border-black p-2 disabled:opacity-50 hover:opacity-75 active:opacity-50"
         disabled={!valid || !dirty}
         onClick={() => {
-          setState((draft) => {
+          setContext((draft) => {
             const item = draft.items.find(
               ({ id }) => id === modal.itemId,
             )

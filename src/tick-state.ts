@@ -8,12 +8,12 @@ import {
   ItemLocation,
   ItemType,
   Operator,
-  State,
+  Context,
   Value,
   ValueType,
 } from './types'
 
-export function tickState(draft: WritableDraft<State>) {
+export function tickContext(draft: WritableDraft<Context>) {
   draft.tick += 1
   const itemsToDelete = new Set<Item>()
   for (const item of draft.items.filter(isInQueue)) {
