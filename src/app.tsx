@@ -113,7 +113,7 @@ function getVariableValue(
         case CustomVariableFunctionType.enum.Identity: {
           switch (variable.fn.input.type) {
             case FunctionInputType.enum.Constant:
-              invariant(false, 'TODO')
+              return variable.fn.input.value
             case FunctionInputType.enum.Variable: {
               const input =
                 state.variables[variable.fn.input.id]

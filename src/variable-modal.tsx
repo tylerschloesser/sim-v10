@@ -206,9 +206,19 @@ function FunctionInputForm({
         </label>
       </fieldset>
       {input?.type === FunctionInputType.enum.Constant && (
-        <label>
+        <label className="flex flex-col">
           <span>Constant</span>
-          <input type="number" value={input.value ?? ''} />
+          <input
+            className="p-2 border border-black"
+            type="number"
+            value={input.value ?? ''}
+            onChange={(e) =>
+              onChange({
+                type: FunctionInputType.enum.Constant,
+                value: parseInt(e.target.value),
+              })
+            }
+          />
         </label>
       )}
       {input?.type === FunctionInputType.enum.Variable && (
