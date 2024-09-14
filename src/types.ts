@@ -1,11 +1,6 @@
 import { z } from 'zod'
 
-export const ItemType = z.enum([
-  'Stone',
-  'Wood',
-  'StoneFurnace',
-  'StoneBrick',
-])
+export const ItemType = z.enum(['Stone', 'Wood'])
 export type ItemType = z.infer<typeof ItemType>
 
 export const VariableType = z.enum(['Item', 'Custom'])
@@ -232,12 +227,20 @@ export const Action = z.discriminatedUnion('type', [
 ])
 export type Action = z.infer<typeof Action>
 
+export const Store = z.strictObject({
+  id: z.string(),
+  item: ItemType,
+  quantity: z.number(),
+})
+export type Store = z.infer<typeof Store>
+
 export interface Context {
   tick: number
   drag: string | null
   modal: ModalState | null
   variables: Record<string, Variable>
   actions: Record<string, Action>
+  stores: Record<string, Store>
 }
 
 export enum ModalStateType {
