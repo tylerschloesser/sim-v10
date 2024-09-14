@@ -5,7 +5,6 @@ import {
   Context,
   ItemLocation,
   ItemType,
-  ModalStateType,
   VariableType,
 } from './types'
 
@@ -54,6 +53,6 @@ export const INITIAL_CONTEXT: Context = {
   ],
   drag: null,
   inventory: {},
-  modal: { type: ModalStateType.Initial, open: false },
+  modal: null,
   variables: INITIAL_VARIABLES,
 }
