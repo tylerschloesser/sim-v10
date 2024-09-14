@@ -150,7 +150,6 @@ export function App() {
   const [context, setContext] =
     useImmer<Context>(INITIAL_CONTEXT)
   useTickInterval(setContext)
-  const scrollDebug = useScrollDebug()
 
   const onCloseModal = useCallback(() => {
     setContext((draft) => {
@@ -187,14 +186,7 @@ export function App() {
           </div>
         </div>
       </div>
-      <div
-        className={clsx(
-          'fixed top-0 bottom-0 left-0 p-2 font-mono whitespace-pre opacity-25 text-sm overflow-scroll',
-          !scrollDebug && 'pointer-events-none',
-        )}
-      >
-        {JSON.stringify(context, null, 2)}
-      </div>
+      <AppDebug />
       <Modal
         title={(() => {
           switch (context.modal.type) {
@@ -456,5 +448,20 @@ function AppVariables() {
         </button>
       </div>
     </>
+  )
+}
+
+function AppDebug() {
+  const { context } = useContext(AppContext)
+  const scrollDebug = useScrollDebug()
+  return (
+    <div
+      className={clsx(
+        'fixed top-0 bottom-0 left-0 p-2 font-mono whitespace-pre opacity-25 text-sm overflow-scroll',
+        !scrollDebug && 'pointer-events-none',
+      )}
+    >
+      {JSON.stringify(context, null, 2)}
+    </div>
   )
 }
