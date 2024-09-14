@@ -27,6 +27,8 @@ function addItemVariable(item: ItemType): void {
 addItemVariable(ItemType.enum.Stone)
 addItemVariable(ItemType.enum.Wood)
 
+const INITIAL_ACTIONS: Context['actions'] = {}
+
 export const INITIAL_CONTEXT: Context = {
   tick: 0,
   items: [
@@ -35,7 +37,6 @@ export const INITIAL_CONTEXT: Context = {
       location: ItemLocation.enum.Available,
       type: ItemType.enum.Stone,
       condition: null,
-      output: null,
     },
     {
       id: shortId.generate(),
@@ -55,4 +56,5 @@ export const INITIAL_CONTEXT: Context = {
   inventory: {},
   modal: null,
   variables: INITIAL_VARIABLES,
+  actions: INITIAL_ACTIONS,
 }

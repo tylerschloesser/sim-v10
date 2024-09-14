@@ -252,6 +252,37 @@ export type Item = z.infer<typeof Item>
 
 export type Inventory = Partial<Record<ItemType, number>>
 
+export const ActionType = z.enum([
+  'GatherStone',
+  'GatherWood',
+])
+export type ActionType = z.infer<typeof ActionType>
+
+const ActionBase = z.strictObject({
+  id: z.string(),
+  condition: Condition.nullable(),
+})
+
+export const GatherStoneAction = ActionBase.extend({
+  type: z.literal(ActionType.enum.GatherStone),
+})
+export type GatherStoneAction = z.infer<
+  typeof GatherStoneAction
+>
+
+export const GatherWoodAction = ActionBase.extend({
+  type: z.literal(ActionType.enum.GatherWood),
+})
+export type GatherWoodAction = z.infer<
+  typeof GatherWoodAction
+>
+
+export const Action = z.discriminatedUnion('type', [
+  GatherStoneAction,
+  GatherWoodAction,
+])
+export type Action = z.infer<typeof Action>
+
 export interface Context {
   tick: number
   drag: string | null
@@ -259,6 +290,7 @@ export interface Context {
   inventory: Inventory
   modal: ModalState | null
   variables: Record<string, Variable>
+  actions: Record<string, Action>
 }
 
 export enum ModalStateType {
