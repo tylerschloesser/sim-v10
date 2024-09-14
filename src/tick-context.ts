@@ -2,36 +2,21 @@ import { WritableDraft } from 'immer'
 import invariant from 'tiny-invariant'
 import { getVariableValue } from './get-variable-value'
 import {
+  ActionType,
   Condition,
   Context,
-  Item,
-  ItemLocation,
-  ItemType,
   Operator,
   Variable,
 } from './types'
 
 export function tickContext(draft: WritableDraft<Context>) {
   draft.tick += 1
-  const itemsToDelete = new Set<Item>()
-  for (const item of draft.items.filter(isInQueue)) {
-    if (isConditionSatisfied(item.condition, draft)) {
-      switch (item.type) {
-        case ItemType.enum.Stone:
-        case ItemType.enum.Wood: {
-          draft.inventory[item.type] =
-            (draft.inventory[item.type] ?? 0) + 1
-          break
-        }
-        case ItemType.enum.StoneFurnace: {
-          if (
-            (draft.inventory[ItemType.enum.Stone] ?? 0) >= 2
-          ) {
-            draft.inventory[ItemType.enum.Stone]! -= 2
-            draft.inventory[ItemType.enum.StoneBrick] =
-              (draft.inventory[ItemType.enum.StoneBrick] ??
-                0) + 1
-          }
+  for (const action of Object.values(draft.actions)) {
+    if (isConditionSatisfied(action.condition, draft)) {
+      switch (action.type) {
+        case ActionType.enum.GatherStone:
+        case ActionType.enum.GatherWood: {
+          console.log('TODO')
           break
         }
         default:
@@ -43,14 +28,6 @@ export function tickContext(draft: WritableDraft<Context>) {
       break
     }
   }
-
-  draft.items = draft.items.filter(
-    (item) => !itemsToDelete.has(item),
-  )
-}
-
-function isInQueue(item: Item): boolean {
-  return item.location === ItemLocation.enum.Queue
 }
 
 function isConditionSatisfied(
