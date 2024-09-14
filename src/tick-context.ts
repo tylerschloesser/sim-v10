@@ -1,14 +1,13 @@
 import { WritableDraft } from 'immer'
-import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
 import { getVariableValue } from './get-variable-value'
 import {
   Condition,
+  Context,
   Item,
   ItemLocation,
   ItemType,
   Operator,
-  Context,
   Variable,
 } from './types'
 
@@ -22,19 +21,6 @@ export function tickContext(draft: WritableDraft<Context>) {
         case ItemType.enum.Wood: {
           draft.inventory[item.type] =
             (draft.inventory[item.type] ?? 0) + 1
-          break
-        }
-        case ItemType.enum.ResearchStone: {
-          item.progress += 1
-          if (item.progress === 100) {
-            draft.items.push({
-              id: shortId.generate(),
-              location: ItemLocation.enum.Available,
-              type: ItemType.enum.StoneFurnace,
-              condition: null,
-            })
-            itemsToDelete.add(item)
-          }
           break
         }
         case ItemType.enum.StoneFurnace: {

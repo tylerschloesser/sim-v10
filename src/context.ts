@@ -57,13 +57,6 @@ export const INITIAL_CONTEXT: Context = {
       type: ItemType.enum.Wood,
       condition: null,
     },
-    {
-      id: shortId.generate(),
-      location: ItemLocation.enum.Available,
-      type: ItemType.enum.ResearchStone,
-      condition: null,
-      progress: 0,
-    },
   ],
   drag: null,
   inventory: {},
