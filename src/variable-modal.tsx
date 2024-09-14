@@ -168,9 +168,9 @@ function FunctionInputForm({
 }: FunctionInputFormProps) {
   return (
     <>
-      <fieldset>
-        <label>
-          Constant
+      <fieldset className="flex flex-col">
+        <legend>Type</legend>
+        <label className="flex gap-2">
           <input
             type="radio"
             value={FunctionInputType.enum.Constant}
@@ -185,9 +185,9 @@ function FunctionInputForm({
               })
             }
           />
+          Constant
         </label>
-        <label>
-          Variable
+        <label className="flex gap-2">
           <input
             type="radio"
             value={FunctionInputType.enum.Variable}
@@ -202,6 +202,7 @@ function FunctionInputForm({
               })
             }
           />
+          Variable
         </label>
       </fieldset>
       {input?.type === FunctionInputType.enum.Constant && (
@@ -211,7 +212,7 @@ function FunctionInputForm({
         </label>
       )}
       {input?.type === FunctionInputType.enum.Variable && (
-        <label>
+        <label className="flex flex-col">
           <span>Variable</span>
           <select
             className="p-2 border border-black"
