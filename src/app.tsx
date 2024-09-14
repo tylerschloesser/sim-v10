@@ -11,7 +11,7 @@ import React, {
 } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
-import { INITIAL_CONTEXT } from './context'
+import { AppContext, INITIAL_CONTEXT } from './context'
 import { EditModalContent } from './edit-modal'
 import { RenderVariableValue } from './render-variable-value'
 import {
@@ -50,11 +50,6 @@ function useScrollDebug() {
 
   return scrollDebug
 }
-
-const AppContext = React.createContext<{
-  context: Context
-  setContext: Updater<Context>
-}>(null!)
 
 export function App() {
   const [context, setContext] =

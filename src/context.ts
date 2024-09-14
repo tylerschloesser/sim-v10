@@ -1,4 +1,6 @@
+import React from 'react'
 import shortId from 'short-uuid'
+import { Updater } from 'use-immer'
 import {
   Context,
   ItemLocation,
@@ -6,6 +8,11 @@ import {
   ModalStateType,
   VariableType,
 } from './types'
+
+export const AppContext = React.createContext<{
+  context: Context
+  setContext: Updater<Context>
+}>(null!)
 
 const INITIAL_VARIABLES: Context['variables'] = {}
 
