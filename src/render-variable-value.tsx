@@ -40,6 +40,17 @@ function getVariableValue(
             context,
           )
         }
+        case CustomVariableFunctionType.enum.Multiply: {
+          const left = getFunctionInputValue(
+            variable.fn.inputs[0],
+            context,
+          )
+          const right = getFunctionInputValue(
+            variable.fn.inputs[1],
+            context,
+          )
+          return left * right
+        }
         default:
           invariant(false)
       }
