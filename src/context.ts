@@ -2,6 +2,7 @@ import React from 'react'
 import shortId from 'short-uuid'
 import { Updater } from 'use-immer'
 import {
+  ActionType,
   Context,
   ItemLocation,
   ItemType,
@@ -28,6 +29,18 @@ addItemVariable(ItemType.enum.Stone)
 addItemVariable(ItemType.enum.Wood)
 
 const INITIAL_ACTIONS: Context['actions'] = {}
+
+function addAction(type: ActionType): void {
+  const id = shortId.generate()
+  INITIAL_ACTIONS[id] = {
+    id,
+    type,
+    condition: null,
+  }
+}
+
+addAction(ActionType.enum.GatherStone)
+addAction(ActionType.enum.GatherWood)
 
 export const INITIAL_CONTEXT: Context = {
   tick: 0,

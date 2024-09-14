@@ -39,6 +39,7 @@ export function App() {
       <div className="flex flex-col p-2 gap-2">
         <div>Tick: {context.tick.toString()}</div>
         <AppVariables />
+        <AppActions />
         <div className="flex gap-2">
           <div className="flex-1 flex flex-col gap-2">
             <h2>Queue</h2>
@@ -61,6 +62,17 @@ export function App() {
       <AppDebug />
       <AppModal />
     </AppContext.Provider>
+  )
+}
+
+function AppActions() {
+  const { context, setContext } = useContext(AppContext)
+  return (
+    <div>
+      {Object.values(context.actions).map((action) => (
+        <div key={action.id}>{action.type}</div>
+      ))}
+    </div>
   )
 }
 
