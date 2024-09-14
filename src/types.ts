@@ -208,11 +208,25 @@ const ActionBase = z.strictObject({
   output: z.string().nullable(),
 })
 
+const PartialActionBase = z.strictObject({
+  id: z.string(),
+  condition: PartialCondition.nullable(),
+  output: z.string().nullable(),
+})
+
 export const GatherStoneAction = ActionBase.extend({
   type: z.literal(ActionType.enum.GatherStone),
 })
 export type GatherStoneAction = z.infer<
   typeof GatherStoneAction
+>
+
+export const PartialGatherStoneAction =
+  PartialActionBase.extend({
+    type: z.literal(ActionType.enum.GatherStone),
+  })
+export type PartialGatherStoneAction = z.infer<
+  typeof PartialGatherStoneAction
 >
 
 export const GatherWoodAction = ActionBase.extend({
@@ -222,11 +236,25 @@ export type GatherWoodAction = z.infer<
   typeof GatherWoodAction
 >
 
+export const PartialGatherWoodAction =
+  PartialActionBase.extend({
+    type: z.literal(ActionType.enum.GatherWood),
+  })
+export type PartialGatherWoodAction = z.infer<
+  typeof PartialGatherWoodAction
+>
+
 export const Action = z.discriminatedUnion('type', [
   GatherStoneAction,
   GatherWoodAction,
 ])
 export type Action = z.infer<typeof Action>
+
+export const PartialAction = z.discriminatedUnion('type', [
+  PartialGatherStoneAction,
+  PartialGatherWoodAction,
+])
+export type PartialAction = z.infer<typeof PartialAction>
 
 export const Store = z.strictObject({
   id: z.string(),

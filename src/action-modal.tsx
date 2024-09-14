@@ -5,10 +5,12 @@ import { useImmer } from 'use-immer'
 import { AppContext } from './context'
 import { getVariableLabel } from './get-variable-label'
 import {
+  Action,
   Condition,
   Context,
   ModalStateType,
   Operator,
+  PartialAction,
   PartialCondition,
 } from './types'
 
@@ -27,11 +29,10 @@ export function ActionModalContent() {
     return action
   }, [context.actions, modal.actionId])
 
-  const [state, setState] =
-    useImmer<PartialCondition | null>(action.condition)
+  const [state, setState] = useImmer<PartialAction>(action)
 
   const valid = useMemo(
-    () => Condition.nullable().safeParse(state).success,
+    () => Action.safeParse(state).success,
     [state],
   )
 
@@ -43,10 +44,10 @@ export function ActionModalContent() {
   const onChangeLeft = useCallback(
     (value: string) => {
       setState((draft) => {
-        if (draft === null) {
-          draft = newCondition()
+        if (draft.condition === null) {
+          draft.condition = newCondition()
         }
-        draft.inputs[0] = value
+        draft.condition.inputs[0] = value
         return draft
       })
     },
@@ -56,10 +57,10 @@ export function ActionModalContent() {
   const onChangeRight = useCallback(
     (value: string) => {
       setState((draft) => {
-        if (draft === null) {
-          draft = newCondition()
+        if (draft.condition === null) {
+          draft.condition = newCondition()
         }
-        draft.inputs[1] = value
+        draft.condition.inputs[1] = value
         return draft
       })
     },
@@ -75,7 +76,9 @@ export function ActionModalContent() {
         <button
           onClick={(ev) => {
             ev.preventDefault()
-            setState(null)
+            setState((draft) => {
+              draft.condition = null
+            })
           }}
           className="text-blue-700"
         >
@@ -86,7 +89,7 @@ export function ActionModalContent() {
         <div className="flex-1">
           <h2>Left</h2>
           <ConditionInput
-            value={state?.inputs[0] ?? null}
+            value={state.condition?.inputs[0] ?? null}
             onChange={onChangeLeft}
             context={context}
           />
@@ -95,13 +98,13 @@ export function ActionModalContent() {
           <h2>Operator</h2>
           <select
             className="border border-black p-2"
-            value={state?.operator ?? ''}
+            value={state.condition?.operator ?? ''}
             onChange={(e) => {
               setState((draft) => {
-                if (draft === null) {
-                  draft = newCondition()
+                if (draft.condition === null) {
+                  draft.condition = newCondition()
                 }
-                draft.operator = Operator.parse(
+                draft.condition.operator = Operator.parse(
                   e.target.value,
                 )
                 return draft
@@ -121,7 +124,7 @@ export function ActionModalContent() {
         <div className="flex-1">
           <h2>Right</h2>
           <ConditionInput
-            value={state?.inputs[1] ?? null}
+            value={state.condition?.inputs[1] ?? null}
             onChange={onChangeRight}
             context={context}
           />
@@ -132,10 +135,8 @@ export function ActionModalContent() {
         disabled={!valid || !dirty}
         onClick={() => {
           setContext((draft) => {
-            const action = draft.actions[modal.actionId]
-            invariant(action)
-            action.condition =
-              Condition.nullable().parse(state)
+            draft.actions[modal.actionId] =
+              Action.parse(state)
           })
         }}
       >
