@@ -26,21 +26,6 @@ function newVariable(): PartialCustomVariable {
   }
 }
 
-function useInputOptions(editId?: string) {
-  const { context } = useContext(AppContext)
-  return useMemo(() => {
-    return Object.values(context.variables)
-      .filter(({ id }) => id !== editId)
-      .map((variable) => ({
-        value: variable.id,
-        label:
-          variable.type === VariableType.enum.Item
-            ? variable.item
-            : variable.id,
-      }))
-  }, [editId, context.variables])
-}
-
 export function VariableModalContent({
   onSave,
   variable,
@@ -53,8 +38,6 @@ export function VariableModalContent({
     () => Variable.safeParse(state).success,
     [state],
   )
-
-  const inputOptions = useInputOptions(variable?.id)
 
   const functionOptions = useMemo(() => {
     return [
@@ -123,7 +106,6 @@ export function VariableModalContent({
         <IdentityCustomVariableFunctionForm
           state={state}
           setState={setState}
-          inputOptions={inputOptions}
         />
       )}
       {state.fn?.type ===
@@ -241,23 +223,22 @@ function FunctionInputForm({
 }
 
 interface IdentityCustomVariableFunctionFormProps {
-  inputOptions: { value: string; label: string }[]
   state: PartialCustomVariable
   setState: Updater<PartialCustomVariable>
 }
 
 function IdentityCustomVariableFunctionForm({
-  inputOptions,
   state,
   setState,
 }: IdentityCustomVariableFunctionFormProps) {
-  const { fn } = state
   invariant(
-    fn?.type === CustomVariableFunctionType.enum.Identity,
+    state.fn?.type ===
+      CustomVariableFunctionType.enum.Identity,
   )
+  const inputOptions = useInputOptions(state.id)
   return (
     <FunctionInputForm
-      input={fn.input}
+      input={state.fn.input}
       onChange={(input) => {
         setState((draft) => {
           invariant(
@@ -274,4 +255,19 @@ function IdentityCustomVariableFunctionForm({
 
 function MultiplyCustomVariableFunctionForm() {
   return <div>Multiply</div>
+}
+
+function useInputOptions(stateId: string) {
+  const { context } = useContext(AppContext)
+  return useMemo(() => {
+    return Object.values(context.variables)
+      .filter(({ id }) => id !== stateId)
+      .map((variable) => ({
+        value: variable.id,
+        label:
+          variable.type === VariableType.enum.Item
+            ? variable.item
+            : variable.id,
+      }))
+  }, [stateId, context.variables])
 }
