@@ -89,47 +89,6 @@ function AppActions() {
   )
 }
 
-function formatOperator(operator: string): string {
-  switch (operator) {
-    case 'lt':
-      return '<'
-    case 'lte':
-      return '<='
-    case 'gt':
-      return '>'
-    case 'gte':
-      return '>='
-    case 'eq':
-      return '=='
-    default:
-      invariant(false)
-  }
-}
-
-function getVariable(
-  id: string,
-  context: Context,
-): Variable {
-  const variable = context.variables[id]
-  invariant(variable)
-  return variable
-}
-
-function formatCondition(
-  condition: Condition,
-  context: Context,
-): string {
-  return [
-    getVariableLabel(
-      getVariable(condition.inputs[0], context),
-    ),
-    formatOperator(condition.operator),
-    getVariableLabel(
-      getVariable(condition.inputs[1], context),
-    ),
-  ].join(' ')
-}
-
 function AppVariables() {
   const { context, setContext } = useContext(AppContext)
   return (
@@ -233,4 +192,45 @@ function AppModal() {
       </>
     </Modal>
   )
+}
+
+function formatOperator(operator: string): string {
+  switch (operator) {
+    case 'lt':
+      return '<'
+    case 'lte':
+      return '<='
+    case 'gt':
+      return '>'
+    case 'gte':
+      return '>='
+    case 'eq':
+      return '=='
+    default:
+      invariant(false)
+  }
+}
+
+function getVariable(
+  id: string,
+  context: Context,
+): Variable {
+  const variable = context.variables[id]
+  invariant(variable)
+  return variable
+}
+
+function formatCondition(
+  condition: Condition,
+  context: Context,
+): string {
+  return [
+    getVariableLabel(
+      getVariable(condition.inputs[0], context),
+    ),
+    formatOperator(condition.operator),
+    getVariableLabel(
+      getVariable(condition.inputs[1], context),
+    ),
+  ].join(' ')
 }
