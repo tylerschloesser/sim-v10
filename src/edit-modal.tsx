@@ -12,61 +12,62 @@ import {
   PartialCondition,
 } from './types'
 
+function newCondition(): PartialCondition {
+  return { inputs: [null, null], operator: null }
+}
+
 export function EditModalContent() {
   const { context, setContext } = useContext(AppContext)
   const { modal } = context
   invariant(modal?.type === ModalStateType.Edit)
 
-  const item = context.items.find(
-    ({ id }) => id === modal.itemId,
-  )
-  invariant(item)
+  const action = useMemo(() => {
+    const action = context.actions[modal.actionId]
+    invariant(action)
+    return action
+  }, [context.actions, modal.actionId])
 
-  const [condition, setCondition] =
-    useImmer<PartialCondition>(
-      item.condition ?? {
-        inputs: [null, null],
-        operator: null,
-      },
-    )
+  const [state, setState] = useImmer<PartialCondition>(
+    action.condition ?? newCondition,
+  )
 
   const valid = useMemo(
-    () => Condition.safeParse(condition).success,
-    [condition],
+    () => Condition.safeParse(state).success,
+    [state],
   )
 
   const dirty = useMemo(
-    () => !isEqual(condition, item.condition),
-    [condition, item.condition],
+    () => !isEqual(state, action.condition),
+    [state, action.condition],
   )
 
   const onChangeLeft = useCallback(
     (value: string) => {
-      setCondition((draft) => {
+      setState((draft) => {
         draft.inputs[0] = value
       })
     },
-    [setCondition],
+    [setState],
   )
 
   const onChangeRight = useCallback(
     (value: string) => {
-      setCondition((draft) => {
+      setState((draft) => {
         draft.inputs[1] = value
       })
     },
-    [setCondition],
+    [setState],
   )
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="text-sm">Item ID: {modal.itemId}</div>
+      <div className="text-sm">Action ID: {action.id}</div>
       <div className="font-bold">Condition</div>
       <div className="flex gap-2">
         <div className="flex-1">
           <h2>Left</h2>
           <ConditionInput
-            value={condition.inputs[0]}
+            value={state.inputs[0]}
             onChange={onChangeLeft}
             context={context}
           />
@@ -75,9 +76,9 @@ export function EditModalContent() {
           <h2>Operator</h2>
           <select
             className="border"
-            value={condition.operator ?? ''}
+            value={state.operator ?? ''}
             onChange={(e) => {
-              setCondition((draft) => {
+              setState((draft) => {
                 draft.operator = Operator.parse(
                   e.target.value,
                 )
@@ -97,7 +98,7 @@ export function EditModalContent() {
         <div className="flex-1">
           <h2>Right</h2>
           <ConditionInput
-            value={condition.inputs[1]}
+            value={state.inputs[1]}
             onChange={onChangeRight}
             context={context}
           />
@@ -108,11 +109,9 @@ export function EditModalContent() {
         disabled={!valid || !dirty}
         onClick={() => {
           setContext((draft) => {
-            const item = draft.items.find(
-              ({ id }) => id === modal.itemId,
-            )
-            invariant(item)
-            item.condition = Condition.parse(condition)
+            const action = draft.actions[modal.actionId]
+            invariant(action)
+            action.condition = Condition.parse(state)
           })
         }}
       >
@@ -120,7 +119,7 @@ export function EditModalContent() {
       </button>
       <h2>Debug</h2>
       <pre className="text-xs max-h-20 overflow-scroll border border-black opacity-50">
-        {JSON.stringify(condition, null, 2)}
+        {JSON.stringify(state, null, 2)}
       </pre>
     </div>
   )

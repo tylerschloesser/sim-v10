@@ -78,9 +78,27 @@ function AppActions() {
             <h2 className="text-lg font-bold px-4">
               {action.type}
             </h2>
-            <button className="text-blue-300 py-2 px-4">
+            <button
+              className="text-blue-300 py-2 px-4"
+              onClick={() => {
+                setContext((draft) => {
+                  draft.modal = {
+                    type: ModalStateType.Edit,
+                    actionId: action.id,
+                  }
+                })
+              }}
+            >
               Edit
             </button>
+          </div>
+          <div className="flex flex-col gap-2 p-4 pt-0">
+            {!action.condition && <>No condition</>}
+            {action.condition && (
+              <pre>
+                {JSON.stringify(action.condition, null, 2)}
+              </pre>
+            )}
           </div>
         </div>
       ))}
@@ -114,31 +132,12 @@ function Card({ item, setContext }: CardProps) {
       }}
       className="relative border p-4 cursor-pointer hover:opacity-75 active:opacity-50"
     >
-      {item.type === ItemType.enum.ResearchStone && (
-        <div
-          className="absolute top-0 left-0 h-full bg-green-400 w-full origin-top-left transition-transform"
-          style={{
-            transform: `scaleX(${Math.min(item.progress / 100, 1)})`,
-          }}
-        ></div>
-      )}
       <div className="relative flex justify-between items-center">
         <span>
           <span>{item.type}</span>
           {item.condition && <span>[Condition]</span>}
         </span>
-        <button
-          onClick={() =>
-            setContext((draft) => {
-              draft.modal = {
-                type: ModalStateType.Edit,
-                itemId: item.id,
-              }
-            })
-          }
-        >
-          edit
-        </button>
+        <button>edit</button>
       </div>
     </div>
   )

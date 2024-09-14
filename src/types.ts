@@ -290,7 +290,7 @@ export enum ModalStateType {
 
 export interface EditModalState {
   type: ModalStateType.Edit
-  itemId: string
+  actionId: string
 }
 
 export interface VariableModalState {
