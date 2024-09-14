@@ -13,15 +13,13 @@ import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { EditModalContent } from './edit-modal'
 import { INITIAL_CONTEXT } from './initial-context'
+import { RenderVariableValue } from './render-variable-value'
 import {
   Context,
-  CustomVariableFunctionType,
-  FunctionInputType,
   Item,
   ItemLocation,
   ItemType,
   ModalStateType,
-  Variable,
   VariableType,
 } from './types'
 import { useTickInterval } from './use-tick-interval'
@@ -51,50 +49,6 @@ function useScrollDebug() {
   }, [])
 
   return scrollDebug
-}
-
-export interface VariableValueProps {
-  variable: Variable
-  context: Context
-}
-
-function getVariableValue(
-  variable: Variable,
-  context: Context,
-) {
-  switch (variable.type) {
-    case VariableType.enum.Item:
-      return context.inventory[variable.item] ?? 0
-    case VariableType.enum.Custom: {
-      switch (variable.fn.type) {
-        case CustomVariableFunctionType.enum.Identity: {
-          switch (variable.fn.input.type) {
-            case FunctionInputType.enum.Constant:
-              return variable.fn.input.value
-            case FunctionInputType.enum.Variable: {
-              const input =
-                context.variables[variable.fn.input.id]
-              invariant(input)
-              return getVariableValue(input, context)
-            }
-          }
-        }
-        default:
-          invariant(false)
-      }
-    }
-  }
-}
-
-function VariableValue({
-  variable,
-  context,
-}: VariableValueProps) {
-  const value = useMemo(
-    () => getVariableValue(variable, context),
-    [variable, context],
-  )
-  return <>{JSON.stringify(value)}</>
 }
 
 const AppContext = React.createContext<{
@@ -314,7 +268,7 @@ function AppVariables() {
                   : variable.id}
               </div>
               <div>
-                <VariableValue
+                <RenderVariableValue
                   variable={variable}
                   context={context}
                 />
