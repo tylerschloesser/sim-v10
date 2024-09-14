@@ -1,20 +1,19 @@
-import { useMemo } from 'react'
+import { useContext, useMemo } from 'react'
 import shortId from 'short-uuid'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
+import { AppContext } from './context'
 import {
   CustomVariable,
   CustomVariableFunctionType,
   FunctionInputType,
   PartialCustomVariable,
   PartialFunctionInput,
-  Context,
   Variable,
   VariableType,
 } from './types'
 
 export interface VariableModalContentProps {
-  context: Context
   onSave(variable: CustomVariable): void
   variable: CustomVariable | null
 }
@@ -27,31 +26,11 @@ function newVariable(): PartialCustomVariable {
   }
 }
 
-export function VariableModalContent({
-  onSave,
-  context,
-  ...props
-}: VariableModalContentProps) {
-  const [state, setState] =
-    useImmer<PartialCustomVariable | null>(null)
-
-  const variable = useMemo(() => {
-    if (state && state.id !== props.variable?.id) {
-      return newVariable()
-    }
-    return state ?? props.variable ?? newVariable()
-  }, [props.variable, state])
-
-  const valid = useMemo(
-    () => Variable.safeParse(variable).success,
-    [variable],
-  )
-
-  const inputOptions = useMemo(() => {
+function useInputOptions(editId?: string) {
+  const { context } = useContext(AppContext)
+  return useMemo(() => {
     return Object.values(context.variables)
-      .filter(
-        (variable) => variable.id !== props.variable?.id,
-      )
+      .filter(({ id }) => id !== editId)
       .map((variable) => ({
         value: variable.id,
         label:
@@ -59,7 +38,23 @@ export function VariableModalContent({
             ? variable.item
             : variable.id,
       }))
-  }, [props.variable, context.variables])
+  }, [editId, context.variables])
+}
+
+export function VariableModalContent({
+  onSave,
+  variable,
+}: VariableModalContentProps) {
+  const [state, setState] = useImmer<PartialCustomVariable>(
+    variable ?? newVariable,
+  )
+
+  const valid = useMemo(
+    () => Variable.safeParse(state).success,
+    [state],
+  )
+
+  const inputOptions = useInputOptions(variable?.id)
 
   const functionOptions = useMemo(() => {
     return [
@@ -75,7 +70,7 @@ export function VariableModalContent({
         <input
           className="border border-black p-2 read-only:bg-inherit"
           type="text"
-          value={variable.id ?? ''}
+          value={state.id}
           readOnly
         />
       </label>
@@ -83,12 +78,9 @@ export function VariableModalContent({
         <span>Function</span>
         <select
           className="p-2 border border-black"
-          value={variable.fn?.type ?? ''}
+          value={state.fn?.type ?? ''}
           onChange={(e) => {
             setState((draft) => {
-              if (draft === null) {
-                draft = variable
-              }
               const type = CustomVariableFunctionType.parse(
                 e.target.value,
               )
@@ -126,15 +118,15 @@ export function VariableModalContent({
           ))}
         </select>
       </label>
-      {variable.fn?.type ===
+      {state.fn?.type ===
         CustomVariableFunctionType.enum.Identity && (
         <IdentityCustomVariableFunctionForm
-          variable={variable}
+          state={state}
           setState={setState}
           inputOptions={inputOptions}
         />
       )}
-      {variable.fn?.type ===
+      {state.fn?.type ===
         CustomVariableFunctionType.enum.Multiply && (
         <MultiplyCustomVariableFunctionForm />
       )}
@@ -142,7 +134,7 @@ export function VariableModalContent({
         className="border border-black p-2 hover:opacity-75 active:opacity-50 disabled:opacity-50"
         disabled={!valid}
         onClick={() => {
-          onSave(CustomVariable.parse(variable))
+          onSave(CustomVariable.parse(state))
         }}
       >
         Save
@@ -250,16 +242,16 @@ function FunctionInputForm({
 
 interface IdentityCustomVariableFunctionFormProps {
   inputOptions: { value: string; label: string }[]
-  variable: PartialCustomVariable
-  setState: Updater<PartialCustomVariable | null>
+  state: PartialCustomVariable
+  setState: Updater<PartialCustomVariable>
 }
 
 function IdentityCustomVariableFunctionForm({
   inputOptions,
-  variable,
+  state,
   setState,
 }: IdentityCustomVariableFunctionFormProps) {
-  const { fn } = variable
+  const { fn } = state
   invariant(
     fn?.type === CustomVariableFunctionType.enum.Identity,
   )
