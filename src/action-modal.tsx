@@ -6,12 +6,13 @@ import { AppContext } from './context'
 import { getVariableLabel } from './get-variable-label'
 import {
   Action,
+  ActionType,
   Context,
+  ItemType,
   ModalStateType,
   Operator,
   PartialAction,
   PartialCondition,
-  Store,
 } from './types'
 
 function newCondition(): PartialCondition {
@@ -144,6 +145,7 @@ export function ActionModalContent() {
         </button>
       </div>
       <StoreInput
+        action={action}
         value={state.output ?? null}
         onChange={(value) => {
           setState((draft) => {
@@ -208,22 +210,36 @@ function ConditionInput({
 }
 
 interface StoreInputProps {
+  action: Action
   value: string | null
   onChange: (value: string) => void
   context: Context
 }
 
 function StoreInput({
+  action,
   value,
   onChange,
   context,
-}: ConditionInputProps) {
+}: StoreInputProps) {
+  const item = useMemo(() => {
+    switch (action.type) {
+      case ActionType.enum.GatherStone:
+        return ItemType.enum.Stone
+      case ActionType.enum.GatherWood:
+        return ItemType.enum.Wood
+      default:
+        invariant(false)
+    }
+  }, [action.type])
   const options = useMemo(() => {
-    return Object.values(context.stores).map((store) => ({
-      value: store.id,
-      label: store.item,
-    }))
-  }, [context.stores])
+    return Object.values(context.stores)
+      .filter((store) => store.item === item)
+      .map((store) => ({
+        value: store.id,
+        label: store.item,
+      }))
+  }, [context.stores, item])
   return (
     <select
       className="border border-black p-2"
