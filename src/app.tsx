@@ -94,42 +94,54 @@ function AppVariables() {
   return (
     <>
       <div>Variables</div>
-      <div className="grid grid-cols-[repeat(4,min-content)] gap-4">
-        {Object.values(context.variables).map(
-          (variable) => (
-            <Fragment key={variable.id}>
-              <div>{variable.type}</div>
-              <div>{getVariableLabel(variable)}</div>
-              <div>
-                <RenderVariableValue
-                  variable={variable}
-                  context={context}
-                />
-              </div>
-              {variable.type ===
-              VariableType.enum.Custom ? (
-                <a
-                  href="#"
-                  className="text-blue-300"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    setContext((draft) => {
-                      draft.modal = {
-                        type: ModalStateType.Variable,
-                        variable,
-                      }
-                    })
-                  }}
-                >
-                  Edit
-                </a>
-              ) : (
-                <span />
-              )}
-            </Fragment>
-          ),
-        )}
-      </div>
+      <table className="text-left border border-white border-separate border-spacing-2">
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Name/ID</th>
+            <th>Value</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.values(context.variables).map(
+            (variable) => (
+              <tr key={variable.id}>
+                <td>{variable.type}</td>
+                <td>{getVariableLabel(variable)}</td>
+                <td>
+                  <RenderVariableValue
+                    variable={variable}
+                    context={context}
+                  />
+                </td>
+                <td>
+                  {variable.type ===
+                  VariableType.enum.Custom ? (
+                    <a
+                      href="#"
+                      className="text-blue-300"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setContext((draft) => {
+                          draft.modal = {
+                            type: ModalStateType.Variable,
+                            variable,
+                          }
+                        })
+                      }}
+                    >
+                      Edit
+                    </a>
+                  ) : (
+                    <span />
+                  )}
+                </td>
+              </tr>
+            ),
+          )}
+        </tbody>
+      </table>
       <div>
         <button
           className="border p-2 hover:opacity-75 active:opacity-50"
