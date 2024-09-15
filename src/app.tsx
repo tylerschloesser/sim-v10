@@ -318,10 +318,21 @@ function AppCanvas() {
     )
 
     document.addEventListener('pointerup', (e) => {
-      const pointer = new Vec2(e.clientX, e.clientY)
       setState((draft) => {
-        draft.pointer = pointer
-        draft.drag = null
+        draft.pointer = new Vec2(e.clientX, e.clientY)
+        if (!draft.rect) {
+          return
+        }
+        const pointer = draft.rect.position
+          .mul(-1)
+          .add(draft.pointer)
+        if (draft.drag !== null) {
+          const entity =
+            draft.entities[draft.drag.entityIndex]
+          invariant(entity)
+          entity.position = pointer.sub(draft.drag.position)
+          draft.drag = null
+        }
       })
     })
 
