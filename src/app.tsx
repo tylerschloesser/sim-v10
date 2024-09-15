@@ -459,6 +459,10 @@ function AppCanvas() {
                 >
                   Edit
                 </button>
+                <label>
+                  Test
+                  <input type="text" />
+                </label>
               </div>
             )
           })}
