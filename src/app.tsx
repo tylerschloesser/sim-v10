@@ -255,6 +255,7 @@ function AppCanvas() {
     rect: Rect | null
     pointer: Vec2 | null
     entities: Rect[]
+    drag: { entityIndex: number; position: Vec2 } | null
   }>({
     rect: null,
     pointer: null,
@@ -262,6 +263,7 @@ function AppCanvas() {
       new Rect(new Vec2(50, 50), new Vec2(50, 50)),
       new Rect(new Vec2(100, 100), new Vec2(50, 50)),
     ],
+    drag: null,
   })
 
   useEffect(() => {
@@ -286,10 +288,48 @@ function AppCanvas() {
       })
     }, { signal })
 
+    document.addEventListener(
+      'pointerdown',
+      (e) => {
+        setState((draft) => {
+          draft.pointer = new Vec2(e.clientX, e.clientY)
+          if (!draft.rect) {
+            return
+          }
+          const pointer = draft.rect.position
+            .mul(-1)
+            .add(draft.pointer)
+          const entityIndex = draft.entities.findIndex(
+            (entity) => entity.contains(pointer),
+          )
+          if (entityIndex !== -1) {
+            const entity = draft.entities[entityIndex]
+            invariant(entity)
+            draft.drag = {
+              entityIndex,
+              position: pointer.sub(entity.position),
+            }
+          } else {
+            draft.drag = null
+          }
+        })
+      },
+      { signal },
+    )
+
+    document.addEventListener('pointerup', (e) => {
+      const pointer = new Vec2(e.clientX, e.clientY)
+      setState((draft) => {
+        draft.pointer = pointer
+        draft.drag = null
+      })
+    })
+
     // prettier-ignore
     document.addEventListener('pointerleave', () => {
       setState(draft => {
         draft.pointer = null
+        draft.drag = null
       })
     }, { signal })
 
@@ -324,17 +364,28 @@ function AppCanvas() {
   }, [rect, state.pointer])
 
   const entityIndexToState = useMemo(() => {
-    const map = new Map<number, { hover: boolean }>()
+    const map = new Map<
+      number,
+      { hover: boolean; position: Vec2 }
+    >()
     state.entities.forEach((entity, index) => {
-      map.set(index, {
-        hover: pointer ? entity.contains(pointer) : false,
-      })
+      let hover = pointer ? entity.contains(pointer) : false
+      let position = entity.position
+      if (state.drag && state.drag.entityIndex === index) {
+        invariant(pointer)
+        position = pointer.sub(state.drag.position)
+        hover = true
+      }
+      map.set(index, { hover, position })
     })
     return map
   }, [state.entities, pointer])
 
   return (
-    <div ref={ref} className="border border-white h-dvh">
+    <div
+      ref={ref}
+      className="border border-white h-dvh select-none"
+    >
       {state && (
         <>
           {pointer && (
@@ -362,7 +413,7 @@ function AppCanvas() {
                   hover && 'border-2 border-blue-400',
                 )}
                 style={{
-                  transform: `translate(${entity.position.x}px, ${entity.position.y}px)`,
+                  transform: `translate(${state.position.x}px, ${state.position.y}px)`,
                   width: entity.size.x,
                   height: entity.size.y,
                 }}

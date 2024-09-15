@@ -14,6 +14,10 @@ export class Vec2 {
     return new Vec2(this.x + other.x, this.y + other.y)
   }
 
+  sub(other: Vec2): Vec2 {
+    return new Vec2(this.x - other.x, this.y - other.y)
+  }
+
   static ZERO = new Vec2(0, 0)
 }
 
