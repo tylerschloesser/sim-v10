@@ -13,6 +13,7 @@ export const VariableBase = z.strictObject({
 export const ItemVariable = VariableBase.extend({
   type: z.literal(VariableType.enum.Item),
   item: ItemType,
+  value: z.number(),
 })
 export type ItemVariable = z.infer<typeof ItemVariable>
 
@@ -256,20 +257,12 @@ export const PartialAction = z.discriminatedUnion('type', [
 ])
 export type PartialAction = z.infer<typeof PartialAction>
 
-export const Store = z.strictObject({
-  id: z.string(),
-  item: ItemType,
-  quantity: z.number(),
-})
-export type Store = z.infer<typeof Store>
-
 export interface Context {
   tick: number
   drag: string | null
   modal: ModalState | null
   variables: Record<string, Variable>
   actions: Record<string, Action>
-  stores: Record<string, Store>
 }
 
 export enum ModalStateType {

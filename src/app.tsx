@@ -1,17 +1,12 @@
-import {
-  Fragment,
-  useCallback,
-  useContext,
-  useMemo,
-} from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import invariant from 'tiny-invariant'
 import { useImmer } from 'use-immer'
 import { ActionModalContent } from './action-modal'
 import { AppDebug } from './app-debug'
 import { AppContext, INITIAL_CONTEXT } from './context'
 import { getVariableLabel } from './get-variable-label'
+import { getVariableValue } from './get-variable-value'
 import { Modal } from './modal'
-import { RenderVariableValue } from './render-variable-value'
 import {
   Condition,
   Context,
@@ -37,7 +32,6 @@ export function App() {
       <div className="flex flex-col p-2 gap-2">
         <div>Tick: {context.tick.toString()}</div>
         <AppVariables />
-        <AppStores />
         <AppActions />
       </div>
       <AppDebug />
@@ -111,10 +105,7 @@ function AppVariables() {
                 <td>{variable.type}</td>
                 <td>{getVariableLabel(variable)}</td>
                 <td>
-                  <RenderVariableValue
-                    variable={variable}
-                    context={context}
-                  />
+                  {getVariableValue(variable, context)}
                 </td>
                 <td>
                   {variable.type ===
@@ -158,31 +149,6 @@ function AppVariables() {
           New Variable
         </button>
       </div>
-    </>
-  )
-}
-
-function AppStores() {
-  const { context } = useContext(AppContext)
-  return (
-    <>
-      <div>Stores</div>
-      <table className="text-left border border-white border-separate border-spacing-2">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Quantity</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.values(context.stores).map((store) => (
-            <tr key={store.id}>
-              <td>{store.item}</td>
-              <td>{store.quantity}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </>
   )
 }

@@ -14,8 +14,7 @@ export function getVariableValue(
 ): number {
   switch (variable.type) {
     case VariableType.enum.Item:
-      // TODO
-      return 0
+      return variable.value
     case VariableType.enum.Custom: {
       switch (variable.fn.type) {
         case CustomVariableFunctionType.enum.Identity: {
@@ -51,7 +50,7 @@ function getFunctionInputValue(
       return input.value
     case FunctionInputType.enum.Variable: {
       const variable = context.variables[input.id]
-      invariant(input)
+      invariant(variable)
       return getVariableValue(variable, context)
     }
     default:

@@ -7,6 +7,7 @@ import {
   Context,
   Operator,
   Variable,
+  VariableType,
 } from './types'
 
 export function tickContext(draft: WritableDraft<Context>) {
@@ -19,9 +20,9 @@ export function tickContext(draft: WritableDraft<Context>) {
       switch (action.type) {
         case ActionType.enum.GatherStone:
         case ActionType.enum.GatherWood: {
-          const output = draft.stores[action.output]
-          invariant(output)
-          output.quantity += 1
+          const output = draft.variables[action.output]
+          invariant(output?.type === VariableType.enum.Item)
+          output.value += 1
           break
         }
         default:

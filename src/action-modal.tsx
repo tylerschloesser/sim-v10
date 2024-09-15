@@ -7,13 +7,12 @@ import { AppContext } from './context'
 import { getVariableLabel } from './get-variable-label'
 import {
   Action,
-  ActionType,
   Context,
-  ItemType,
   ModalStateType,
   Operator,
   PartialAction,
   PartialCondition,
+  VariableType,
 } from './types'
 
 function newCondition(): PartialCondition {
@@ -145,7 +144,7 @@ export function ActionModalContent() {
           Clear
         </button>
       </div>
-      <StoreInput
+      <OutputInput
         action={action}
         value={state.output ?? null}
         onChange={(value) => {
@@ -210,31 +209,35 @@ function ConditionInput({
   )
 }
 
-interface StoreInputProps {
+interface OutputInputProps {
   action: Action
   value: string | null
   onChange: (value: string) => void
   context: Context
 }
 
-function StoreInput({
+function OutputInput({
   action,
   value,
   onChange,
   context,
-}: StoreInputProps) {
+}: OutputInputProps) {
   const item = useMemo(
     () => getActionItemType(action.type),
     [action.type],
   )
   const options = useMemo(() => {
-    return Object.values(context.stores)
-      .filter((store) => store.item === item)
-      .map((store) => ({
-        value: store.id,
-        label: store.item,
+    return Object.values(context.variables)
+      .filter(
+        (variable) =>
+          variable.type === VariableType.enum.Item &&
+          variable.item === item,
+      )
+      .map((variable) => ({
+        value: variable.id,
+        label: getVariableLabel(variable),
       }))
-  }, [context.stores, item])
+  }, [context.variables, item])
   return (
     <select
       className="border border-black p-2"
@@ -244,7 +247,7 @@ function StoreInput({
       }}
     >
       <option value="" disabled>
-        Choose Store
+        Choose Variable
       </option>
       {options.map((option) => (
         <option key={option.value} value={option.value}>
