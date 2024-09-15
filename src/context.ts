@@ -42,11 +42,25 @@ function addAction(type: ActionType): void {
 addAction(ActionType.enum.GatherStone)
 addAction(ActionType.enum.GatherWood)
 
+const INITIAL_STORES: Context['stores'] = {}
+
+function addStore(item: ItemType): void {
+  const id = shortId.generate()
+  INITIAL_STORES[id] = {
+    id,
+    item,
+    quantity: 0,
+  }
+}
+
+addStore(ItemType.enum.Stone)
+addStore(ItemType.enum.Wood)
+
 export const INITIAL_CONTEXT: Context = {
   tick: 0,
   drag: null,
   modal: null,
   variables: INITIAL_VARIABLES,
   actions: INITIAL_ACTIONS,
-  stores: {},
+  stores: INITIAL_STORES,
 }

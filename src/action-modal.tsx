@@ -11,6 +11,7 @@ import {
   Operator,
   PartialAction,
   PartialCondition,
+  Store,
 } from './types'
 
 function newCondition(): PartialCondition {
@@ -142,14 +143,15 @@ export function ActionModalContent() {
           Clear
         </button>
       </div>
-      <select
-        className="border border-black p-2"
-        value={''}
-      >
-        <option value="" disabled>
-          Choose Store
-        </option>
-      </select>
+      <StoreInput
+        value={state.output ?? null}
+        onChange={(value) => {
+          setState((draft) => {
+            draft.output = value
+          })
+        }}
+        context={context}
+      />
       <button
         className="border border-black p-2 disabled:opacity-50 hover:opacity-75 active:opacity-50"
         disabled={!valid || !dirty}
@@ -195,6 +197,43 @@ function ConditionInput({
     >
       <option value="" disabled>
         Choose Variable
+      </option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  )
+}
+
+interface StoreInputProps {
+  value: string | null
+  onChange: (value: string) => void
+  context: Context
+}
+
+function StoreInput({
+  value,
+  onChange,
+  context,
+}: ConditionInputProps) {
+  const options = useMemo(() => {
+    return Object.values(context.stores).map((store) => ({
+      value: store.id,
+      label: store.item,
+    }))
+  }, [context.stores])
+  return (
+    <select
+      className="border border-black p-2"
+      value={value ?? ''}
+      onChange={(e) => {
+        onChange(e.target.value)
+      }}
+    >
+      <option value="" disabled>
+        Choose Store
       </option>
       {options.map((option) => (
         <option key={option.value} value={option.value}>
