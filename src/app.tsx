@@ -1,4 +1,11 @@
-import { useCallback, useContext, useMemo } from 'react'
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import invariant from 'tiny-invariant'
 import { useImmer } from 'use-immer'
 import { ActionModalContent } from './action-modal'
@@ -16,6 +23,7 @@ import {
 } from './types'
 import { useTickInterval } from './use-tick-interval'
 import { VariableModalContent } from './variable-modal'
+import { Rect, Vec2 } from './vec2'
 
 export function App() {
   const [context, setContext] =
@@ -33,6 +41,7 @@ export function App() {
         <div>Tick: {context.tick.toString()}</div>
         <AppVariables />
         <AppActions />
+        <AppCanvas />
       </div>
       <AppDebug />
       <AppModal />
@@ -237,4 +246,74 @@ function formatCondition(
       getVariable(condition.inputs[1], context),
     ),
   ].join(' ')
+}
+
+function AppCanvas() {
+  const ref = useRef<HTMLDivElement>(null)
+
+  const [state, setState] = useState<Rect | null>(null)
+
+  const [pointer, setPointer] = useState<Vec2 | null>(null)
+
+  useEffect(() => {
+    invariant(ref.current)
+    const rect = ref.current.getBoundingClientRect()
+    setState(
+      new Rect(
+        new Vec2(rect.x, rect.y),
+        new Vec2(rect.width, rect.height),
+      ),
+    )
+  }, [])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const { signal } = controller
+
+    // prettier-ignore
+    document.addEventListener('pointermove', (e) => {
+      setPointer(new Vec2(e.clientX, e.clientY))
+    }, { signal })
+
+    // prettier-ignore
+    document.addEventListener('pointerleave', () => {
+      setPointer(null)
+    }, { signal })
+
+    // prettier-ignore
+    document.addEventListener('scroll', () => {
+      invariant(ref.current)
+      const rect = ref.current.getBoundingClientRect()
+      setState(new Rect(
+        new Vec2(rect.x, rect.y),
+        new Vec2(rect.width, rect.height),
+      ))
+    }, { signal })
+
+    return () => controller.abort()
+  }, [])
+
+  const translate = useMemo(() => {
+    if (!state || !pointer) {
+      return Vec2.ZERO
+    }
+    return state.position.mul(-1).add(pointer)
+  }, [state, pointer])
+
+  return (
+    <div ref={ref} className="border border-white h-dvh">
+      {state && (
+        <>
+          <div
+            className="absolute pointer-events-none border border-green-400"
+            style={{
+              transform: `translate(${translate.x}px, ${translate.y}px)`,
+            }}
+          >
+            TODO
+          </div>
+        </>
+      )}
+    </div>
+  )
 }
