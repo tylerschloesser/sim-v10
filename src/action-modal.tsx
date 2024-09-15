@@ -6,7 +6,6 @@ import { AppContext } from './context'
 import { getVariableLabel } from './get-variable-label'
 import {
   Action,
-  Condition,
   Context,
   ModalStateType,
   Operator,
@@ -37,7 +36,7 @@ export function ActionModalContent() {
   )
 
   const dirty = useMemo(
-    () => valid && !isEqual(state, action.condition),
+    () => valid && !isEqual(state, action),
     [valid, state, action.condition],
   )
 
@@ -71,8 +70,7 @@ export function ActionModalContent() {
     <div className="flex flex-col gap-2">
       <div className="text-sm">Action ID: {action.id}</div>
       <div className="flex justify-between items-center">
-        <span className="font-bold">Condition</span>
-
+        <h2 className="font-bold">Condition</h2>
         <button
           onClick={(ev) => {
             ev.preventDefault()
@@ -86,16 +84,16 @@ export function ActionModalContent() {
         </button>
       </div>
       <div className="flex gap-2">
-        <div className="flex-1">
-          <h2>Left</h2>
+        <label className="flex-1 flex flex-col">
+          Left
           <ConditionInput
             value={state.condition?.inputs[0] ?? null}
             onChange={onChangeLeft}
             context={context}
           />
-        </div>
-        <div className="flex-1">
-          <h2>Operator</h2>
+        </label>
+        <label className="flex-1 flex flex-col">
+          Operator
           <select
             className="border border-black p-2"
             value={state.condition?.operator ?? ''}
@@ -120,15 +118,18 @@ export function ActionModalContent() {
               ),
             )}
           </select>
-        </div>
-        <div className="flex-1">
-          <h2>Right</h2>
+        </label>
+        <label className="flex-1 flex flex-col">
+          Right
           <ConditionInput
             value={state.condition?.inputs[1] ?? null}
             onChange={onChangeRight}
             context={context}
           />
-        </div>
+        </label>
+      </div>
+      <div>
+        <h2 className="font-bold">Output</h2>
       </div>
       <button
         className="border border-black p-2 disabled:opacity-50 hover:opacity-75 active:opacity-50"
@@ -166,23 +167,21 @@ function ConditionInput({
     )
   }, [context.variables])
   return (
-    <div>
-      <select
-        className="border border-black p-2"
-        value={value ?? ''}
-        onChange={(e) => {
-          onChange(e.target.value)
-        }}
-      >
-        <option value="" disabled>
-          Choose Variable
+    <select
+      className="border border-black p-2"
+      value={value ?? ''}
+      onChange={(e) => {
+        onChange(e.target.value)
+      }}
+    >
+      <option value="" disabled>
+        Choose Variable
+      </option>
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
         </option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </div>
+      ))}
+    </select>
   )
 }
