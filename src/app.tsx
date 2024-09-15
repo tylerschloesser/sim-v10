@@ -330,27 +330,33 @@ function AppCanvas() {
       { signal },
     )
 
-    document.addEventListener('pointerup', (e) => {
-      setState((draft) => {
-        draft.pointer = {
-          position: new Vec2(e.clientX, e.clientY),
-          down: false,
-        }
-        if (!draft.rect) {
-          return
-        }
-        const pointer = draft.rect.position
-          .mul(-1)
-          .add(draft.pointer.position)
-        if (draft.drag !== null) {
-          const entity =
-            draft.entities[draft.drag.entityIndex]
-          invariant(entity)
-          entity.position = pointer.sub(draft.drag.position)
-          draft.drag = null
-        }
-      })
-    })
+    document.addEventListener(
+      'pointerup',
+      (e) => {
+        setState((draft) => {
+          draft.pointer = {
+            position: new Vec2(e.clientX, e.clientY),
+            down: false,
+          }
+          if (!draft.rect) {
+            return
+          }
+          const pointer = draft.rect.position
+            .mul(-1)
+            .add(draft.pointer.position)
+          if (draft.drag !== null) {
+            const entity =
+              draft.entities[draft.drag.entityIndex]
+            invariant(entity)
+            entity.position = pointer.sub(
+              draft.drag.position,
+            )
+            draft.drag = null
+          }
+        })
+      },
+      { signal },
+    )
 
     // prettier-ignore
     document.addEventListener('pointerleave', () => {
