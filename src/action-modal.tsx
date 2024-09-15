@@ -128,9 +128,28 @@ export function ActionModalContent() {
           />
         </label>
       </div>
-      <div>
+      <div className="flex justify-between items-center">
         <h2 className="font-bold">Output</h2>
+        <button
+          onClick={(ev) => {
+            ev.preventDefault()
+            setState((draft) => {
+              draft.output = null
+            })
+          }}
+          className="text-blue-700"
+        >
+          Clear
+        </button>
       </div>
+      <select
+        className="border border-black p-2"
+        value={''}
+      >
+        <option value="" disabled>
+          Choose Store
+        </option>
+      </select>
       <button
         className="border border-black p-2 disabled:opacity-50 hover:opacity-75 active:opacity-50"
         disabled={!valid || !dirty}
