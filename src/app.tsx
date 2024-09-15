@@ -142,7 +142,7 @@ function AppVariables() {
           )}
         </tbody>
       </table>
-      <div>
+      <div className="flex flex-row-reverse">
         <button
           className="border p-2 hover:opacity-75 active:opacity-50"
           onClick={() => {
