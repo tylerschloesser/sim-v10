@@ -260,8 +260,8 @@ function AppCanvas() {
     rect: null,
     pointer: null,
     entities: [
-      new Rect(new Vec2(50, 50), new Vec2(50, 50)),
-      new Rect(new Vec2(100, 100), new Vec2(50, 50)),
+      new Rect(new Vec2(50, 50), new Vec2(200, 200)),
+      new Rect(new Vec2(100, 100), new Vec2(200, 200)),
     ],
     drag: null,
   })
@@ -420,15 +420,24 @@ function AppCanvas() {
               <div
                 key={index}
                 className={clsx(
-                  'absolute bg-red-400',
-                  hover && 'border-2 border-blue-400',
+                  'absolute border-2 border-white',
+                  hover && 'border-blue-400',
                 )}
                 style={{
                   transform: `translate(${state.position.x}px, ${state.position.y}px)`,
                   width: entity.size.x,
                   height: entity.size.y,
                 }}
-              />
+              >
+                <button
+                  className="text-blue-300"
+                  onClick={() => {
+                    console.log('Test')
+                  }}
+                >
+                  Edit
+                </button>
+              </div>
             )
           })}
         </>
