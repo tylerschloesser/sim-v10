@@ -12,11 +12,16 @@ import {
 export function tickContext(draft: WritableDraft<Context>) {
   draft.tick += 1
   for (const action of Object.values(draft.actions)) {
+    if (action.output === null) {
+      continue
+    }
     if (isConditionSatisfied(action.condition, draft)) {
       switch (action.type) {
         case ActionType.enum.GatherStone:
         case ActionType.enum.GatherWood: {
-          console.log('TODO')
+          const output = draft.stores[action.output]
+          invariant(output)
+          output.quantity += 1
           break
         }
         default:

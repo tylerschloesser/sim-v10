@@ -2,6 +2,7 @@ import { isEqual } from 'lodash-es'
 import { useCallback, useContext, useMemo } from 'react'
 import invariant from 'tiny-invariant'
 import { useImmer } from 'use-immer'
+import { getActionItemType } from './action-util'
 import { AppContext } from './context'
 import { getVariableLabel } from './get-variable-label'
 import {
@@ -222,16 +223,10 @@ function StoreInput({
   onChange,
   context,
 }: StoreInputProps) {
-  const item = useMemo(() => {
-    switch (action.type) {
-      case ActionType.enum.GatherStone:
-        return ItemType.enum.Stone
-      case ActionType.enum.GatherWood:
-        return ItemType.enum.Wood
-      default:
-        invariant(false)
-    }
-  }, [action.type])
+  const item = useMemo(
+    () => getActionItemType(action.type),
+    [action.type],
+  )
   const options = useMemo(() => {
     return Object.values(context.stores)
       .filter((store) => store.item === item)

@@ -37,6 +37,7 @@ export function App() {
       <div className="flex flex-col p-2 gap-2">
         <div>Tick: {context.tick.toString()}</div>
         <AppVariables />
+        <AppStores />
         <AppActions />
       </div>
       <AppDebug />
@@ -157,6 +158,31 @@ function AppVariables() {
           New Variable
         </button>
       </div>
+    </>
+  )
+}
+
+function AppStores() {
+  const { context } = useContext(AppContext)
+  return (
+    <>
+      <div>Stores</div>
+      <table className="text-left border border-white border-separate border-spacing-2">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.values(context.stores).map((store) => (
+            <tr key={store.id}>
+              <td>{store.item}</td>
+              <td>{store.quantity}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </>
   )
 }
