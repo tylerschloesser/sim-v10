@@ -253,7 +253,10 @@ function AppCanvas() {
 
   const [state, setState] = useImmer<{
     rect: Rect | null
-    pointer: Vec2 | null
+    pointer: {
+      position: Vec2
+      down: boolean
+    } | null
     entities: Rect[]
     drag: { entityIndex: number; position: Vec2 } | null
   }>({
@@ -281,36 +284,46 @@ function AppCanvas() {
     const controller = new AbortController()
     const { signal } = controller
 
-    // prettier-ignore
-    document.addEventListener('pointermove', (e) => {
-      setState(draft => {
-        draft.pointer = new Vec2(e.clientX, e.clientY)
-      })
-    }, { signal })
+    document.addEventListener(
+      'pointermove',
+      (e) => {
+        setState((draft) => {
+          draft.pointer = {
+            position: new Vec2(e.clientX, e.clientY),
+            down: draft.pointer?.down ?? false,
+          }
+          if (
+            draft.rect &&
+            draft.pointer.down &&
+            draft.drag === null
+          ) {
+            const pointer = draft.rect.position
+              .mul(-1)
+              .add(draft.pointer.position)
+            const entityIndex = draft.entities.findIndex(
+              (entity) => entity.contains(pointer),
+            )
+            if (entityIndex !== -1) {
+              const entity = draft.entities[entityIndex]
+              invariant(entity)
+              draft.drag = {
+                entityIndex,
+                position: pointer.sub(entity.position),
+              }
+            }
+          }
+        })
+      },
+      { signal },
+    )
 
     document.addEventListener(
       'pointerdown',
       (e) => {
         setState((draft) => {
-          draft.pointer = new Vec2(e.clientX, e.clientY)
-          if (!draft.rect) {
-            return
-          }
-          const pointer = draft.rect.position
-            .mul(-1)
-            .add(draft.pointer)
-          const entityIndex = draft.entities.findIndex(
-            (entity) => entity.contains(pointer),
-          )
-          if (entityIndex !== -1) {
-            const entity = draft.entities[entityIndex]
-            invariant(entity)
-            draft.drag = {
-              entityIndex,
-              position: pointer.sub(entity.position),
-            }
-          } else {
-            draft.drag = null
+          draft.pointer = {
+            position: new Vec2(e.clientX, e.clientY),
+            down: true,
           }
         })
       },
@@ -319,13 +332,16 @@ function AppCanvas() {
 
     document.addEventListener('pointerup', (e) => {
       setState((draft) => {
-        draft.pointer = new Vec2(e.clientX, e.clientY)
+        draft.pointer = {
+          position: new Vec2(e.clientX, e.clientY),
+          down: false,
+        }
         if (!draft.rect) {
           return
         }
         const pointer = draft.rect.position
           .mul(-1)
-          .add(draft.pointer)
+          .add(draft.pointer.position)
         if (draft.drag !== null) {
           const entity =
             draft.entities[draft.drag.entityIndex]
@@ -364,14 +380,14 @@ function AppCanvas() {
     if (!rect?.position || !state.pointer) {
       return null
     }
-    return rect.position.mul(-1).add(state.pointer)
+    return rect.position.mul(-1).add(state.pointer.position)
   }, [rect?.position, state.pointer])
 
   const active = useMemo(() => {
     if (!rect || !state.pointer) {
       return false
     }
-    return rect.contains(state.pointer)
+    return rect.contains(state.pointer.position)
   }, [rect, state.pointer])
 
   const entityIndexToState = useMemo(() => {
