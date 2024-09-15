@@ -254,7 +254,15 @@ function AppCanvas() {
   const [state, setState] = useImmer<{
     rect: Rect | null
     pointer: Vec2 | null
-  }>({ rect: null, pointer: null })
+    entities: Rect[]
+  }>({
+    rect: null,
+    pointer: null,
+    entities: [
+      new Rect(new Vec2(50, 50), new Vec2(50, 50)),
+      new Rect(new Vec2(100, 100), new Vec2(50, 50)),
+    ],
+  })
 
   useEffect(() => {
     invariant(ref.current)
@@ -337,6 +345,17 @@ function AppCanvas() {
               TODO
             </div>
           )}
+          {state.entities.map((entity, index) => (
+            <div
+              key={index}
+              className="absolute bg-red-400"
+              style={{
+                transform: `translate(${entity.position.x}px, ${entity.position.y}px)`,
+                width: entity.size.x,
+                height: entity.size.y,
+              }}
+            />
+          ))}
         </>
       )}
     </div>
