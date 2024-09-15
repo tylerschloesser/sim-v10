@@ -309,24 +309,29 @@ function AppCanvas() {
   }, [])
 
   const rect = useMemo(() => state.rect, [state.rect])
-  const pointer = useMemo(
-    () => state.pointer,
-    [state.pointer],
-  )
-
-  const translate = useMemo(() => {
-    if (!rect || !pointer) {
-      return Vec2.ZERO
+  const pointer = useMemo(() => {
+    if (!rect?.position || !state.pointer) {
+      return null
     }
-    return rect.position.mul(-1).add(pointer)
-  }, [rect, pointer])
+    return rect.position.mul(-1).add(state.pointer)
+  }, [rect?.position, state.pointer])
 
   const active = useMemo(() => {
-    if (!rect || !pointer) {
+    if (!rect || !state.pointer) {
       return false
     }
-    return rect.contains(pointer)
-  }, [rect, pointer])
+    return rect.contains(state.pointer)
+  }, [rect, state.pointer])
+
+  const entityIndexToState = useMemo(() => {
+    const map = new Map<number, { hover: boolean }>()
+    state.entities.forEach((entity, index) => {
+      map.set(index, {
+        hover: pointer ? entity.contains(pointer) : false,
+      })
+    })
+    return map
+  }, [state.entities, pointer])
 
   return (
     <div ref={ref} className="border border-white h-dvh">
@@ -339,23 +344,31 @@ function AppCanvas() {
                 !active && 'opacity-50',
               )}
               style={{
-                transform: `translate(${translate.x}px, ${translate.y}px)`,
+                transform: `translate(${pointer.x}px, ${pointer.y}px)`,
               }}
             >
               TODO
             </div>
           )}
-          {state.entities.map((entity, index) => (
-            <div
-              key={index}
-              className="absolute bg-red-400"
-              style={{
-                transform: `translate(${entity.position.x}px, ${entity.position.y}px)`,
-                width: entity.size.x,
-                height: entity.size.y,
-              }}
-            />
-          ))}
+          {state.entities.map((entity, index) => {
+            const state = entityIndexToState.get(index)
+            invariant(state)
+            const { hover } = state
+            return (
+              <div
+                key={index}
+                className={clsx(
+                  'absolute bg-red-400',
+                  hover && 'border-2 border-blue-400',
+                )}
+                style={{
+                  transform: `translate(${entity.position.x}px, ${entity.position.y}px)`,
+                  width: entity.size.x,
+                  height: entity.size.y,
+                }}
+              />
+            )
+          })}
         </>
       )}
     </div>
