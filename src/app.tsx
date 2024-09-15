@@ -1,10 +1,10 @@
+import clsx from 'clsx'
 import {
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from 'react'
 import invariant from 'tiny-invariant'
 import { useImmer } from 'use-immer'
@@ -251,19 +251,20 @@ function formatCondition(
 function AppCanvas() {
   const ref = useRef<HTMLDivElement>(null)
 
-  const [state, setState] = useState<Rect | null>(null)
-
-  const [pointer, setPointer] = useState<Vec2 | null>(null)
+  const [state, setState] = useImmer<{
+    rect: Rect | null
+    pointer: Vec2 | null
+  }>({ rect: null, pointer: null })
 
   useEffect(() => {
     invariant(ref.current)
     const rect = ref.current.getBoundingClientRect()
-    setState(
-      new Rect(
+    setState((draft) => {
+      draft.rect = new Rect(
         new Vec2(rect.x, rect.y),
         new Vec2(rect.width, rect.height),
-      ),
-    )
+      )
+    })
   }, [])
 
   useEffect(() => {
@@ -272,46 +273,70 @@ function AppCanvas() {
 
     // prettier-ignore
     document.addEventListener('pointermove', (e) => {
-      setPointer(new Vec2(e.clientX, e.clientY))
+      setState(draft => {
+        draft.pointer = new Vec2(e.clientX, e.clientY)
+      })
     }, { signal })
 
     // prettier-ignore
     document.addEventListener('pointerleave', () => {
-      setPointer(null)
+      setState(draft => {
+        draft.pointer = null
+      })
     }, { signal })
 
     // prettier-ignore
     document.addEventListener('scroll', () => {
       invariant(ref.current)
       const rect = ref.current.getBoundingClientRect()
-      setState(new Rect(
-        new Vec2(rect.x, rect.y),
-        new Vec2(rect.width, rect.height),
-      ))
+      setState(draft => {
+        draft.rect = new Rect(
+          new Vec2(rect.x, rect.y),
+          new Vec2(rect.width, rect.height),
+        )
+      }) 
     }, { signal })
 
     return () => controller.abort()
   }, [])
 
+  const rect = useMemo(() => state.rect, [state.rect])
+  const pointer = useMemo(
+    () => state.pointer,
+    [state.pointer],
+  )
+
   const translate = useMemo(() => {
-    if (!state || !pointer) {
+    if (!rect || !pointer) {
       return Vec2.ZERO
     }
-    return state.position.mul(-1).add(pointer)
-  }, [state, pointer])
+    return rect.position.mul(-1).add(pointer)
+  }, [rect, pointer])
+
+  const active = useMemo(() => {
+    if (!rect || !pointer) {
+      return false
+    }
+    return rect.contains(pointer)
+  }, [rect, pointer])
 
   return (
     <div ref={ref} className="border border-white h-dvh">
       {state && (
         <>
-          <div
-            className="absolute pointer-events-none border border-green-400"
-            style={{
-              transform: `translate(${translate.x}px, ${translate.y}px)`,
-            }}
-          >
-            TODO
-          </div>
+          {pointer && (
+            <div
+              className={clsx(
+                'absolute pointer-events-none border border-green-400',
+                !active && 'opacity-50',
+              )}
+              style={{
+                transform: `translate(${translate.x}px, ${translate.y}px)`,
+              }}
+            >
+              TODO
+            </div>
+          )}
         </>
       )}
     </div>
