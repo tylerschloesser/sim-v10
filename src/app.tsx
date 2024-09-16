@@ -413,6 +413,11 @@ function AppCanvas() {
 
   const connection = useMemo<{
     rect: Rect
+    corner:
+      | 'top-left'
+      | 'top-right'
+      | 'bottom-left'
+      | 'bottom-right'
   }>(() => {
     invariant(entities.length === 2)
     const [a, b] = entities
@@ -431,7 +436,21 @@ function AppCanvas() {
         Math.abs(aCenter.y - bCenter.y),
       ),
     )
-    return { rect }
+
+    const corner = (() => {
+      if (aCenter.x < bCenter.x) {
+        if (aCenter.y < bCenter.y) {
+          return 'top-left'
+        }
+        return 'bottom-left'
+      }
+      if (aCenter.y < bCenter.y) {
+        return 'top-right'
+      }
+      return 'bottom-right'
+    })()
+
+    return { rect, corner }
   }, [entities])
 
   return (
@@ -455,7 +474,17 @@ function AppCanvas() {
             </div>
           )}
           <div
-            className="absolute border border-white pointer-events-none"
+            className={clsx(
+              'absolute border-white pointer-events-none',
+              connection.corner === 'top-left' &&
+                'border-b border-l',
+              connection.corner === 'top-right' &&
+                'border-b border-r',
+              connection.corner === 'bottom-left' &&
+                'border-t border-l',
+              connection.corner === 'bottom-right' &&
+                'border-t border-r',
+            )}
             style={{
               transform: `translate(${connection.rect.position.x}px, ${connection.rect.position.y}px)`,
               width: connection.rect.size.x,
