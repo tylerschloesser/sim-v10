@@ -477,13 +477,13 @@ function AppCanvas() {
             className={clsx(
               'absolute border-white pointer-events-none',
               connection.corner === 'top-left' &&
-                'border-b border-l',
+                'border-b-2 border-l-2',
               connection.corner === 'top-right' &&
-                'border-b border-r',
+                'border-b-2 border-r-2',
               connection.corner === 'bottom-left' &&
-                'border-t border-l',
+                'border-t-2 border-l-2',
               connection.corner === 'bottom-right' &&
-                'border-t border-r',
+                'border-t-2 border-r-2',
             )}
             style={{
               transform: `translate(${connection.rect.position.x}px, ${connection.rect.position.y}px)`,
