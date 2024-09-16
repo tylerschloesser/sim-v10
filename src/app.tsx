@@ -248,6 +248,23 @@ function formatCondition(
   ].join(' ')
 }
 
+enum DragType {
+  Entity = 'entity',
+  Camera = 'camera',
+}
+
+interface EntityDrag {
+  type: DragType.Entity
+  index: number
+  position: Vec2
+}
+
+interface CameraDrag {
+  type: DragType.Camera
+}
+
+type Drag = EntityDrag | CameraDrag
+
 function AppCanvas() {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -258,7 +275,7 @@ function AppCanvas() {
       down: boolean
     } | null
     entities: Rect[]
-    drag: { entityIndex: number; position: Vec2 } | null
+    drag: Drag | null
     camera: {
       position: Vec2
     }
@@ -306,14 +323,16 @@ function AppCanvas() {
             const pointer = draft.rect.position
               .mul(-1)
               .add(draft.pointer.position)
-            const entityIndex = draft.entities.findIndex(
+            const index = draft.entities.findIndex(
               (entity) => entity.contains(pointer),
             )
-            if (entityIndex !== -1) {
-              const entity = draft.entities[entityIndex]
+            if (index === -1) {
+            } else {
+              const entity = draft.entities[index]
               invariant(entity)
               draft.drag = {
-                entityIndex,
+                type: DragType.Entity,
+                index,
                 position: pointer.sub(entity.position),
               }
             }
@@ -350,9 +369,8 @@ function AppCanvas() {
           const pointer = draft.rect.position
             .mul(-1)
             .add(draft.pointer.position)
-          if (draft.drag !== null) {
-            const entity =
-              draft.entities[draft.drag.entityIndex]
+          if (draft.drag?.type === DragType.Entity) {
+            const entity = draft.entities[draft.drag.index]
             invariant(entity)
             entity.position = pointer.sub(
               draft.drag.position,
@@ -408,7 +426,11 @@ function AppCanvas() {
     return state.entities.map((entity, index) => {
       let hover = pointer ? entity.contains(pointer) : false
       let position = entity.position
-      if (state.drag && state.drag.entityIndex === index) {
+      if (
+        state.drag &&
+        state.drag.type === DragType.Entity &&
+        state.drag.index === index
+      ) {
         invariant(pointer)
         position = pointer.sub(state.drag.position)
         hover = true
@@ -479,51 +501,53 @@ function AppCanvas() {
               TODO
             </div>
           )}
-          <div
-            className={clsx(
-              'absolute border-white pointer-events-none',
-              connection.corner === 'top-left' &&
-                'border-b-2 border-l-2',
-              connection.corner === 'top-right' &&
-                'border-b-2 border-r-2',
-              connection.corner === 'bottom-left' &&
-                'border-t-2 border-l-2',
-              connection.corner === 'bottom-right' &&
-                'border-t-2 border-r-2',
-            )}
-            style={{
-              transform: `translate(${connection.rect.position.x}px, ${connection.rect.position.y}px)`,
-              width: connection.rect.size.x,
-              height: connection.rect.size.y,
-            }}
-          />
-          {entities.map((entity, index) => (
+          <div>
             <div
-              key={index}
               className={clsx(
-                'absolute border-2 border-white',
-                entity.hover && 'border-blue-400',
+                'absolute border-white pointer-events-none',
+                connection.corner === 'top-left' &&
+                  'border-b-2 border-l-2',
+                connection.corner === 'top-right' &&
+                  'border-b-2 border-r-2',
+                connection.corner === 'bottom-left' &&
+                  'border-t-2 border-l-2',
+                connection.corner === 'bottom-right' &&
+                  'border-t-2 border-r-2',
               )}
               style={{
-                transform: `translate(${entity.position.x}px, ${entity.position.y}px)`,
-                width: entity.size.x,
-                height: entity.size.y,
+                transform: `translate(${connection.rect.position.x}px, ${connection.rect.position.y}px)`,
+                width: connection.rect.size.x,
+                height: connection.rect.size.y,
               }}
-            >
-              <button
-                className="text-blue-300"
-                onClick={() => {
-                  console.log('Test')
+            />
+            {entities.map((entity, index) => (
+              <div
+                key={index}
+                className={clsx(
+                  'absolute border-2 border-white',
+                  entity.hover && 'border-blue-400',
+                )}
+                style={{
+                  transform: `translate(${entity.position.x}px, ${entity.position.y}px)`,
+                  width: entity.size.x,
+                  height: entity.size.y,
                 }}
               >
-                Edit
-              </button>
-              <label>
-                Test
-                <input type="text" />
-              </label>
-            </div>
-          ))}
+                <button
+                  className="text-blue-300"
+                  onClick={() => {
+                    console.log('Test')
+                  }}
+                >
+                  Edit
+                </button>
+                <label>
+                  Test
+                  <input type="text" />
+                </label>
+              </div>
+            ))}
+          </div>
         </>
       )}
     </div>
