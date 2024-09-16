@@ -411,7 +411,9 @@ function AppCanvas() {
     })
   }, [state.entities, state.drag, pointer])
 
-  const connection = useMemo(() => {
+  const connection = useMemo<{
+    rect: Rect
+  }>(() => {
     invariant(entities.length === 2)
     const [a, b] = entities
     invariant(a && b)
@@ -419,7 +421,7 @@ function AppCanvas() {
     const aCenter = a.position.add(a.size.mul(0.5))
     const bCenter = b.position.add(b.size.mul(0.5))
 
-    return new Rect(
+    const rect = new Rect(
       new Vec2(
         Math.min(aCenter.x, bCenter.x),
         Math.min(aCenter.y, bCenter.y),
@@ -429,6 +431,7 @@ function AppCanvas() {
         Math.abs(aCenter.y - bCenter.y),
       ),
     )
+    return { rect }
   }, [entities])
 
   return (
@@ -452,11 +455,11 @@ function AppCanvas() {
             </div>
           )}
           <div
-            className="absolute border border-white"
+            className="absolute border border-white pointer-events-none"
             style={{
-              transform: `translate(${connection.position.x}px, ${connection.position.y}px)`,
-              width: connection.size.x,
-              height: connection.size.y,
+              transform: `translate(${connection.rect.position.x}px, ${connection.rect.position.y}px)`,
+              width: connection.rect.size.x,
+              height: connection.rect.size.y,
             }}
           />
           {entities.map((entity, index) => (
