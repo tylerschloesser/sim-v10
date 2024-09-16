@@ -259,6 +259,9 @@ function AppCanvas() {
     } | null
     entities: Rect[]
     drag: { entityIndex: number; position: Vec2 } | null
+    camera: {
+      position: Vec2
+    }
   }>({
     rect: null,
     pointer: null,
@@ -267,6 +270,9 @@ function AppCanvas() {
       new Rect(new Vec2(100, 100), new Vec2(200, 200)),
     ],
     drag: null,
+    camera: {
+      position: Vec2.ZERO,
+    },
   })
 
   useEffect(() => {
