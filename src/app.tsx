@@ -378,7 +378,9 @@ function AppCanvas() {
       }) 
     }, { signal })
 
-    return () => controller.abort()
+    return () => {
+      controller.abort()
+    }
   }, [])
 
   const rect = useMemo(() => state.rect, [state.rect])
@@ -396,12 +398,8 @@ function AppCanvas() {
     return rect.contains(state.pointer.position)
   }, [rect, state.pointer])
 
-  const entityIndexToState = useMemo(() => {
-    const map = new Map<
-      number,
-      { hover: boolean; position: Vec2 }
-    >()
-    state.entities.forEach((entity, index) => {
+  const entities = useMemo(() => {
+    return state.entities.map((entity, index) => {
       let hover = pointer ? entity.contains(pointer) : false
       let position = entity.position
       if (state.drag && state.drag.entityIndex === index) {
@@ -409,10 +407,29 @@ function AppCanvas() {
         position = pointer.sub(state.drag.position)
         hover = true
       }
-      map.set(index, { hover, position })
+      return { hover, position, size: entity.size }
     })
-    return map
-  }, [state.entities, pointer])
+  }, [state.entities, state.drag, pointer])
+
+  const connection = useMemo(() => {
+    invariant(entities.length === 2)
+    const [a, b] = entities
+    invariant(a && b)
+
+    const aCenter = a.position.add(a.size.mul(0.5))
+    const bCenter = b.position.add(b.size.mul(0.5))
+
+    return new Rect(
+      new Vec2(
+        Math.min(aCenter.x, bCenter.x),
+        Math.min(aCenter.y, bCenter.y),
+      ),
+      new Vec2(
+        Math.abs(aCenter.x - bCenter.x),
+        Math.abs(aCenter.y - bCenter.y),
+      ),
+    )
+  }, [entities])
 
   return (
     <div
@@ -434,38 +451,41 @@ function AppCanvas() {
               TODO
             </div>
           )}
-          {state.entities.map((entity, index) => {
-            const state = entityIndexToState.get(index)
-            invariant(state)
-            const { hover } = state
-            return (
-              <div
-                key={index}
-                className={clsx(
-                  'absolute border-2 border-white',
-                  hover && 'border-blue-400',
-                )}
-                style={{
-                  transform: `translate(${state.position.x}px, ${state.position.y}px)`,
-                  width: entity.size.x,
-                  height: entity.size.y,
+          <div
+            className="absolute border border-white"
+            style={{
+              transform: `translate(${connection.position.x}px, ${connection.position.y}px)`,
+              width: connection.size.x,
+              height: connection.size.y,
+            }}
+          />
+          {entities.map((entity, index) => (
+            <div
+              key={index}
+              className={clsx(
+                'absolute border-2 border-white',
+                entity.hover && 'border-blue-400',
+              )}
+              style={{
+                transform: `translate(${entity.position.x}px, ${entity.position.y}px)`,
+                width: entity.size.x,
+                height: entity.size.y,
+              }}
+            >
+              <button
+                className="text-blue-300"
+                onClick={() => {
+                  console.log('Test')
                 }}
               >
-                <button
-                  className="text-blue-300"
-                  onClick={() => {
-                    console.log('Test')
-                  }}
-                >
-                  Edit
-                </button>
-                <label>
-                  Test
-                  <input type="text" />
-                </label>
-              </div>
-            )
-          })}
+                Edit
+              </button>
+              <label>
+                Test
+                <input type="text" />
+              </label>
+            </div>
+          ))}
         </>
       )}
     </div>
