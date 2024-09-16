@@ -327,6 +327,9 @@ function AppCanvas() {
               (entity) => entity.contains(pointer),
             )
             if (index === -1) {
+              draft.drag = {
+                type: DragType.Camera,
+              }
             } else {
               const entity = draft.entities[index]
               invariant(entity)
@@ -369,13 +372,22 @@ function AppCanvas() {
           const pointer = draft.rect.position
             .mul(-1)
             .add(draft.pointer.position)
-          if (draft.drag?.type === DragType.Entity) {
-            const entity = draft.entities[draft.drag.index]
-            invariant(entity)
-            entity.position = pointer.sub(
-              draft.drag.position,
-            )
-            draft.drag = null
+          switch (draft.drag?.type) {
+            case DragType.Entity: {
+              const entity =
+                draft.entities[draft.drag.index]
+              invariant(entity)
+              entity.position = pointer.sub(
+                draft.drag.position,
+              )
+              draft.drag = null
+              break
+            }
+            case DragType.Camera: {
+              // TODO
+              draft.drag = null
+              break
+            }
           }
         })
       },
