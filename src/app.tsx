@@ -374,9 +374,9 @@ function AppCanvas() {
           if (!draft.rect) {
             return
           }
-          const pointer = draft.rect.position
-            .mul(-1)
-            .add(draft.pointer.position)
+          const pointer = draft.pointer.position.sub(
+            draft.rect.position,
+          )
           switch (draft.drag?.type) {
             case DragType.Entity: {
               const entity =
@@ -389,7 +389,10 @@ function AppCanvas() {
               break
             }
             case DragType.Camera: {
-              // TODO
+              draft.camera.position =
+                draft.camera.position.add(
+                  pointer.sub(draft.drag.start),
+                )
               draft.drag = null
               break
             }
