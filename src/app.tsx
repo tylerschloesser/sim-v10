@@ -261,6 +261,7 @@ interface EntityDrag {
 
 interface CameraDrag {
   type: DragType.Camera
+  start: Vec2
 }
 
 type Drag = EntityDrag | CameraDrag
@@ -304,6 +305,10 @@ function AppCanvas() {
   }, [])
 
   useEffect(() => {
+    console.log('Camera', state.camera.position)
+  }, [state.camera.position])
+
+  useEffect(() => {
     const controller = new AbortController()
     const { signal } = controller
 
@@ -315,20 +320,20 @@ function AppCanvas() {
             position: new Vec2(e.clientX, e.clientY),
             down: draft.pointer?.down ?? false,
           }
-          if (
-            draft.rect &&
-            draft.pointer.down &&
-            draft.drag === null
-          ) {
-            const pointer = draft.rect.position
-              .mul(-1)
-              .add(draft.pointer.position)
+          if (!draft.rect || !draft.pointer.down) {
+            return
+          }
+          const pointer = draft.pointer.position.sub(
+            draft.rect.position,
+          )
+          if (draft.drag === null) {
             const index = draft.entities.findIndex(
               (entity) => entity.contains(pointer),
             )
             if (index === -1) {
               draft.drag = {
                 type: DragType.Camera,
+                start: pointer,
               }
             } else {
               const entity = draft.entities[index]
@@ -424,7 +429,7 @@ function AppCanvas() {
     if (!rect?.position || !state.pointer) {
       return null
     }
-    return rect.position.mul(-1).add(state.pointer.position)
+    return state.pointer.position.sub(rect.position)
   }, [rect?.position, state.pointer])
 
   const active = useMemo(() => {
@@ -450,6 +455,16 @@ function AppCanvas() {
       return { hover, position, size: entity.size }
     })
   }, [state.entities, state.drag, pointer])
+
+  const camera = useMemo(() => {
+    if (state.drag?.type !== DragType.Camera || !pointer) {
+      return state.camera.position
+    }
+    invariant(state.pointer)
+    return state.camera.position.add(
+      pointer.sub(state.drag.start),
+    )
+  }, [state.camera.position, pointer])
 
   const connection = useMemo<{
     rect: Rect
@@ -513,7 +528,12 @@ function AppCanvas() {
               TODO
             </div>
           )}
-          <div>
+          <div
+            className="absolute"
+            style={{
+              transform: `translate(${camera.x}px, ${camera.y}px)`,
+            }}
+          >
             <div
               className={clsx(
                 'absolute border-white pointer-events-none',
