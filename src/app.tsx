@@ -490,8 +490,7 @@ function AppCanvas() {
       let hover = pointer ? entity.contains(pointer) : false
       let position = entity.position
       if (
-        state.drag &&
-        state.drag.type === DragType.Entity &&
+        state.drag?.type === DragType.Entity &&
         state.drag.index === index
       ) {
         invariant(pointer)
