@@ -256,7 +256,8 @@ enum DragType {
 interface EntityDrag {
   type: DragType.Entity
   index: number
-  position: Vec2
+  start: Vec2
+  offset: Vec2
 }
 
 interface CameraDrag {
@@ -311,7 +312,7 @@ function AppCanvas() {
   useEffect(() => {
     const controller = new AbortController()
     const { signal } = controller
-
+    ;('')
     document.addEventListener(
       'pointermove',
       (e) => {
@@ -320,30 +321,45 @@ function AppCanvas() {
             position: new Vec2(e.clientX, e.clientY),
             down: draft.pointer?.down ?? false,
           }
-          if (!draft.rect || !draft.pointer.down) {
+          if (
+            !draft.rect ||
+            !draft.pointer.down ||
+            draft.drag !== null
+          ) {
             return
           }
-          const pointer = draft.pointer.position.sub(
-            draft.rect.position,
+          const pointer = draft.pointer.position
+            .sub(draft.rect.position)
+            .sub(draft.camera.position)
+          const index = draft.entities.findIndex((entity) =>
+            entity.contains(pointer),
           )
-          if (draft.drag === null) {
-            const index = draft.entities.findIndex(
-              (entity) => entity.contains(pointer),
-            )
-            if (index === -1) {
-              draft.drag = {
-                type: DragType.Camera,
-                start: pointer,
-              }
-            } else {
-              const entity = draft.entities[index]
-              invariant(entity)
-              draft.drag = {
-                type: DragType.Entity,
-                index,
-                position: pointer.sub(entity.position),
-              }
+          if (index === -1) {
+            draft.drag = {
+              type: DragType.Camera,
+              start: pointer,
             }
+          } else {
+            const entity = draft.entities[index]
+            invariant(entity)
+            draft.drag = {
+              type: DragType.Entity,
+              index,
+              start: pointer,
+              offset: pointer
+                .sub(entity.position)
+                .map(
+                  ({ x, y }) =>
+                    new Vec2(
+                      x / entity.size.x,
+                      y / entity.size.y,
+                    ),
+                ),
+            }
+            invariant(draft.drag.offset.x >= 0)
+            invariant(draft.drag.offset.y >= 0)
+            invariant(draft.drag.offset.x <= 1)
+            invariant(draft.drag.offset.y <= 1)
           }
         })
       },
@@ -354,10 +370,10 @@ function AppCanvas() {
       'pointerdown',
       (e) => {
         setState((draft) => {
-          draft.pointer = {
-            position: new Vec2(e.clientX, e.clientY),
-            down: true,
-          }
+          const position = new Vec2(e.clientX, e.clientY)
+          const down =
+            draft.rect?.contains(position) ?? false
+          draft.pointer = { position, down }
         })
       },
       { signal },
@@ -374,16 +390,22 @@ function AppCanvas() {
           if (!draft.rect) {
             return
           }
-          const pointer = draft.pointer.position.sub(
-            draft.rect.position,
-          )
+          const pointer = draft.pointer.position
+            .sub(draft.rect.position)
+            .sub(draft.camera.position)
           switch (draft.drag?.type) {
             case DragType.Entity: {
               const entity =
                 draft.entities[draft.drag.index]
               invariant(entity)
               entity.position = pointer.sub(
-                draft.drag.position,
+                draft.drag.offset.map(
+                  (offset) =>
+                    new Vec2(
+                      offset.x * entity.size.x,
+                      offset.y * entity.size.y,
+                    ),
+                ),
               )
               draft.drag = null
               break
@@ -428,12 +450,33 @@ function AppCanvas() {
   }, [])
 
   const rect = useMemo(() => state.rect, [state.rect])
+
+  const camera = useMemo(() => {
+    if (
+      state.drag?.type !== DragType.Camera ||
+      !rect?.position ||
+      !state.pointer
+    ) {
+      return state.camera.position
+    }
+    return state.pointer.position
+      .sub(rect.position)
+      .sub(state.drag.start)
+  }, [
+    state.drag,
+    state.camera.position,
+    rect?.position,
+    state.pointer,
+  ])
+
   const pointer = useMemo(() => {
     if (!rect?.position || !state.pointer) {
       return null
     }
-    return state.pointer.position.sub(rect.position)
-  }, [rect?.position, state.pointer])
+    return state.pointer.position
+      .sub(rect.position)
+      .sub(camera)
+  }, [rect?.position, state.pointer, camera])
 
   const active = useMemo(() => {
     if (!rect || !state.pointer) {
@@ -452,22 +495,20 @@ function AppCanvas() {
         state.drag.index === index
       ) {
         invariant(pointer)
-        position = pointer.sub(state.drag.position)
+        position = pointer.sub(
+          state.drag.offset.map(
+            (offset) =>
+              new Vec2(
+                offset.x * entity.size.x,
+                offset.y * entity.size.y,
+              ),
+          ),
+        )
         hover = true
       }
       return { hover, position, size: entity.size }
     })
   }, [state.entities, state.drag, pointer])
-
-  const camera = useMemo(() => {
-    if (state.drag?.type !== DragType.Camera || !pointer) {
-      return state.camera.position
-    }
-    invariant(state.pointer)
-    return state.camera.position.add(
-      pointer.sub(state.drag.start),
-    )
-  }, [state.camera.position, pointer])
 
   const connection = useMemo<{
     rect: Rect
@@ -518,25 +559,25 @@ function AppCanvas() {
     >
       {state && (
         <>
-          {pointer && (
-            <div
-              className={clsx(
-                'absolute pointer-events-none border border-green-400',
-                !active && 'opacity-50',
-              )}
-              style={{
-                transform: `translate(${pointer.x}px, ${pointer.y}px)`,
-              }}
-            >
-              TODO
-            </div>
-          )}
           <div
             className="absolute"
             style={{
               transform: `translate(${camera.x}px, ${camera.y}px)`,
             }}
           >
+            {pointer && (
+              <div
+                className={clsx(
+                  'absolute pointer-events-none border border-green-400',
+                  !active && 'opacity-50',
+                )}
+                style={{
+                  transform: `translate(${pointer.x}px, ${pointer.y}px)`,
+                }}
+              >
+                TODO
+              </div>
+            )}
             <div
               className={clsx(
                 'absolute border-white pointer-events-none',

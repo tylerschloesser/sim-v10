@@ -22,6 +22,10 @@ export class Vec2 {
     return new Vec2(this.x - other.x, this.y - other.y)
   }
 
+  map(fn: (v: Vec2) => Vec2): Vec2 {
+    return fn(this)
+  }
+
   toString(): string {
     return `[${Math.floor(this.x)},${Math.floor(this.y)}]`
   }
