@@ -172,7 +172,7 @@ export function AppCanvas() {
       ref={ref}
       className="relative border border-white h-dvh select-none"
     >
-      <pre className="absolute top-0 left-0 text-xs">
+      <pre className="absolute top-0 left-0 text-xs pointer-events-none">
         {JSON.stringify(state, null, 2)}
       </pre>
       {state && (
