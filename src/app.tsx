@@ -440,6 +440,21 @@ function AppCanvas() {
       }) 
     }, { signal })
 
+    document.addEventListener(
+      'wheel',
+      (ev) => {
+        if (!ev.ctrlKey) {
+          return
+        }
+        console.log(ev)
+        ev.preventDefault()
+      },
+      {
+        signal,
+        passive: false,
+      },
+    )
+
     return () => {
       controller.abort()
     }
