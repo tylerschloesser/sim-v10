@@ -409,6 +409,21 @@ function useEvents(
       },
     )
 
+    document.addEventListener(
+      'keydown',
+      (ev) => {
+        if (ev.key === 'Escape') {
+          setState((draft) => {
+            draft.drag = null
+            if (draft.pointer) {
+              draft.pointer.down = false
+            }
+          })
+        }
+      },
+      { signal },
+    )
+
     return () => {
       controller.abort()
     }
