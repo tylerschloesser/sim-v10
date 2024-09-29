@@ -43,8 +43,8 @@ export function AppCanvas() {
     rect: null,
     pointer: null,
     entities: [
-      new Rect(new Vec2(50, 50), new Vec2(200, 200)),
-      new Rect(new Vec2(100, 100), new Vec2(200, 200)),
+      new Rect(new Vec2(0, 0), new Vec2(100, 100)),
+      new Rect(new Vec2(-100, -100), new Vec2(100, 100)),
     ],
     drag: null,
     camera: {
@@ -167,6 +167,10 @@ export function AppCanvas() {
     return { rect, corner }
   }, [entities])
 
+  const translate = useMemo(() => {
+    return camera.add((rect?.size ?? Vec2.ZERO).div(2))
+  }, [camera, rect?.size])
+
   return (
     <div
       ref={ref}
@@ -180,7 +184,7 @@ export function AppCanvas() {
           <div
             className="absolute"
             style={{
-              transform: `translate(${camera.x}px, ${camera.y}px)`,
+              transform: `translate(${translate.x}px, ${translate.y}px)`,
             }}
           >
             {pointer && (
