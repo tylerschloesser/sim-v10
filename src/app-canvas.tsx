@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import { useEffect, useMemo, useRef } from 'react'
 import invariant from 'tiny-invariant'
-import { useImmer } from 'use-immer'
+import { Updater, useImmer } from 'use-immer'
 import { Rect, Vec2 } from './vec2'
 
 enum DragType {
@@ -52,6 +52,8 @@ export function AppCanvas() {
     },
   })
 
+  useEvents(setState, ref)
+
   useEffect(() => {
     invariant(ref.current)
     const rect = ref.current.getBoundingClientRect()
@@ -61,161 +63,6 @@ export function AppCanvas() {
         new Vec2(rect.width, rect.height),
       )
     })
-  }, [])
-
-  useEffect(() => {
-    const controller = new AbortController()
-    const { signal } = controller
-
-    document.addEventListener(
-      'pointermove',
-      (e) => {
-        setState((draft) => {
-          draft.pointer = {
-            position: new Vec2(e.clientX, e.clientY),
-            down: draft.pointer?.down ?? false,
-          }
-          if (
-            !draft.rect ||
-            !draft.pointer.down ||
-            draft.drag !== null
-          ) {
-            return
-          }
-          const pointer = draft.pointer.position
-            .sub(draft.rect.position)
-            .sub(draft.camera.position)
-          const index = draft.entities.findIndex((entity) =>
-            entity.contains(pointer),
-          )
-          if (index === -1) {
-            draft.drag = {
-              type: DragType.Camera,
-              start: pointer,
-            }
-          } else {
-            const entity = draft.entities[index]
-            invariant(entity)
-            draft.drag = {
-              type: DragType.Entity,
-              index,
-              start: pointer,
-              offset: pointer
-                .sub(entity.position)
-                .map(
-                  ({ x, y }) =>
-                    new Vec2(
-                      x / entity.size.x,
-                      y / entity.size.y,
-                    ),
-                ),
-            }
-            invariant(draft.drag.offset.x >= 0)
-            invariant(draft.drag.offset.y >= 0)
-            invariant(draft.drag.offset.x <= 1)
-            invariant(draft.drag.offset.y <= 1)
-          }
-        })
-      },
-      { signal },
-    )
-
-    document.addEventListener(
-      'pointerdown',
-      (e) => {
-        setState((draft) => {
-          const position = new Vec2(e.clientX, e.clientY)
-          const down =
-            draft.rect?.contains(position) ?? false
-          draft.pointer = { position, down }
-        })
-      },
-      { signal },
-    )
-
-    document.addEventListener(
-      'pointerup',
-      (e) => {
-        setState((draft) => {
-          draft.pointer = {
-            position: new Vec2(e.clientX, e.clientY),
-            down: false,
-          }
-          if (!draft.rect) {
-            return
-          }
-          const pointer = draft.pointer.position
-            .sub(draft.rect.position)
-            .sub(draft.camera.position)
-          switch (draft.drag?.type) {
-            case DragType.Entity: {
-              const entity =
-                draft.entities[draft.drag.index]
-              invariant(entity)
-              entity.position = pointer.sub(
-                draft.drag.offset.map(
-                  (offset) =>
-                    new Vec2(
-                      offset.x * entity.size.x,
-                      offset.y * entity.size.y,
-                    ),
-                ),
-              )
-              draft.drag = null
-              break
-            }
-            case DragType.Camera: {
-              draft.camera.position =
-                draft.camera.position.add(
-                  pointer.sub(draft.drag.start),
-                )
-              draft.drag = null
-              break
-            }
-          }
-        })
-      },
-      { signal },
-    )
-
-    // prettier-ignore
-    document.addEventListener('pointerleave', () => {
-      setState(draft => {
-        draft.pointer = null
-        draft.drag = null
-      })
-    }, { signal })
-
-    // prettier-ignore
-    document.addEventListener('scroll', () => {
-      invariant(ref.current)
-      const rect = ref.current.getBoundingClientRect()
-      setState(draft => {
-        draft.rect = new Rect(
-          new Vec2(rect.x, rect.y),
-          new Vec2(rect.width, rect.height),
-        )
-      }) 
-    }, { signal })
-
-    document.addEventListener(
-      'wheel',
-      (ev) => {
-        if (!ev.ctrlKey) {
-          return
-        }
-        console.log(ev)
-        ev.preventDefault()
-      },
-      {
-        signal,
-        passive: false,
-      },
-    )
-
-    return () => {
-      controller.abort()
-    }
   }, [])
 
   const rect = useMemo(() => state.rect, [state.rect])
@@ -396,4 +243,164 @@ export function AppCanvas() {
       )}
     </div>
   )
+}
+
+function useEvents(
+  setState: Updater<CanvasState>,
+  ref: React.RefObject<HTMLDivElement>,
+) {
+  useEffect(() => {
+    const controller = new AbortController()
+    const { signal } = controller
+
+    document.addEventListener(
+      'pointermove',
+      (e) => {
+        setState((draft) => {
+          draft.pointer = {
+            position: new Vec2(e.clientX, e.clientY),
+            down: draft.pointer?.down ?? false,
+          }
+          if (
+            !draft.rect ||
+            !draft.pointer.down ||
+            draft.drag !== null
+          ) {
+            return
+          }
+          const pointer = draft.pointer.position
+            .sub(draft.rect.position)
+            .sub(draft.camera.position)
+          const index = draft.entities.findIndex((entity) =>
+            entity.contains(pointer),
+          )
+          if (index === -1) {
+            draft.drag = {
+              type: DragType.Camera,
+              start: pointer,
+            }
+          } else {
+            const entity = draft.entities[index]
+            invariant(entity)
+            draft.drag = {
+              type: DragType.Entity,
+              index,
+              start: pointer,
+              offset: pointer
+                .sub(entity.position)
+                .map(
+                  ({ x, y }) =>
+                    new Vec2(
+                      x / entity.size.x,
+                      y / entity.size.y,
+                    ),
+                ),
+            }
+            invariant(draft.drag.offset.x >= 0)
+            invariant(draft.drag.offset.y >= 0)
+            invariant(draft.drag.offset.x <= 1)
+            invariant(draft.drag.offset.y <= 1)
+          }
+        })
+      },
+      { signal },
+    )
+
+    document.addEventListener(
+      'pointerdown',
+      (e) => {
+        setState((draft) => {
+          const position = new Vec2(e.clientX, e.clientY)
+          const down =
+            draft.rect?.contains(position) ?? false
+          draft.pointer = { position, down }
+        })
+      },
+      { signal },
+    )
+
+    document.addEventListener(
+      'pointerup',
+      (e) => {
+        setState((draft) => {
+          draft.pointer = {
+            position: new Vec2(e.clientX, e.clientY),
+            down: false,
+          }
+          if (!draft.rect) {
+            return
+          }
+          const pointer = draft.pointer.position
+            .sub(draft.rect.position)
+            .sub(draft.camera.position)
+          switch (draft.drag?.type) {
+            case DragType.Entity: {
+              const entity =
+                draft.entities[draft.drag.index]
+              invariant(entity)
+              entity.position = pointer.sub(
+                draft.drag.offset.map(
+                  (offset) =>
+                    new Vec2(
+                      offset.x * entity.size.x,
+                      offset.y * entity.size.y,
+                    ),
+                ),
+              )
+              draft.drag = null
+              break
+            }
+            case DragType.Camera: {
+              draft.camera.position =
+                draft.camera.position.add(
+                  pointer.sub(draft.drag.start),
+                )
+              draft.drag = null
+              break
+            }
+          }
+        })
+      },
+      { signal },
+    )
+
+    // prettier-ignore
+    document.addEventListener('pointerleave', () => {
+      setState(draft => {
+        draft.pointer = null
+        draft.drag = null
+      })
+    }, { signal })
+
+    // prettier-ignore
+    document.addEventListener('scroll', () => {
+      invariant(ref.current)
+      const rect = ref.current.getBoundingClientRect()
+      setState(draft => {
+        draft.rect = new Rect(
+          new Vec2(rect.x, rect.y),
+          new Vec2(rect.width, rect.height),
+        )
+      }) 
+    }, { signal })
+
+    document.addEventListener(
+      'wheel',
+      (ev) => {
+        if (!ev.ctrlKey) {
+          return
+        }
+        console.log(ev)
+        ev.preventDefault()
+      },
+      {
+        signal,
+        passive: false,
+      },
+    )
+
+    return () => {
+      controller.abort()
+    }
+  }, [])
 }
