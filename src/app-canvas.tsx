@@ -77,6 +77,7 @@ export function AppCanvas() {
     }
     return state.pointer.position
       .sub(rect.position)
+      .sub(rect.size.div(2))
       .sub(state.drag.start)
   }, [
     state.drag,
@@ -85,14 +86,18 @@ export function AppCanvas() {
     state.pointer,
   ])
 
+  const translate = useMemo(() => {
+    return camera.add((rect?.size ?? Vec2.ZERO).div(2))
+  }, [camera, rect?.size])
+
   const pointer = useMemo(() => {
     if (!rect?.position || !state.pointer) {
       return null
     }
     return state.pointer.position
       .sub(rect.position)
-      .sub(camera)
-  }, [rect?.position, state.pointer, camera])
+      .sub(translate)
+  }, [rect?.position, state.pointer, translate])
 
   const active = useMemo(() => {
     if (!rect || !state.pointer) {
@@ -166,10 +171,6 @@ export function AppCanvas() {
 
     return { rect, corner }
   }, [entities])
-
-  const translate = useMemo(() => {
-    return camera.add((rect?.size ?? Vec2.ZERO).div(2))
-  }, [camera, rect?.size])
 
   return (
     <div
@@ -278,6 +279,7 @@ function useEvents(
           const pointer = draft.pointer.position
             .sub(draft.rect.position)
             .sub(draft.camera.position)
+            .sub(draft.rect.size.div(2))
           const index = draft.entities.findIndex((entity) =>
             entity.contains(pointer),
           )
@@ -340,6 +342,7 @@ function useEvents(
           const pointer = draft.pointer.position
             .sub(draft.rect.position)
             .sub(draft.camera.position)
+            .sub(draft.rect.size.div(2))
           switch (draft.drag?.type) {
             case DragType.Entity: {
               const entity =
