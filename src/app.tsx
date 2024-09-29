@@ -306,10 +306,6 @@ function AppCanvas() {
   }, [])
 
   useEffect(() => {
-    console.log('Camera', state.camera.position)
-  }, [state.camera.position])
-
-  useEffect(() => {
     const controller = new AbortController()
     const { signal } = controller
     ;('')
