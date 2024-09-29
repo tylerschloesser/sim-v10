@@ -267,21 +267,23 @@ interface CameraDrag {
 
 type Drag = EntityDrag | CameraDrag
 
+interface CanvasState {
+  rect: Rect | null
+  pointer: {
+    position: Vec2
+    down: boolean
+  } | null
+  entities: Rect[]
+  drag: Drag | null
+  camera: {
+    position: Vec2
+  }
+}
+
 function AppCanvas() {
   const ref = useRef<HTMLDivElement>(null)
 
-  const [state, setState] = useImmer<{
-    rect: Rect | null
-    pointer: {
-      position: Vec2
-      down: boolean
-    } | null
-    entities: Rect[]
-    drag: Drag | null
-    camera: {
-      position: Vec2
-    }
-  }>({
+  const [state, setState] = useImmer<CanvasState>({
     rect: null,
     pointer: null,
     entities: [
