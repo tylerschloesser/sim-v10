@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import { clamp } from 'lodash-es'
 import { useEffect, useMemo, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
@@ -33,6 +34,7 @@ interface CanvasState {
   drag: Drag | null
   camera: {
     position: Vec2
+    zoom: number
   }
 }
 
@@ -49,6 +51,7 @@ export function AppCanvas() {
     drag: null,
     camera: {
       position: Vec2.ZERO,
+      zoom: 0.5,
     },
   })
 
@@ -400,8 +403,14 @@ function useEvents(
         if (!ev.ctrlKey) {
           return
         }
-        console.log(ev)
         ev.preventDefault()
+        setState((draft) => {
+          draft.camera.zoom = clamp(
+            draft.camera.zoom - ev.deltaY * 0.003,
+            0,
+            1,
+          )
+        })
       },
       {
         signal,
