@@ -5,6 +5,9 @@ import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { Rect, Vec2 } from './vec2'
 
+const MIN_SCALE = 0.5
+const MAX_SCALE = 1.5
+
 enum DragType {
   Entity = 'entity',
   Camera = 'camera',
@@ -55,6 +58,15 @@ export function AppCanvas() {
     },
   })
 
+  const scale = useMemo(() => {
+    invariant(state.camera.zoom >= 0)
+    invariant(state.camera.zoom <= 1)
+    return (
+      MIN_SCALE +
+      (MAX_SCALE - MIN_SCALE) * state.camera.zoom
+    )
+  }, [state.camera.zoom])
+
   useEvents(setState, ref)
 
   useEffect(() => {
@@ -90,8 +102,10 @@ export function AppCanvas() {
   ])
 
   const translate = useMemo(() => {
-    return camera.add((rect?.size ?? Vec2.ZERO).div(2))
-  }, [camera, rect?.size])
+    return camera
+      .mul(scale)
+      .add((rect?.size ?? Vec2.ZERO).div(2))
+  }, [camera, rect?.size, scale])
 
   const pointer = useMemo(() => {
     if (!rect?.position || !state.pointer) {
@@ -112,7 +126,8 @@ export function AppCanvas() {
   const entities = useMemo(() => {
     return state.entities.map((entity, index) => {
       let hover = pointer ? entity.contains(pointer) : false
-      let position = entity.position
+      let position = entity.position.mul(scale)
+      const size = entity.size.mul(scale)
       if (
         state.drag?.type === DragType.Entity &&
         state.drag.index === index
@@ -129,9 +144,9 @@ export function AppCanvas() {
         )
         hover = true
       }
-      return { hover, position, size: entity.size }
+      return { hover, position, size }
     })
-  }, [state.entities, state.drag, pointer])
+  }, [state.entities, state.drag, pointer, scale])
 
   const connection = useMemo<{
     rect: Rect
