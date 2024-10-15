@@ -8,7 +8,12 @@ import React, {
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { AppContext } from './app-context'
-import { ActionType, ItemType, State } from './state'
+import {
+  Action,
+  ActionType,
+  ItemType,
+  State,
+} from './state'
 
 const TICK_RATE = 100
 
@@ -106,7 +111,7 @@ export function App() {
                   }}
                 />
                 <div className="relative">
-                  {action.type}
+                  {getActionLabel(action)}
                 </div>
               </div>
             ))}
@@ -115,6 +120,17 @@ export function App() {
       </div>
     </AppContext.Provider>
   )
+}
+
+function getActionLabel(action: Action): string {
+  switch (action.type) {
+    case ActionType.enum.Mine: {
+      return `Mine ${action.item}`
+    }
+    default: {
+      invariant(false, 'TODO')
+    }
+  }
 }
 
 interface MineButtonProps {
