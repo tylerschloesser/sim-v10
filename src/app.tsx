@@ -1,20 +1,8 @@
 import { useEffect } from 'react'
 import { Updater, useImmer } from 'use-immer'
-import { z } from 'zod'
+import { State } from './state'
 
 const TICK_RATE = 100
-
-const ItemType = z.enum(['Coal', 'Stone'])
-type ItemType = z.infer<typeof ItemType>
-
-const Inventory = z.record(ItemType, z.number())
-type Inventory = z.infer<typeof Inventory>
-
-const State = z.strictObject({
-  tick: z.number().nonnegative(),
-  inventory: Inventory,
-})
-type State = z.infer<typeof State>
 
 function tick(setState: Updater<State>) {
   setState((draft) => {
