@@ -22,6 +22,14 @@ function tick(setState: Updater<State>) {
 
     switch (head.type) {
       case ActionType.enum.Mine: {
+        invariant(head.progress >= 0)
+        head.progress += 1
+        invariant(head.progress <= 10)
+        if (head.progress === 10) {
+          draft.inventory[head.item] =
+            (draft.inventory[head.item] ?? 0) + 1
+          draft.queue.shift()
+        }
         break
       }
       default: {
@@ -80,6 +88,7 @@ function MineButton() {
       draft.queue.push({
         type: ActionType.enum.Mine,
         item: ItemType.enum.Coal,
+        progress: 0,
       })
     })
   }, [setState])
