@@ -8,6 +8,7 @@ import React, {
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { AppContext, Modal } from './app-context'
+import { Button } from './button'
 import { RobotModal } from './robot-modal'
 import {
   Action,
@@ -440,26 +441,5 @@ function SmeltButton({ item }: SmeltButtonProps) {
     <Button onClick={onClick} disabled={disabled}>
       {item}
     </Button>
-  )
-}
-
-type ButtonProps = React.PropsWithChildren<{
-  onClick(): void
-  disabled?: boolean
-}>
-
-function Button({
-  children,
-  onClick,
-  disabled = false,
-}: ButtonProps) {
-  return (
-    <button
-      className="border p-2 hover:opacity-75 active:opacity-50 disabled:opacity-25"
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {children}
-    </button>
   )
 }
