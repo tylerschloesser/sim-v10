@@ -25,5 +25,10 @@ export function App() {
     }
   }, [setState])
 
-  return <>tick: {state.tick}</>
+  return (
+    <div className="flex flex-col">
+      <div className="opacity-50">tick: {state.tick}</div>
+      <div>test</div>
+    </div>
+  )
 }
