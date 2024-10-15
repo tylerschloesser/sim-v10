@@ -260,6 +260,15 @@ function CraftButton({ item }: CraftButtonProps) {
 
   const onClick = useCallback(() => {
     setState((draft) => {
+      for (const [key, count] of Object.entries(recipe)) {
+        const item = ItemType.parse(key)
+        invariant(draft.inventory[item]! >= count)
+        draft.inventory[item]! -= count
+        if (draft.inventory[item] === 0) {
+          delete draft.inventory[item]
+        }
+      }
+
       draft.queue.push({
         type: ActionType.enum.Craft,
         item,
@@ -267,7 +276,7 @@ function CraftButton({ item }: CraftButtonProps) {
         progress: 0,
       })
     })
-  }, [item, setState])
+  }, [item, setState, recipe])
   return (
     <Button onClick={onClick} disabled={disabled}>
       Craft {item}

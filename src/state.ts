@@ -4,13 +4,15 @@ export const ItemType = z.enum([
   'Coal',
   'Stone',
   'StoneFurnace',
+  'IronOre',
+  'IronPlate',
 ])
 export type ItemType = z.infer<typeof ItemType>
 
 export const Inventory = z.record(ItemType, z.number())
 export type Inventory = z.infer<typeof Inventory>
 
-export const ActionType = z.enum(['Mine', 'Craft'])
+export const ActionType = z.enum(['Mine', 'Craft', 'Smelt'])
 export type ActionType = z.infer<typeof ActionType>
 
 export const MineAction = z.strictObject({
@@ -32,9 +34,18 @@ export const CraftAction = z.strictObject({
 })
 export type CraftAction = z.infer<typeof CraftAction>
 
+export const SmeltAction = z.strictObject({
+  type: z.literal(ActionType.enum.Smelt),
+  item: z.literal(ItemType.enum.IronPlate),
+  count: z.number().nonnegative().int(),
+  progress: z.number().nonnegative(),
+})
+export type SmeltAction = z.infer<typeof SmeltAction>
+
 export const Action = z.discriminatedUnion('type', [
   MineAction,
   CraftAction,
+  SmeltAction,
 ])
 export type Action = z.infer<typeof Action>
 
