@@ -36,17 +36,34 @@ export function App() {
     <div className="flex flex-col p-2 gap-2">
       <div className="opacity-50">tick: {state.tick}</div>
       <div>
-        <Button>TODO</Button>
+        <MineButton />
       </div>
     </div>
   )
 }
 
-type ButtonProps = React.PropsWithChildren<{}>
-
-function Button({ children }: ButtonProps) {
+function MineButton() {
   return (
-    <button className="border p-2 hover:opacity-75 active:opacity-50">
+    <Button
+      onClick={() => {
+        console.log('TODO')
+      }}
+    >
+      Mine Coal
+    </Button>
+  )
+}
+
+type ButtonProps = React.PropsWithChildren<{
+  onClick(): void
+}>
+
+function Button({ children, onClick }: ButtonProps) {
+  return (
+    <button
+      className="border p-2 hover:opacity-75 active:opacity-50"
+      onClick={onClick}
+    >
       {children}
     </button>
   )
