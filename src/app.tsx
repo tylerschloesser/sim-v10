@@ -335,17 +335,34 @@ function SmeltButton({ item }: SmeltButtonProps) {
     () => ({
       [ItemType.enum.IronOre]: 1,
       [ItemType.enum.Coal]: 1,
-      [ItemType.enum.StoneFurnace]: 1,
     }),
     [],
   )
 
   const disabled = useMemo(() => {
-    return Object.entries(recipe).some(
-      ([key, count]) =>
-        (state.inventory[ItemType.parse(key)] ?? 0) < count,
+    if (
+      Object.entries(recipe).some(
+        ([key, count]) =>
+          (state.inventory[ItemType.parse(key)] ?? 0) <
+          count,
+      )
+    ) {
+      return true
+    }
+
+    const tail = state.queue.at(-1)
+    if (
+      tail?.type === ActionType.enum.Smelt &&
+      tail.item === item
+    ) {
+      return false
+    }
+
+    return (
+      (state.inventory[ItemType.enum.StoneFurnace] ?? 0) ===
+      0
     )
-  }, [state.inventory, recipe])
+  }, [state.inventory, state.queue, recipe])
 
   const onClick = useCallback(() => {
     setState((draft) => {
@@ -358,12 +375,30 @@ function SmeltButton({ item }: SmeltButtonProps) {
         }
       }
 
-      draft.queue.push({
-        type: ActionType.enum.Smelt,
-        item,
-        count: 1,
-        progress: 0,
-      })
+      const tail = draft.queue.at(-1)
+      if (
+        tail?.type === ActionType.enum.Smelt &&
+        tail.item === item
+      ) {
+        tail.count += 1
+      } else {
+        invariant(
+          draft.inventory[ItemType.enum.StoneFurnace]! > 0,
+        )
+        draft.inventory[ItemType.enum.StoneFurnace]! -= 1
+        if (
+          draft.inventory[ItemType.enum.StoneFurnace] === 0
+        ) {
+          delete draft.inventory[ItemType.enum.StoneFurnace]
+        }
+
+        draft.queue.push({
+          type: ActionType.enum.Smelt,
+          item,
+          count: 1,
+          progress: 0,
+        })
+      }
     })
   }, [setState, recipe])
 
