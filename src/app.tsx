@@ -1,7 +1,12 @@
-import React, { useEffect, useMemo } from 'react'
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+} from 'react'
 import { Updater, useImmer } from 'use-immer'
 import { AppContext } from './app-context'
-import { State } from './state'
+import { ActionType, ItemType, State } from './state'
 
 const TICK_RATE = 100
 
@@ -26,6 +31,7 @@ function useTick(setState: Updater<State>) {
 const INITIAL_STATE: State = {
   tick: 0,
   inventory: {},
+  queue: [],
 }
 
 export function App() {
@@ -41,7 +47,9 @@ export function App() {
       )}
     >
       <div className="flex flex-col p-2 gap-2">
-        <div className="opacity-50">tick: {state.tick}</div>
+        <div className="opacity-50">
+          tick: {state.tick} queue: {state.queue.length}
+        </div>
         <div>
           <MineButton />
         </div>
@@ -51,15 +59,16 @@ export function App() {
 }
 
 function MineButton() {
-  return (
-    <Button
-      onClick={() => {
-        console.log('TODO')
-      }}
-    >
-      Mine Coal
-    </Button>
-  )
+  const { setState } = useContext(AppContext)
+  const onClick = useCallback(() => {
+    setState((draft) => {
+      draft.queue.push({
+        type: ActionType.enum.Mine,
+        item: ItemType.enum.Coal,
+      })
+    })
+  }, [setState])
+  return <Button onClick={onClick}>Mine Coal</Button>
 }
 
 type ButtonProps = React.PropsWithChildren<{

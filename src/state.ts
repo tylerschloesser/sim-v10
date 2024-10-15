@@ -26,5 +26,6 @@ export type Action = z.infer<typeof Action>
 export const State = z.strictObject({
   tick: z.number().nonnegative(),
   inventory: Inventory,
+  queue: Action.array(),
 })
 export type State = z.infer<typeof State>
