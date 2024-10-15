@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useMemo,
 } from 'react'
+import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { AppContext } from './app-context'
 import { ActionType, ItemType, State } from './state'
@@ -13,6 +14,20 @@ const TICK_RATE = 100
 function tick(setState: Updater<State>) {
   setState((draft) => {
     draft.tick += 1
+
+    const head = draft.queue[0]
+    if (!head) {
+      return
+    }
+
+    switch (head.type) {
+      case ActionType.enum.Mine: {
+        break
+      }
+      default: {
+        invariant(false, 'TODO')
+      }
+    }
   })
 }
 
