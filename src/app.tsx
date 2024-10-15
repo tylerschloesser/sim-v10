@@ -7,7 +7,8 @@ import React, {
 } from 'react'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
-import { AppContext } from './app-context'
+import { AppContext, Modal } from './app-context'
+import { RobotModal } from './robot-modal'
 import {
   Action,
   ActionType,
@@ -104,6 +105,7 @@ function useTick(setState: Updater<State>) {
 const INITIAL_INVENTORY: Inventory = {
   [ItemType.enum.Stone]: 20,
   [ItemType.enum.IronPlate]: 20,
+  [ItemType.enum.Robot]: 1,
 }
 
 const INITIAL_STATE: State = {
@@ -114,16 +116,18 @@ const INITIAL_STATE: State = {
 
 export function App() {
   const [state, setState] = useImmer<State>(INITIAL_STATE)
+  const [modal, setModal] = useImmer<Modal | null>(null)
 
   useTick(setState)
 
   return (
     <AppContext.Provider
       value={useMemo(
-        () => ({ state, setState }),
-        [state, setState],
+        () => ({ state, setState, modal, setModal }),
+        [state, setState, modal, setModal],
       )}
     >
+      {modal && <RobotModal modal={modal} />}
       <div className="p-2">
         <div className="flex flex-col gap-2">
           <div className="flex flex-row gap-2">
@@ -185,11 +189,13 @@ export function App() {
 }
 
 function AddRobotButton() {
-  const { state, setState } = useContext(AppContext)
+  const { state, setModal } = useContext(AppContext)
   const disabled = useMemo(() => {
     return (state.inventory[ItemType.enum.Robot] ?? 0) === 0
   }, [state.inventory])
-  const onClick = useCallback(() => {}, [])
+  const onClick = useCallback(() => {
+    setModal({ open: true })
+  }, [setModal])
   return (
     <Button onClick={onClick} disabled={disabled}>
       Add Robot
