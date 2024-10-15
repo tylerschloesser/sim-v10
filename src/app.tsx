@@ -45,5 +45,9 @@ export function App() {
 type ButtonProps = React.PropsWithChildren<{}>
 
 function Button({ children }: ButtonProps) {
-  return <button>{children}</button>
+  return (
+    <button className="border p-2 hover:opacity-75 active:opacity-50">
+      {children}
+    </button>
+  )
 }
