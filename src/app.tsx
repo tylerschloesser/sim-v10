@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { Updater, useImmer } from 'use-immer'
+import { AppContext } from './app-context'
 import { State } from './state'
 
 const TICK_RATE = 100
@@ -33,12 +34,19 @@ export function App() {
   useTick(setState)
 
   return (
-    <div className="flex flex-col p-2 gap-2">
-      <div className="opacity-50">tick: {state.tick}</div>
-      <div>
-        <MineButton />
+    <AppContext.Provider
+      value={useMemo(
+        () => ({ state, setState }),
+        [state, setState],
+      )}
+    >
+      <div className="flex flex-col p-2 gap-2">
+        <div className="opacity-50">tick: {state.tick}</div>
+        <div>
+          <MineButton />
+        </div>
       </div>
-    </div>
+    </AppContext.Provider>
   )
 }
 
