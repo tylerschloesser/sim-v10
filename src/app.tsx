@@ -96,7 +96,21 @@ export function App() {
               </div>
             </div>
           </div>
-          <div>Test</div>
+          <div className="flex flex-col gap-2">
+            {state.queue.map((action, i) => (
+              <div key={i} className="border p-2 relative">
+                <div
+                  className="absolute bg-green-800 top-0 left-0 bottom-0 right-0 transition-transform ease-linear origin-left"
+                  style={{
+                    transform: `scale(${action.progress / 10}, 1)`,
+                  }}
+                />
+                <div className="relative">
+                  {action.type}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </AppContext.Provider>
