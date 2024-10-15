@@ -27,7 +27,7 @@ type MineAction = z.infer<typeof MineAction>
 export const CraftAction = z.strictObject({
   type: z.literal(ActionType.enum.Craft),
   item: z.literal(ItemType.enum.StoneFurnace),
-  count: z.number().nonnegative(),
+  count: z.literal(1),
   progress: z.number().nonnegative(),
 })
 export type CraftAction = z.infer<typeof CraftAction>
@@ -44,3 +44,9 @@ export const State = z.strictObject({
   queue: Action.array(),
 })
 export type State = z.infer<typeof State>
+
+export const ITEM_TYPE_TO_RECIPE = {
+  [ItemType.enum.StoneFurnace]: {
+    [ItemType.enum.Stone]: 10,
+  },
+}

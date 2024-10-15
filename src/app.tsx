@@ -11,6 +11,7 @@ import { AppContext } from './app-context'
 import {
   Action,
   ActionType,
+  ITEM_TYPE_TO_RECIPE,
   ItemType,
   State,
 } from './state'
@@ -40,6 +41,21 @@ function tick(setState: Updater<State>) {
         }
 
         if (head.progress === target) {
+          draft.queue.shift()
+        }
+        break
+      }
+      case ActionType.enum.Craft: {
+        invariant(head.progress >= 0)
+        invariant(head.count === 1)
+
+        head.progress += 1
+
+        invariant(head.progress <= 20)
+
+        if (head.progress === 20) {
+          draft.inventory[head.item] =
+            (draft.inventory[head.item] ?? 0) + 1
           draft.queue.shift()
         }
         break
@@ -88,9 +104,14 @@ export function App() {
               <div className="opacity-50">
                 tick: {state.tick}
               </div>
-              <div>
+              <div className="flex">
                 <MineButton item={ItemType.enum.Coal} />
                 <MineButton item={ItemType.enum.Stone} />
+              </div>
+              <div className="flex">
+                <CraftButton
+                  item={ItemType.enum.StoneFurnace}
+                />
               </div>
             </div>
             <div>
@@ -138,12 +159,26 @@ function RenderAction({
     })
   }, [index, setState])
 
+  const target = useMemo(() => {
+    switch (action.type) {
+      case ActionType.enum.Mine: {
+        return action.count * 10
+      }
+      case ActionType.enum.Craft: {
+        return 20
+      }
+      default: {
+        invariant(false, 'TODO')
+      }
+    }
+  }, [action])
+
   return (
     <div className="border p-2 relative">
       <div
         className="absolute bg-green-800 top-0 left-0 bottom-0 right-0 transition-transform ease-linear origin-left"
         style={{
-          transform: `scale(${action.progress / (action.count * 10)}, 1)`,
+          transform: `scale(${action.progress / target}, 1)`,
         }}
       />
       <div className="relative flex justify-between">
@@ -168,6 +203,9 @@ function getActionLabel(action: Action): string {
         return `Mine ${action.item}`
       }
       return `Mine ${action.item} (${action.count})`
+    }
+    case ActionType.enum.Craft: {
+      return `Craft ${action.item}`
     }
     default: {
       invariant(false, 'TODO')
@@ -201,15 +239,57 @@ function MineButton({ item }: MineButtonProps) {
   return <Button onClick={onClick}>Mine {item}</Button>
 }
 
+interface CraftButtonProps {
+  item: typeof ItemType.enum.StoneFurnace
+}
+
+function CraftButton({ item }: CraftButtonProps) {
+  const { state, setState } = useContext(AppContext)
+
+  const recipe = useMemo(
+    () => ITEM_TYPE_TO_RECIPE[item],
+    [item],
+  )
+
+  const disabled = useMemo(() => {
+    return Object.entries(recipe).some(
+      ([key, count]) =>
+        (state.inventory[ItemType.parse(key)] ?? 0) < count,
+    )
+  }, [state.inventory, recipe])
+
+  const onClick = useCallback(() => {
+    setState((draft) => {
+      draft.queue.push({
+        type: ActionType.enum.Craft,
+        item,
+        count: 1,
+        progress: 0,
+      })
+    })
+  }, [item, setState])
+  return (
+    <Button onClick={onClick} disabled={disabled}>
+      Craft {item}
+    </Button>
+  )
+}
+
 type ButtonProps = React.PropsWithChildren<{
   onClick(): void
+  disabled?: boolean
 }>
 
-function Button({ children, onClick }: ButtonProps) {
+function Button({
+  children,
+  onClick,
+  disabled = false,
+}: ButtonProps) {
   return (
     <button
-      className="border p-2 hover:opacity-75 active:opacity-50"
+      className="border p-2 hover:opacity-75 active:opacity-50 disabled:opacity-25"
       onClick={onClick}
+      disabled={disabled}
     >
       {children}
     </button>
