@@ -153,6 +153,8 @@ export function App() {
                   item={ItemType.enum.IronPlate}
                 />
               </div>
+              <h2>Robots</h2>
+              <AddRobotButton />
             </div>
             <div>
               <div className="grid grid-cols-2 gap-2">
@@ -179,6 +181,19 @@ export function App() {
         </div>
       </div>
     </AppContext.Provider>
+  )
+}
+
+function AddRobotButton() {
+  const { state, setState } = useContext(AppContext)
+  const disabled = useMemo(() => {
+    return (state.inventory[ItemType.enum.Robot] ?? 0) === 0
+  }, [state.inventory])
+  const onClick = useCallback(() => {}, [])
+  return (
+    <Button onClick={onClick} disabled={disabled}>
+      Add Robot
+    </Button>
   )
 }
 
