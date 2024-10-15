@@ -136,6 +136,7 @@ export function App() {
                 <CraftButton
                   item={ItemType.enum.StoneFurnace}
                 />
+                <CraftButton item={ItemType.enum.Robot} />
               </div>
               <h2>Smelt</h2>
               <div className="flex">
@@ -280,7 +281,9 @@ function MineButton({ item }: MineButtonProps) {
 }
 
 interface CraftButtonProps {
-  item: typeof ItemType.enum.StoneFurnace
+  item:
+    | typeof ItemType.enum.StoneFurnace
+    | typeof ItemType.enum.Robot
 }
 
 function CraftButton({ item }: CraftButtonProps) {

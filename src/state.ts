@@ -6,6 +6,7 @@ export const ItemType = z.enum([
   'StoneFurnace',
   'IronOre',
   'IronPlate',
+  'Robot',
 ])
 export type ItemType = z.infer<typeof ItemType>
 
@@ -29,7 +30,10 @@ type MineAction = z.infer<typeof MineAction>
 
 export const CraftAction = z.strictObject({
   type: z.literal(ActionType.enum.Craft),
-  item: z.literal(ItemType.enum.StoneFurnace),
+  item: z.union([
+    z.literal(ItemType.enum.StoneFurnace),
+    z.literal(ItemType.enum.Robot),
+  ]),
   count: z.literal(1),
   progress: z.number().nonnegative(),
 })
@@ -60,5 +64,8 @@ export type State = z.infer<typeof State>
 export const ITEM_TYPE_TO_RECIPE = {
   [ItemType.enum.StoneFurnace]: {
     [ItemType.enum.Stone]: 10,
+  },
+  [ItemType.enum.Robot]: {
+    [ItemType.enum.IronPlate]: 10,
   },
 }
