@@ -128,7 +128,6 @@ export function App() {
         [state, setState, modal, setModal],
       )}
     >
-      {modal && <RobotModal modal={modal} />}
       <div className="p-2">
         <div className="flex flex-col gap-2">
           <div className="flex flex-row gap-2">
@@ -185,6 +184,7 @@ export function App() {
           </div>
         </div>
       </div>
+      {modal && <RobotModal modal={modal} />}
     </AppContext.Provider>
   )
 }
