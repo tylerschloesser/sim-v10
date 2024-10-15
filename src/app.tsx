@@ -10,11 +10,7 @@ function tick(setState: Updater<State>) {
   })
 }
 
-export function App() {
-  const [state, setState] = useImmer<State>({
-    tick: 0,
-    inventory: {},
-  })
+function useTick(setState: Updater<State>) {
   useEffect(() => {
     const interval = self.setInterval(
       () => tick(setState),
@@ -24,9 +20,18 @@ export function App() {
       self.clearInterval(interval)
     }
   }, [setState])
+}
+
+export function App() {
+  const [state, setState] = useImmer<State>({
+    tick: 0,
+    inventory: {},
+  })
+
+  useTick(setState)
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col p-2 gap-2">
       <div className="opacity-50">tick: {state.tick}</div>
       <div>test</div>
     </div>
