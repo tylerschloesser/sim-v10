@@ -176,7 +176,9 @@ function getActionLabel(action: Action): string {
 }
 
 interface MineButtonProps {
-  item: ItemType
+  item:
+    | typeof ItemType.enum.Coal
+    | typeof ItemType.enum.Stone
 }
 
 function MineButton({ item }: MineButtonProps) {
