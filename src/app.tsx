@@ -70,27 +70,33 @@ export function App() {
         [state, setState],
       )}
     >
-      <div className="flex flex-row p-2 gap-2">
+      <div className="p-2">
         <div className="flex flex-col gap-2">
-          <div className="opacity-50">
-            tick: {state.tick} queue: {state.queue.length}
+          <div className="flex flex-row gap-2">
+            <div className="flex flex-col gap-2">
+              <div className="opacity-50">
+                tick: {state.tick} queue:{' '}
+                {state.queue.length}
+              </div>
+              <div>
+                <MineButton item={ItemType.enum.Coal} />
+                <MineButton item={ItemType.enum.Stone} />
+              </div>
+            </div>
+            <div>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.entries(state.inventory).map(
+                  ([item, count]) => (
+                    <Fragment key={item}>
+                      <div>{item}</div>
+                      <div>{count}</div>
+                    </Fragment>
+                  ),
+                )}
+              </div>
+            </div>
           </div>
-          <div>
-            <MineButton item={ItemType.enum.Coal} />
-            <MineButton item={ItemType.enum.Stone} />
-          </div>
-        </div>
-        <div>
-          <div className="grid grid-cols-2 gap-2">
-            {Object.entries(state.inventory).map(
-              ([item, count]) => (
-                <Fragment key={item}>
-                  <div>{item}</div>
-                  <div>{count}</div>
-                </Fragment>
-              ),
-            )}
-          </div>
+          <div>Test</div>
         </div>
       </div>
     </AppContext.Provider>
