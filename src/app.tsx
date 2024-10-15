@@ -11,6 +11,7 @@ import { AppContext } from './app-context'
 import {
   Action,
   ActionType,
+  Inventory,
   ITEM_TYPE_TO_RECIPE,
   ItemType,
   State,
@@ -100,9 +101,14 @@ function useTick(setState: Updater<State>) {
   }, [setState])
 }
 
+const INITIAL_INVENTORY: Inventory = {
+  [ItemType.enum.Stone]: 20,
+  [ItemType.enum.IronPlate]: 20,
+}
+
 const INITIAL_STATE: State = {
   tick: 0,
-  inventory: {},
+  inventory: INITIAL_INVENTORY,
   queue: [],
 }
 
@@ -135,6 +141,9 @@ export function App() {
               <div className="flex">
                 <CraftButton
                   item={ItemType.enum.StoneFurnace}
+                />
+                <CraftButton
+                  item={ItemType.enum.BurnerMiningDrill}
                 />
                 <CraftButton item={ItemType.enum.Robot} />
               </div>
@@ -283,6 +292,7 @@ function MineButton({ item }: MineButtonProps) {
 interface CraftButtonProps {
   item:
     | typeof ItemType.enum.StoneFurnace
+    | typeof ItemType.enum.BurnerMiningDrill
     | typeof ItemType.enum.Robot
 }
 
