@@ -1,6 +1,11 @@
 import clsx from 'clsx'
 import { clamp } from 'lodash-es'
-import { useEffect, useMemo, useRef } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react'
 import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { Rect, Vec2 } from './vec2'
@@ -101,11 +106,14 @@ export function AppCanvas() {
     state.pointer,
   ])
 
-  const translate = useMemo(() => {
-    return camera
-      .mul(scale)
-      .add((rect?.size ?? Vec2.ZERO).div(2))
-  }, [camera, rect?.size, scale])
+  const translate = useCallback(
+    (v: Vec2) => {
+      return v
+        .mul(scale)
+        .add((rect?.size ?? Vec2.ZERO).div(2))
+    },
+    [camera, rect?.size, scale],
+  )
 
   const pointer = useMemo(() => {
     if (!rect?.position || !state.pointer) {
@@ -113,8 +121,9 @@ export function AppCanvas() {
     }
     return state.pointer.position
       .sub(rect.position)
-      .sub(translate)
-  }, [rect?.position, state.pointer, translate])
+      .map(translate)
+      .div(scale)
+  }, [rect?.position, state.pointer, translate, scale])
 
   const active = useMemo(() => {
     if (!rect || !state.pointer) {
@@ -126,8 +135,8 @@ export function AppCanvas() {
   const entities = useMemo(() => {
     return state.entities.map((entity, index) => {
       let hover = pointer ? entity.contains(pointer) : false
-      let position = entity.position.mul(scale)
-      const size = entity.size.mul(scale)
+      let position = entity.position
+      const size = entity.size
       if (
         state.drag?.type === DragType.Entity &&
         state.drag.index === index
@@ -190,6 +199,22 @@ export function AppCanvas() {
     return { rect, corner }
   }, [entities])
 
+  const transform = useCallback(
+    (v: Vec2) => {
+      const { x, y } = translate(v)
+      return `translate(${x}px, ${y}px)`
+    },
+    [translate],
+  )
+
+  const size = useCallback(
+    (v: Vec2) => {
+      const { x: width, y: height } = v.mul(scale)
+      return { width, height }
+    },
+    [scale],
+  )
+
   return (
     <div
       ref={ref}
@@ -200,71 +225,64 @@ export function AppCanvas() {
       </pre>
       {state && (
         <>
-          <div
-            className="absolute"
-            style={{
-              transform: `translate(${translate.x}px, ${translate.y}px)`,
-            }}
-          >
-            {pointer && (
-              <div
-                className={clsx(
-                  'absolute pointer-events-none border border-green-400',
-                  !active && 'opacity-50',
-                )}
-                style={{
-                  transform: `translate(${pointer.x}px, ${pointer.y}px)`,
-                }}
-              >
-                TODO
-              </div>
-            )}
+          {pointer && (
             <div
               className={clsx(
-                'absolute border-white pointer-events-none',
-                connection.corner === 'top-left' &&
-                  'border-b-2 border-l-2',
-                connection.corner === 'top-right' &&
-                  'border-b-2 border-r-2',
-                connection.corner === 'bottom-left' &&
-                  'border-t-2 border-l-2',
-                connection.corner === 'bottom-right' &&
-                  'border-t-2 border-r-2',
+                'absolute pointer-events-none border border-green-400',
+                !active && 'opacity-50',
               )}
               style={{
-                transform: `translate(${connection.rect.position.x}px, ${connection.rect.position.y}px)`,
-                width: connection.rect.size.x,
-                height: connection.rect.size.y,
+                transform: transform(pointer),
               }}
-            />
-            {entities.map((entity, index) => (
-              <div
-                key={index}
-                className={clsx(
-                  'absolute border-2 border-white',
-                  entity.hover && 'border-blue-400',
-                )}
-                style={{
-                  transform: `translate(${entity.position.x}px, ${entity.position.y}px)`,
-                  width: entity.size.x,
-                  height: entity.size.y,
+            >
+              TODO
+            </div>
+          )}
+          <div
+            className={clsx(
+              'absolute border-white pointer-events-none',
+              connection.corner === 'top-left' &&
+                'border-b-2 border-l-2',
+              connection.corner === 'top-right' &&
+                'border-b-2 border-r-2',
+              connection.corner === 'bottom-left' &&
+                'border-t-2 border-l-2',
+              connection.corner === 'bottom-right' &&
+                'border-t-2 border-r-2',
+            )}
+            style={{
+              transform: transform(
+                connection.rect.position,
+              ),
+              ...size(connection.rect.size),
+            }}
+          />
+          {entities.map((entity, index) => (
+            <div
+              key={index}
+              className={clsx(
+                'absolute border-2 border-white',
+                entity.hover && 'border-blue-400',
+              )}
+              style={{
+                transform: transform(entity.position),
+                ...size(entity.size),
+              }}
+            >
+              <button
+                className="text-blue-300"
+                onClick={() => {
+                  console.log('Test')
                 }}
               >
-                <button
-                  className="text-blue-300"
-                  onClick={() => {
-                    console.log('Test')
-                  }}
-                >
-                  Edit
-                </button>
-                <label>
-                  Test
-                  <input type="text" />
-                </label>
-              </div>
-            ))}
-          </div>
+                Edit
+              </button>
+              <label>
+                Test
+                <input type="text" />
+              </label>
+            </div>
+          ))}
         </>
       )}
     </div>
