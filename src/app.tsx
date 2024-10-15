@@ -21,7 +21,7 @@ function tick(setState: Updater<State>) {
   setState((draft) => {
     draft.tick += 1
 
-    const head = draft.queue[0]
+    const head = draft.queue.at(0)
     if (!head) {
       return
     }
@@ -30,10 +30,16 @@ function tick(setState: Updater<State>) {
       case ActionType.enum.Mine: {
         invariant(head.progress >= 0)
         head.progress += 1
-        invariant(head.progress <= 10)
-        if (head.progress === 10) {
+
+        const target = head.count * 10
+        invariant(head.progress <= target)
+
+        if (head.progress % 10 === 0) {
           draft.inventory[head.item] =
             (draft.inventory[head.item] ?? 0) + 1
+        }
+
+        if (head.progress === target) {
           draft.queue.shift()
         }
         break
@@ -106,7 +112,7 @@ export function App() {
                 <div
                   className="absolute bg-green-800 top-0 left-0 bottom-0 right-0 transition-transform ease-linear origin-left"
                   style={{
-                    transform: `scale(${action.progress / 10}, 1)`,
+                    transform: `scale(${action.progress / (action.count * 10)}, 1)`,
                   }}
                 />
                 <div className="relative">
@@ -124,7 +130,10 @@ export function App() {
 function getActionLabel(action: Action): string {
   switch (action.type) {
     case ActionType.enum.Mine: {
-      return `Mine ${action.item}`
+      if (action.count === 1) {
+        return `Mine ${action.item}`
+      }
+      return `Mine ${action.item} (${action.count})`
     }
     default: {
       invariant(false, 'TODO')
@@ -140,9 +149,15 @@ function MineButton({ item }: MineButtonProps) {
   const { setState } = useContext(AppContext)
   const onClick = useCallback(() => {
     setState((draft) => {
+      const tail = draft.queue.at(-1)
+      if (tail?.item === item) {
+        tail.count += 1
+        return
+      }
       draft.queue.push({
         type: ActionType.enum.Mine,
         item,
+        count: 1,
         progress: 0,
       })
     })

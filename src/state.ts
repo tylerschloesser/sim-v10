@@ -15,6 +15,7 @@ export const MineAction = z.strictObject({
     z.literal(ItemType.enum.Coal),
     z.literal(ItemType.enum.Stone),
   ]),
+  count: z.number().nonnegative(),
   progress: z.number().nonnegative(),
 })
 type MineAction = z.infer<typeof MineAction>
