@@ -20,6 +20,7 @@ export const MineAction = z.strictObject({
   item: z.union([
     z.literal(ItemType.enum.Coal),
     z.literal(ItemType.enum.Stone),
+    z.literal(ItemType.enum.IronOre),
   ]),
   count: z.number().nonnegative(),
   progress: z.number().nonnegative(),

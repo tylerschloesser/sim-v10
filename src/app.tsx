@@ -104,10 +104,13 @@ export function App() {
               <div className="opacity-50">
                 tick: {state.tick}
               </div>
+              <h2>Mine</h2>
               <div className="flex">
                 <MineButton item={ItemType.enum.Coal} />
                 <MineButton item={ItemType.enum.Stone} />
+                <MineButton item={ItemType.enum.IronOre} />
               </div>
+              <h2>Craft</h2>
               <div className="flex">
                 <CraftButton
                   item={ItemType.enum.StoneFurnace}
@@ -217,6 +220,7 @@ interface MineButtonProps {
   item:
     | typeof ItemType.enum.Coal
     | typeof ItemType.enum.Stone
+    | typeof ItemType.enum.IronOre
 }
 
 function MineButton({ item }: MineButtonProps) {
@@ -236,7 +240,7 @@ function MineButton({ item }: MineButtonProps) {
       })
     })
   }, [setState])
-  return <Button onClick={onClick}>Mine {item}</Button>
+  return <Button onClick={onClick}>{item}</Button>
 }
 
 interface CraftButtonProps {
@@ -279,7 +283,7 @@ function CraftButton({ item }: CraftButtonProps) {
   }, [item, setState, recipe])
   return (
     <Button onClick={onClick} disabled={disabled}>
-      Craft {item}
+      {item}
     </Button>
   )
 }
