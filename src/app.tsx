@@ -22,11 +22,13 @@ function useTick(setState: Updater<State>) {
   }, [setState])
 }
 
+const INITIAL_STATE: State = {
+  tick: 0,
+  inventory: {},
+}
+
 export function App() {
-  const [state, setState] = useImmer<State>({
-    tick: 0,
-    inventory: {},
-  })
+  const [state, setState] = useImmer<State>(INITIAL_STATE)
 
   useTick(setState)
 
