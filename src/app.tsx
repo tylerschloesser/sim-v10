@@ -74,25 +74,30 @@ export function App() {
           tick: {state.tick} queue: {state.queue.length}
         </div>
         <div>
-          <MineButton />
+          <MineButton item={ItemType.enum.Coal} />
+          <MineButton item={ItemType.enum.Stone} />
         </div>
       </div>
     </AppContext.Provider>
   )
 }
 
-function MineButton() {
+interface MineButtonProps {
+  item: ItemType
+}
+
+function MineButton({ item }: MineButtonProps) {
   const { setState } = useContext(AppContext)
   const onClick = useCallback(() => {
     setState((draft) => {
       draft.queue.push({
         type: ActionType.enum.Mine,
-        item: ItemType.enum.Coal,
+        item,
         progress: 0,
       })
     })
   }, [setState])
-  return <Button onClick={onClick}>Mine Coal</Button>
+  return <Button onClick={onClick}>Mine {item}</Button>
 }
 
 type ButtonProps = React.PropsWithChildren<{
