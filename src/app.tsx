@@ -108,22 +108,44 @@ export function App() {
           </div>
           <div className="flex flex-col gap-2">
             {state.queue.map((action, i) => (
-              <div key={i} className="border p-2 relative">
-                <div
-                  className="absolute bg-green-800 top-0 left-0 bottom-0 right-0 transition-transform ease-linear origin-left"
-                  style={{
-                    transform: `scale(${action.progress / (action.count * 10)}, 1)`,
-                  }}
-                />
-                <div className="relative">
-                  {getActionLabel(action)}
-                </div>
-              </div>
+              <RenderAction key={i} action={action} />
             ))}
           </div>
         </div>
       </div>
     </AppContext.Provider>
+  )
+}
+
+interface RenderActionProps {
+  action: Action
+}
+
+function RenderAction({ action }: RenderActionProps) {
+  const onClickDelete = useCallback(() => {
+    console.log('TODO')
+  }, [action])
+
+  return (
+    <div className="border p-2 relative">
+      <div
+        className="absolute bg-green-800 top-0 left-0 bottom-0 right-0 transition-transform ease-linear origin-left"
+        style={{
+          transform: `scale(${action.progress / (action.count * 10)}, 1)`,
+        }}
+      />
+      <div className="relative flex justify-between">
+        <div>{getActionLabel(action)}</div>
+        <div>
+          <button
+            className="underline"
+            onClick={onClickDelete}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 
