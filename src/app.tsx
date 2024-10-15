@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { Updater, useImmer } from 'use-immer'
 import { State } from './state'
 
@@ -35,7 +35,15 @@ export function App() {
   return (
     <div className="flex flex-col p-2 gap-2">
       <div className="opacity-50">tick: {state.tick}</div>
-      <div>test</div>
+      <div>
+        <Button>TODO</Button>
+      </div>
     </div>
   )
+}
+
+type ButtonProps = React.PropsWithChildren<{}>
+
+function Button({ children }: ButtonProps) {
+  return <button>{children}</button>
 }
