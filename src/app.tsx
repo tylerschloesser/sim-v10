@@ -60,6 +60,27 @@ function tick(setState: Updater<State>) {
         }
         break
       }
+      case ActionType.enum.Smelt: {
+        invariant(head.progress >= 0)
+        head.progress += 1
+
+        const target = head.count * 20
+        invariant(head.progress <= target)
+
+        if (head.progress % 20 === 0) {
+          draft.inventory[head.item] =
+            (draft.inventory[head.item] ?? 0) + 1
+        }
+
+        if (head.progress === target) {
+          draft.queue.shift()
+
+          draft.inventory[ItemType.enum.StoneFurnace] =
+            (draft.inventory[ItemType.enum.StoneFurnace] ??
+              0) + 1
+        }
+        break
+      }
       default: {
         invariant(false, 'TODO')
       }
@@ -116,6 +137,12 @@ export function App() {
                   item={ItemType.enum.StoneFurnace}
                 />
               </div>
+              <h2>Smelt</h2>
+              <div className="flex">
+                <SmeltButton
+                  item={ItemType.enum.IronPlate}
+                />
+              </div>
             </div>
             <div>
               <div className="grid grid-cols-2 gap-2">
@@ -170,6 +197,9 @@ function RenderAction({
       case ActionType.enum.Craft: {
         return 20
       }
+      case ActionType.enum.Smelt: {
+        return action.count * 20
+      }
       default: {
         invariant(false, 'TODO')
       }
@@ -209,6 +239,12 @@ function getActionLabel(action: Action): string {
     }
     case ActionType.enum.Craft: {
       return `Craft ${action.item}`
+    }
+    case ActionType.enum.Smelt: {
+      if (action.count === 1) {
+        return `Smelt ${action.item}`
+      }
+      return `Smelt ${action.item} (${action.count})`
     }
     default: {
       invariant(false, 'TODO')
@@ -281,6 +317,56 @@ function CraftButton({ item }: CraftButtonProps) {
       })
     })
   }, [item, setState, recipe])
+  return (
+    <Button onClick={onClick} disabled={disabled}>
+      {item}
+    </Button>
+  )
+}
+
+interface SmeltButtonProps {
+  item: typeof ItemType.enum.IronPlate
+}
+
+function SmeltButton({ item }: SmeltButtonProps) {
+  const { state, setState } = useContext(AppContext)
+
+  const recipe = useMemo(
+    () => ({
+      [ItemType.enum.IronOre]: 1,
+      [ItemType.enum.Coal]: 1,
+      [ItemType.enum.StoneFurnace]: 1,
+    }),
+    [],
+  )
+
+  const disabled = useMemo(() => {
+    return Object.entries(recipe).some(
+      ([key, count]) =>
+        (state.inventory[ItemType.parse(key)] ?? 0) < count,
+    )
+  }, [state.inventory, recipe])
+
+  const onClick = useCallback(() => {
+    setState((draft) => {
+      for (const [key, count] of Object.entries(recipe)) {
+        const item = ItemType.parse(key)
+        invariant(draft.inventory[item]! >= count)
+        draft.inventory[item]! -= count
+        if (draft.inventory[item] === 0) {
+          delete draft.inventory[item]
+        }
+      }
+
+      draft.queue.push({
+        type: ActionType.enum.Smelt,
+        item,
+        count: 1,
+        progress: 0,
+      })
+    })
+  }, [setState, recipe])
+
   return (
     <Button onClick={onClick} disabled={disabled}>
       {item}
