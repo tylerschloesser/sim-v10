@@ -108,7 +108,11 @@ export function App() {
           </div>
           <div className="flex flex-col gap-2">
             {state.queue.map((action, i) => (
-              <RenderAction key={i} action={action} />
+              <RenderAction
+                key={i}
+                action={action}
+                index={i}
+              />
             ))}
           </div>
         </div>
@@ -119,12 +123,20 @@ export function App() {
 
 interface RenderActionProps {
   action: Action
+  index: number
 }
 
-function RenderAction({ action }: RenderActionProps) {
+function RenderAction({
+  action,
+  index,
+}: RenderActionProps) {
+  const { setState } = useContext(AppContext)
+
   const onClickDelete = useCallback(() => {
-    console.log('TODO')
-  }, [action])
+    setState((draft) => {
+      draft.queue.splice(index, 1)
+    })
+  }, [index, setState])
 
   return (
     <div className="border p-2 relative">
