@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
 import {
   AppContext,
@@ -12,12 +12,24 @@ interface RobotModalProps {
 
 export function RobotModal({ modal }: RobotModalProps) {
   const { setModal } = useContext(AppContext)
+  const ref = useRef<HTMLDialogElement | null>(null)
+  useEffect(() => {
+    invariant(ref.current)
+    if (modal.open) {
+      ref.current.showModal()
+    } else {
+      ref.current.close()
+    }
+  }, [modal.open])
   return (
     <dialog
-      className="fixed top-0 left-0 right-0 bottom-0"
-      open={modal.open}
+      ref={ref}
+      className="fixed top-0 left-0 right-0 bottom-0 p-2 backdrop:backdrop-blur-sm"
     >
-      TODO
+      <label className="flex flex-col">
+        Name
+        <input className="border border-black p-2" />
+      </label>
       <Button
         onClick={() => {
           setModal((draft) => {
