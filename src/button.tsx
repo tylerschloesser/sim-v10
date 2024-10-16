@@ -1,5 +1,5 @@
 export type ButtonProps = React.PropsWithChildren<{
-  onClick(): void
+  onClick?(): void
   disabled?: boolean
 }>
 

@@ -1,3 +1,4 @@
+import * as Dialog from '@radix-ui/react-dialog'
 import React, {
   Fragment,
   useCallback,
@@ -158,7 +159,17 @@ export function App() {
                 />
               </div>
               <h2>Robots</h2>
-              <AddRobotButton />
+              <Dialog.Root>
+                <Dialog.Trigger asChild>
+                  <Button>Add Robot</Button>
+                </Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Overlay className="fixed inset-0 backdrop-blur data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out" />
+                  <Dialog.Content className="fixed p-2 top-0 data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out">
+                    <Dialog.Title>Add Robot</Dialog.Title>
+                  </Dialog.Content>
+                </Dialog.Portal>
+              </Dialog.Root>
             </div>
             <div>
               <div className="grid grid-cols-2 gap-2">
@@ -184,7 +195,6 @@ export function App() {
           </div>
         </div>
       </div>
-      {modal && <RobotModal modal={modal} />}
     </AppContext.Provider>
   )
 }
