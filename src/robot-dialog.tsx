@@ -2,7 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import * as Form from '@radix-ui/react-form'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import clsx from 'clsx'
-import { useContext, useMemo } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useImmer } from 'use-immer'
 import { AppContext } from './app-context'
 import { Button } from './button'
@@ -27,6 +27,11 @@ export function RobotDialog(props: RobotDialogProps) {
     [props.robotId, nextRobotId],
   )
 
+  const onSubmit: React.FormEventHandler<HTMLFormElement> =
+    useCallback((e) => {
+      e.preventDefault()
+    }, [])
+
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
@@ -47,11 +52,7 @@ export function RobotDialog(props: RobotDialogProps) {
                   TODO
                 </Dialog.Description>
               </VisuallyHidden>
-              <Form.Root
-                onSubmit={(e) => {
-                  e.preventDefault()
-                }}
-              >
+              <Form.Root onSubmit={onSubmit}>
                 <Form.Field name="id">
                   <Form.Label>ID</Form.Label>
                   <Form.Control asChild>
