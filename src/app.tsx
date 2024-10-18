@@ -163,11 +163,9 @@ export function App() {
                 />
               </div>
               <h2>Robots</h2>
-              <RobotDialog>
-                <RobotDialogTrigger asChild>
-                  <Button>Add Robot</Button>
-                </RobotDialogTrigger>
-              </RobotDialog>
+              <RobotDialog
+                trigger={<Button>Add Robot</Button>}
+              />
               {Object.values(state.robots).map((robot) => (
                 <div key={robot.id} className="flex gap-2">
                   <div>{robot.name}</div>

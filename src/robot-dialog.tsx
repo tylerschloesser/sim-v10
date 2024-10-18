@@ -14,14 +14,12 @@ import { Button } from './button'
 import { Input } from './input'
 import { Robot } from './state'
 
-type RobotDialogProps = React.PropsWithChildren<{
+type RobotDialogProps = {
   robotId?: string
-}>
+  trigger: React.ReactNode
+}
 
-export function RobotDialog({
-  children,
-  ...props
-}: RobotDialogProps) {
+export function RobotDialog(props: RobotDialogProps) {
   const [open, setOpen] = useState(false)
   const [local, setLocal] = useImmer<Partial<Robot>>({})
 
@@ -50,7 +48,9 @@ export function RobotDialog({
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      {children}
+      <Dialog.Trigger asChild>
+        {props.trigger}
+      </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 backdrop-blur data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out" />
         <Dialog.Content
