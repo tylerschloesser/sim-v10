@@ -169,7 +169,10 @@ export function App() {
               {Object.values(state.robots).map((robot) => (
                 <div key={robot.id} className="flex gap-2">
                   <div>{robot.name}</div>
-                  <div>Edit</div>
+                  <RobotDialog
+                    robotId={robot.id}
+                    trigger={<div>Edit</div>}
+                  />
                 </div>
               ))}
             </div>

@@ -2,7 +2,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import * as Form from '@radix-ui/react-form'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import clsx from 'clsx'
-import {
+import React, {
   useCallback,
   useContext,
   useMemo,
@@ -19,6 +19,19 @@ type RobotDialogProps = {
   trigger: React.ReactNode
 }
 
+const DialogContent = React.forwardRef<
+  HTMLDivElement,
+  React.PropsWithChildren<{
+    className?: string
+  }>
+>(function DialogContent({ children, className }, ref) {
+  return (
+    <Dialog.Content className={className} ref={ref}>
+      {children}
+    </Dialog.Content>
+  )
+})
+
 export function RobotDialog(props: RobotDialogProps) {
   const [open, setOpen] = useState(false)
   const [local, setLocal] = useImmer<Partial<Robot>>({})
@@ -34,16 +47,28 @@ export function RobotDialog(props: RobotDialogProps) {
     [props.robotId, nextRobotId],
   )
 
+  const robot = useMemo(() => {
+    return Robot.parse({
+      ...({ id, name: '' } satisfies Robot),
+      ...(state.robots[id] ?? {}),
+      ...local,
+    })
+  }, [id, local, state.robots])
+
   const onSubmit: React.FormEventHandler<HTMLFormElement> =
     useCallback(
       (ev) => {
         setState((draft) => {
-          draft.robots[id] = Robot.parse({ id, ...local })
+          draft.robots[id] = robot
+          if (id === `${draft.nextRobotId}`) {
+            draft.nextRobotId++
+          }
         })
         ev.preventDefault()
         setOpen(false)
+        setLocal({})
       },
-      [id, local],
+      [id, robot],
     )
 
   return (
@@ -53,7 +78,7 @@ export function RobotDialog(props: RobotDialogProps) {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 backdrop-blur data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out" />
-        <Dialog.Content
+        <DialogContent
           className={clsx(
             'data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out',
           )}
@@ -89,7 +114,7 @@ export function RobotDialog(props: RobotDialogProps) {
                         })
                       }}
                       min={1}
-                      value={local.name ?? ''}
+                      value={robot.name}
                     />
                   </Form.Control>
                 </Form.Field>
@@ -99,7 +124,7 @@ export function RobotDialog(props: RobotDialogProps) {
               </Form.Root>
             </div>
           </div>
-        </Dialog.Content>
+        </DialogContent>
       </Dialog.Portal>
     </Dialog.Root>
   )
