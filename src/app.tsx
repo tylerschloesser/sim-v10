@@ -225,21 +225,6 @@ export function App() {
   )
 }
 
-function AddRobotButton() {
-  const { state, setModal } = useContext(AppContext)
-  const disabled = useMemo(() => {
-    return (state.inventory[ItemType.enum.Robot] ?? 0) === 0
-  }, [state.inventory])
-  const onClick = useCallback(() => {
-    setModal({ open: true })
-  }, [setModal])
-  return (
-    <Button onClick={onClick} disabled={disabled}>
-      Add Robot
-    </Button>
-  )
-}
-
 interface RenderActionProps {
   action: Action
   index: number
