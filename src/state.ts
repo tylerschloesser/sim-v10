@@ -57,6 +57,7 @@ export const Action = z.discriminatedUnion('type', [
 export type Action = z.infer<typeof Action>
 
 export const Robot = z.strictObject({
+  id: z.string(),
   name: z.string(),
 })
 export type Robot = z.infer<typeof Robot>
@@ -65,7 +66,8 @@ export const State = z.strictObject({
   tick: z.number().nonnegative(),
   inventory: Inventory,
   queue: Action.array(),
-  robots: z.set(Robot),
+  robots: z.record(z.string(), Robot),
+  nextRobotId: z.number().nonnegative().int(),
 })
 export type State = z.infer<typeof State>
 
