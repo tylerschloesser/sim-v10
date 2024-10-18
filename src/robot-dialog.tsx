@@ -2,7 +2,12 @@ import * as Dialog from '@radix-ui/react-dialog'
 import * as Form from '@radix-ui/react-form'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import clsx from 'clsx'
-import { useCallback, useContext, useMemo } from 'react'
+import {
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react'
 import { useImmer } from 'use-immer'
 import { AppContext } from './app-context'
 import { Button } from './button'
@@ -14,9 +19,10 @@ interface RobotDialogProps {
 }
 
 export function RobotDialog(props: RobotDialogProps) {
+  const [open, setOpen] = useState(false)
   const [local, setLocal] = useImmer<Partial<Robot>>({})
 
-  const { state } = useContext(AppContext)
+  const { state, setState } = useContext(AppContext)
   const nextRobotId = useMemo(
     () => `${state.nextRobotId}`,
     [state.nextRobotId],
@@ -28,12 +34,19 @@ export function RobotDialog(props: RobotDialogProps) {
   )
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> =
-    useCallback((e) => {
-      e.preventDefault()
-    }, [])
+    useCallback(
+      (ev) => {
+        setState((draft) => {
+          draft.robots[id] = Robot.parse({ id, ...local })
+        })
+        ev.preventDefault()
+        setOpen(false)
+      },
+      [id, local],
+    )
 
   return (
-    <Dialog.Root>
+    <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
         <Button>Add Robot</Button>
       </Dialog.Trigger>

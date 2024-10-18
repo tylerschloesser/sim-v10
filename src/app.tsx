@@ -161,6 +161,9 @@ export function App() {
               </div>
               <h2>Robots</h2>
               <RobotDialog />
+              {Object.values(state.robots).map((robot) => (
+                <div key={robot.id}>{robot.name}</div>
+              ))}
             </div>
             <div>
               <div className="grid grid-cols-2 gap-2">
