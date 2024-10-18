@@ -113,6 +113,7 @@ const INITIAL_STATE: State = {
   tick: 0,
   inventory: INITIAL_INVENTORY,
   queue: [],
+  robots: new Set(),
 }
 
 export function App() {
