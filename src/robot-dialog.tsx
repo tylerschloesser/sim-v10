@@ -10,7 +10,7 @@ import { Input } from './input'
 import { Robot } from './state'
 
 interface RobotDialogProps {
-  robotId: string
+  robotId?: string
 }
 
 export function RobotDialog(props: RobotDialogProps) {
