@@ -9,7 +9,10 @@ import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { AppContext, Modal } from './app-context'
 import { Button } from './button'
-import { RobotDialog } from './robot-dialog'
+import {
+  RobotDialog,
+  RobotDialogTrigger,
+} from './robot-dialog'
 import {
   Action,
   ActionType,
@@ -160,9 +163,16 @@ export function App() {
                 />
               </div>
               <h2>Robots</h2>
-              <RobotDialog />
+              <RobotDialog>
+                <RobotDialogTrigger asChild>
+                  <Button>Add Robot</Button>
+                </RobotDialogTrigger>
+              </RobotDialog>
               {Object.values(state.robots).map((robot) => (
-                <div key={robot.id}>{robot.name}</div>
+                <div key={robot.id} className="flex gap-2">
+                  <div>{robot.name}</div>
+                  <div>Edit</div>
+                </div>
               ))}
             </div>
             <div>
