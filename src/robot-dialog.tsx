@@ -5,10 +5,11 @@ import clsx from 'clsx'
 import React, {
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react'
-import { useImmer } from 'use-immer'
+import { Updater, useImmer } from 'use-immer'
 import { AppContext } from './app-context'
 import { Button } from './button'
 import { Input } from './input'
@@ -23,8 +24,18 @@ const DialogContent = React.forwardRef<
   HTMLDivElement,
   React.PropsWithChildren<{
     className?: string
+    setLocal: Updater<Partial<Robot>>
   }>
->(function DialogContent({ children, className }, ref) {
+>(function DialogContent(
+  { children, className, setLocal },
+  ref,
+) {
+  useEffect(() => {
+    return () => {
+      // runs after the animation, doesn't play well with strict mode
+      setLocal({})
+    }
+  }, [])
   return (
     <Dialog.Content className={className} ref={ref}>
       {children}
@@ -66,7 +77,6 @@ export function RobotDialog(props: RobotDialogProps) {
         })
         ev.preventDefault()
         setOpen(false)
-        setLocal({})
       },
       [id, robot],
     )
@@ -79,6 +89,7 @@ export function RobotDialog(props: RobotDialogProps) {
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 backdrop-blur data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out" />
         <DialogContent
+          setLocal={setLocal}
           className={clsx(
             'data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out',
           )}
