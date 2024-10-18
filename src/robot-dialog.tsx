@@ -2,10 +2,31 @@ import * as Dialog from '@radix-ui/react-dialog'
 import * as Form from '@radix-ui/react-form'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import clsx from 'clsx'
+import { useContext, useMemo } from 'react'
+import { useImmer } from 'use-immer'
+import { AppContext } from './app-context'
 import { Button } from './button'
 import { Input } from './input'
+import { Robot } from './state'
 
-export function RobotDialog() {
+interface RobotDialogProps {
+  robotId: string
+}
+
+export function RobotDialog(props: RobotDialogProps) {
+  const [local, setLocal] = useImmer<Partial<Robot>>({})
+
+  const { state } = useContext(AppContext)
+  const nextRobotId = useMemo(
+    () => `${state.nextRobotId}`,
+    [state.nextRobotId],
+  )
+
+  const id = useMemo(
+    () => props.robotId ?? nextRobotId,
+    [props.robotId, nextRobotId],
+  )
+
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
@@ -26,13 +47,40 @@ export function RobotDialog() {
                   TODO
                 </Dialog.Description>
               </VisuallyHidden>
-              <Form.Root>
+              <Form.Root
+                onSubmit={(e) => {
+                  e.preventDefault()
+                }}
+              >
+                <Form.Field name="id">
+                  <Form.Label>ID</Form.Label>
+                  <Form.Control asChild>
+                    <Input
+                      type="text"
+                      disabled
+                      value={id}
+                    />
+                  </Form.Control>
+                </Form.Field>
                 <Form.Field name="name">
                   <Form.Label>Name</Form.Label>
                   <Form.Control asChild>
-                    <Input type="text" required />
+                    <Input
+                      type="text"
+                      required
+                      onChange={(e) => {
+                        setLocal((draft) => {
+                          draft.name = e.target.value
+                        })
+                      }}
+                      min={1}
+                      value={local.name ?? ''}
+                    />
                   </Form.Control>
                 </Form.Field>
+                <Form.Submit asChild>
+                  <Button>Save</Button>
+                </Form.Submit>
               </Form.Root>
             </div>
           </div>
