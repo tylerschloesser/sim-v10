@@ -7,6 +7,7 @@ import {
 import {
   Action,
   ActionType,
+  Condition,
   CraftAction,
   ItemType,
   MineAction,
@@ -43,15 +44,18 @@ function tickQueue(draft: State) {
 
 function tickRobot(robot: Robot, draft: State) {
   if (!robot.action) {
-    setRobotAction(robot)
-    invariant(robot.action)
+    setRobotAction(robot, draft)
   }
 
-  const result = handleAction(robot.action, draft)
+  if (robot.action) {
+    const result = handleAction(robot.action, draft)
+    if (result.complete) {
+      robot.action = null
+    }
+  }
 
-  if (result.complete) {
-    robot.action = null
-    setRobotAction(robot)
+  if (!robot.action) {
+    setRobotAction(robot, draft)
   }
 }
 
@@ -75,11 +79,49 @@ function handleAction(
   }
 }
 
-function setRobotAction(robot: Robot) {
+function setRobotAction(robot: Robot, draft: State) {
   invariant(robot.action === null)
   for (const step of robot.algorithm) {
-    robot.action = step.action
-    break
+    if (!isConditionSatisified(step.condition, draft)) {
+      robot.action = step.action
+      break
+    }
+  }
+}
+
+function isConditionSatisified(
+  condition: Condition,
+  draft: State,
+) {
+  const left = resolveConditionValue(condition.left, draft)
+  const right = resolveConditionValue(
+    condition.right,
+    draft,
+  )
+
+  if (left === null || right === null) {
+    return false
+  }
+
+  switch (condition.operator) {
+    case 'lt': {
+      return left < right
+    }
+    case 'lte': {
+      return left <= right
+    }
+    case 'eq': {
+      return left === right
+    }
+    case 'gte': {
+      return left >= right
+    }
+    case 'gt': {
+      return left > right
+    }
+    default: {
+      invariant(false, 'TODO')
+    }
   }
 }
 

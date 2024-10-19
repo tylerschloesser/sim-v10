@@ -78,12 +78,12 @@ export const Operator = z.enum([
 ])
 export type Operator = z.infer<typeof Operator>
 
-const Condition = z.strictObject({
+export const Condition = z.strictObject({
   left: z.string(),
   operator: Operator,
   right: z.string(),
 })
-type Condition = z.infer<typeof Condition>
+export type Condition = z.infer<typeof Condition>
 
 export const RobotAlgorithmStep = z.strictObject({
   action: MineAction,
