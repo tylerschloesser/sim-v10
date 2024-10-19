@@ -1,5 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Form from '@radix-ui/react-form'
+import * as Select from '@radix-ui/react-select'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import clsx from 'clsx'
 import React, {
@@ -123,6 +124,44 @@ export function RobotDialog(props: RobotDialogProps) {
                       min={1}
                       value={robot.name}
                     />
+                  </Form.Control>
+                </Form.Field>
+                <Form.Field name="algorithm">
+                  <Form.Label>Algorithm</Form.Label>
+                  <Form.Control asChild>
+                    <Select.Root
+                      value={robot.algorithm}
+                      onValueChange={(algorithm) => {
+                        setLocal((draft) => {
+                          draft.algorithm =
+                            RobotAlgorithm.parse(algorithm)
+                        })
+                      }}
+                    >
+                      <Select.Trigger className="bg-white text-black border p-2">
+                        <Select.Value />
+                        <Select.Icon />
+                      </Select.Trigger>
+                      <Select.Portal>
+                        <Select.Content className="p-2 bg-white text-black">
+                          <Select.Viewport>
+                            {Object.values(
+                              RobotAlgorithm.enum,
+                            ).map((algorithm) => (
+                              <Select.Item
+                                key={algorithm}
+                                value={algorithm}
+                              >
+                                <Select.ItemText>
+                                  {algorithm}
+                                </Select.ItemText>
+                                <Select.ItemIndicator className="bg-gray-200" />
+                              </Select.Item>
+                            ))}
+                          </Select.Viewport>
+                        </Select.Content>
+                      </Select.Portal>
+                    </Select.Root>
                   </Form.Control>
                 </Form.Field>
                 <Form.Submit asChild>
