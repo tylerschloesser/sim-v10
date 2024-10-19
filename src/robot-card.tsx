@@ -32,7 +32,12 @@ export function RobotCard({ robot }: RobotCardProps) {
             robotId={robot.id}
             trigger={<div>Edit</div>}
           />
-          <div onClick={onClickDelete}>Delete</div>
+          <div
+            className="text-red-400"
+            onClick={onClickDelete}
+          >
+            Delete
+          </div>
         </div>
       </div>
       <div>
