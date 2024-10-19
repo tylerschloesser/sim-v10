@@ -1,5 +1,4 @@
 import { z } from 'zod'
-import { AppContext } from './app-context'
 
 export const ItemType = z.enum([
   'Coal',
@@ -28,7 +27,7 @@ export const MineAction = z.strictObject({
   count: z.number().nonnegative(),
   progress: z.number().nonnegative(),
 })
-type MineAction = z.infer<typeof MineAction>
+export type MineAction = z.infer<typeof MineAction>
 
 export const CraftAction = z.strictObject({
   type: z.literal(ActionType.enum.Craft),
