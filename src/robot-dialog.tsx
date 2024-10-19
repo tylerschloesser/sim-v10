@@ -9,6 +9,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useId,
   useMemo,
   useState,
 } from 'react'
@@ -144,6 +145,7 @@ export function RobotDialog(props: RobotDialogProps) {
                           required
                           id={field.name}
                           name={field.name}
+                          autoComplete="off"
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(e) =>
@@ -159,50 +161,52 @@ export function RobotDialog(props: RobotDialogProps) {
                   <form.Field
                     name="algorithm"
                     children={(field) => (
-                      <>
-                        <label htmlFor={field.name}>
-                          Algorithm
-                        </label>
-                        <Select.Root
-                          required
-                          name={field.name}
-                          value={field.state.value}
-                          onValueChange={(algorithm) => {
-                            field.handleChange(
-                              RobotAlgorithm.parse(
-                                algorithm,
-                              ),
-                            )
-                          }}
-                        >
-                          <Select.Trigger className="bg-white text-black border p-2 flex items-center justify-between gap-2">
-                            <Select.Value />
-                            <Select.Icon>
-                              <ChevronDownIcon />
-                            </Select.Icon>
-                          </Select.Trigger>
-                          <Select.Portal>
-                            <Select.Content className="p-2 bg-white text-black">
-                              <Select.Viewport className="p-2">
-                                {Object.values(
-                                  RobotAlgorithm.enum,
-                                ).map((algorithm) => (
-                                  <Select.Item
-                                    key={algorithm}
-                                    value={algorithm}
-                                    className="p-2 data-[highlighted]:bg-gray-200 select-none"
-                                  >
-                                    <Select.ItemText>
-                                      {algorithm}
-                                    </Select.ItemText>
-                                    <Select.ItemIndicator className="bg-gray-200" />
-                                  </Select.Item>
-                                ))}
-                              </Select.Viewport>
-                            </Select.Content>
-                          </Select.Portal>
-                        </Select.Root>
-                      </>
+                      <FormField label="Algorithm">
+                        {({ id }) => (
+                          <Select.Root
+                            required
+                            name={field.name}
+                            value={field.state.value}
+                            onValueChange={(algorithm) => {
+                              field.handleChange(
+                                RobotAlgorithm.parse(
+                                  algorithm,
+                                ),
+                              )
+                            }}
+                          >
+                            <Select.Trigger
+                              id={id}
+                              className="bg-white text-black border p-2 flex items-center justify-between gap-2"
+                            >
+                              <Select.Value />
+                              <Select.Icon>
+                                <ChevronDownIcon />
+                              </Select.Icon>
+                            </Select.Trigger>
+                            <Select.Portal>
+                              <Select.Content className="p-2 bg-white text-black">
+                                <Select.Viewport className="p-2">
+                                  {Object.values(
+                                    RobotAlgorithm.enum,
+                                  ).map((algorithm) => (
+                                    <Select.Item
+                                      key={algorithm}
+                                      value={algorithm}
+                                      className="p-2 data-[highlighted]:bg-gray-200 select-none"
+                                    >
+                                      <Select.ItemText>
+                                        {algorithm}
+                                      </Select.ItemText>
+                                      <Select.ItemIndicator className="bg-gray-200" />
+                                    </Select.Item>
+                                  ))}
+                                </Select.Viewport>
+                              </Select.Content>
+                            </Select.Portal>
+                          </Select.Root>
+                        )}
+                      </FormField>
                     )}
                   />
                 </div>
@@ -224,5 +228,21 @@ export function RobotDialog(props: RobotDialogProps) {
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
+  )
+}
+
+function FormField({
+  label,
+  children,
+}: {
+  label: string
+  children: (args: { id: string }) => React.ReactNode
+}) {
+  const id = useId()
+  return (
+    <>
+      <label htmlFor={id}>{label}</label>
+      {children({ id })}
+    </>
   )
 }
