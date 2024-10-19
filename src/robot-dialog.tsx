@@ -5,6 +5,7 @@ import { zodValidator } from '@tanstack/zod-form-adapter'
 import clsx from 'clsx'
 import { omit } from 'lodash-es'
 import React, {
+  Fragment,
   useCallback,
   useContext,
   useEffect,
@@ -22,6 +23,7 @@ import {
   ActionType,
   ItemType,
   MineActionItemType,
+  Operator,
   Robot,
 } from './state'
 
@@ -175,40 +177,115 @@ export function RobotDialog(props: RobotDialogProps) {
                     mode="array"
                     children={(field) =>
                       field.state.value.map((step, i) => (
-                        <form.Field
-                          key={i}
-                          name={`algorithm[${i}].action`}
-                          children={(subField) => (
-                            <FormField
-                              label={`Step ${i + 1}`}
-                              key={i}
-                            >
-                              {({ id }) => (
-                                <Select
-                                  required
-                                  id={id}
-                                  name={field.name}
-                                  value={step.action.item}
-                                  onChange={(item) => {
-                                    subField.handleChange({
-                                      type: ActionType.enum
-                                        .Mine,
-                                      item,
-                                      count: 10,
-                                      progress: 0,
-                                    })
-                                  }}
-                                  options={Object.values(
-                                    MineActionItemType.Values,
-                                  )}
-                                  parse={
-                                    MineActionItemType.parse
-                                  }
-                                />
-                              )}
-                            </FormField>
-                          )}
-                        />
+                        <Fragment key={i}>
+                          <form.Field
+                            name={`algorithm[${i}].action`}
+                            children={(subField) => (
+                              <FormField
+                                label={`Step ${i + 1}`}
+                                key={i}
+                              >
+                                {({ id }) => (
+                                  <Select
+                                    required
+                                    id={id}
+                                    name={subField.name}
+                                    value={step.action.item}
+                                    onChange={(item) => {
+                                      subField.handleChange(
+                                        {
+                                          type: ActionType
+                                            .enum.Mine,
+                                          item,
+                                          count: 10,
+                                          progress: 0,
+                                        },
+                                      )
+                                    }}
+                                    options={Object.values(
+                                      MineActionItemType.Values,
+                                    )}
+                                    parse={
+                                      MineActionItemType.parse
+                                    }
+                                  />
+                                )}
+                              </FormField>
+                            )}
+                          />
+                          <form.Field
+                            name={`algorithm[${i}].condition.left`}
+                            children={(subField) => (
+                              <FormField label="Left">
+                                {({ id }) => (
+                                  <Input
+                                    type="text"
+                                    id={id}
+                                    name={subField.name}
+                                    value={
+                                      subField.state
+                                        .value ?? ''
+                                    }
+                                    onChange={(e) =>
+                                      subField.handleChange(
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                )}
+                              </FormField>
+                            )}
+                          />
+                          <form.Field
+                            name={`algorithm[${i}].condition.operator`}
+                            children={(subField) => (
+                              <FormField label="Operator">
+                                {({ id }) => (
+                                  <Select
+                                    id={id}
+                                    name={subField.name}
+                                    value={
+                                      subField.state
+                                        .value ?? ''
+                                    }
+                                    onChange={(op) =>
+                                      subField.handleChange(
+                                        op,
+                                      )
+                                    }
+                                    options={Object.values(
+                                      Operator.Values,
+                                    )}
+                                    parse={Operator.parse}
+                                  />
+                                )}
+                              </FormField>
+                            )}
+                          />
+                          <form.Field
+                            name={`algorithm[${i}].condition.right`}
+                            children={(subField) => (
+                              <FormField label="Right">
+                                {({ id }) => (
+                                  <Input
+                                    type="text"
+                                    id={id}
+                                    name={subField.name}
+                                    value={
+                                      subField.state
+                                        .value ?? ''
+                                    }
+                                    onChange={(e) =>
+                                      subField.handleChange(
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                )}
+                              </FormField>
+                            )}
+                          />
+                        </Fragment>
                       ))
                     }
                   />

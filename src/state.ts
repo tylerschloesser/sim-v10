@@ -69,16 +69,25 @@ export const Action = z.discriminatedUnion('type', [
 ])
 export type Action = z.infer<typeof Action>
 
+export const Operator = z.enum([
+  'lt',
+  'lte',
+  'eq',
+  'gte',
+  'gt',
+])
+export type Operator = z.infer<typeof Operator>
+
 const Condition = z.strictObject({
   left: z.string(),
-  op: z.enum(['lt', 'lte', 'eq', 'gte', 'gt']),
+  operator: Operator,
   right: z.string(),
 })
 type Condition = z.infer<typeof Condition>
 
 export const RobotAlgorithmStep = z.strictObject({
   action: MineAction,
-  condition: Condition.nullable(),
+  condition: Condition,
 })
 export type RobotAlgorithmStep = z.infer<
   typeof RobotAlgorithmStep
