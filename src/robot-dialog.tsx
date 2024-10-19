@@ -9,7 +9,7 @@ import React, {
   useMemo,
   useState,
 } from 'react'
-import { Updater, useImmer } from 'use-immer'
+import { useImmer } from 'use-immer'
 import { AppContext } from './app-context'
 import { Button } from './button'
 import { Input } from './input'
@@ -20,32 +20,15 @@ type RobotDialogProps = {
   trigger: React.ReactNode
 }
 
-const DialogContent = React.forwardRef<
-  HTMLDivElement,
-  React.PropsWithChildren<{
-    className?: string
-    setLocal: Updater<Partial<Robot>>
-  }>
->(function DialogContent(
-  { children, className, setLocal },
-  ref,
-) {
-  useEffect(() => {
-    return () => {
-      // runs after the animation, doesn't play well with strict mode
-      setLocal({})
-    }
-  }, [])
-  return (
-    <Dialog.Content className={className} ref={ref}>
-      {children}
-    </Dialog.Content>
-  )
-})
-
 export function RobotDialog(props: RobotDialogProps) {
   const [open, setOpen] = useState(false)
   const [local, setLocal] = useImmer<Partial<Robot>>({})
+
+  useEffect(() => {
+    if (open) {
+      setLocal({})
+    }
+  }, [open, props.robotId])
 
   const { state, setState } = useContext(AppContext)
   const nextRobotId = useMemo(
@@ -88,8 +71,7 @@ export function RobotDialog(props: RobotDialogProps) {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 backdrop-blur data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out" />
-        <DialogContent
-          setLocal={setLocal}
+        <Dialog.Content
           className={clsx(
             'data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out',
           )}
@@ -135,7 +117,7 @@ export function RobotDialog(props: RobotDialogProps) {
               </Form.Root>
             </div>
           </div>
-        </DialogContent>
+        </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
   )
