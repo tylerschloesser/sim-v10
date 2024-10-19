@@ -29,7 +29,7 @@ function tickQueue(draft: State) {
     return
   }
 
-  let result: HandleActionResult | undefined
+  let result: HandleActionResult
   switch (head.type) {
     case ActionType.enum.Mine: {
       result = handleMine(head, draft)
@@ -48,12 +48,39 @@ function tickQueue(draft: State) {
     }
   }
 
-  if (result?.complete) {
+  if (result.complete) {
     draft.queue.shift()
   }
 }
 
-function tickRobot(robot: Robot, draft: State) {}
+function tickRobot(robot: Robot, draft: State) {
+  if (!robot.action) {
+    return
+  }
+
+  let result: HandleActionResult
+  switch (robot.action.type) {
+    case ActionType.enum.Mine: {
+      result = handleMine(robot.action, draft)
+      break
+    }
+    case ActionType.enum.Craft: {
+      result = handleCraft(robot.action, draft)
+      break
+    }
+    case ActionType.enum.Smelt: {
+      result = handleSmelt(robot.action, draft)
+      break
+    }
+    default: {
+      invariant(false, 'TODO')
+    }
+  }
+
+  if (result.complete) {
+    robot.action = null
+  }
+}
 
 function handleMine(
   action: MineAction,
