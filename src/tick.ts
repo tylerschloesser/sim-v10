@@ -82,7 +82,7 @@ function handleAction(
 function setRobotAction(robot: Robot, draft: State) {
   invariant(robot.action === null)
   for (const step of robot.algorithm) {
-    if (!isConditionSatisified(step.condition, draft)) {
+    if (isConditionSatisified(step.condition, draft)) {
       robot.action = step.action
       break
     }
