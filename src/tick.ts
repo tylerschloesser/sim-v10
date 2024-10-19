@@ -1,6 +1,9 @@
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
-import { InventoryApi } from './inventory-api'
+import {
+  InventoryApi,
+  ReadOnlyInventoryApi,
+} from './inventory-api'
 import {
   Action,
   ActionType,
@@ -142,4 +145,22 @@ function handleSmelt(
   }
 
   return { complete }
+}
+
+function resolveConditionValue(
+  value: string,
+  draft: State,
+) {
+  const item = ItemType.safeParse(value)
+  if (item.success) {
+    const inventory = new ReadOnlyInventoryApi(
+      draft.inventory,
+    )
+    return inventory.get(item.data)
+  }
+  const num = parseInt(value, 10)
+  if (Number.isNaN(num)) {
+    return null
+  }
+  return num
 }
