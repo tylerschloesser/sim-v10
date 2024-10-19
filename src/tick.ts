@@ -5,6 +5,7 @@ import {
   CraftAction,
   ItemType,
   MineAction,
+  Robot,
   SmeltAction,
   State,
 } from './state'
@@ -15,6 +16,10 @@ export function tick(setState: Updater<State>) {
   setState((draft) => {
     draft.tick += 1
     tickQueue(draft)
+
+    for (const robot of Object.values(draft.robots)) {
+      tickRobot(robot, draft)
+    }
   })
 }
 
@@ -47,6 +52,8 @@ function tickQueue(draft: State) {
     draft.queue.shift()
   }
 }
+
+function tickRobot(robot: Robot, draft: State) {}
 
 function handleMine(
   action: MineAction,
