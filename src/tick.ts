@@ -1,5 +1,6 @@
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
+import { InventoryApi } from './inventory-api'
 import {
   Action,
   ActionType,
@@ -111,8 +112,8 @@ function handleMine(
   invariant(action.progress <= target)
 
   if (action.progress % 10 === 0) {
-    draft.inventory[action.item] =
-      (draft.inventory[action.item] ?? 0) + 1
+    const inventory = new InventoryApi(draft.inventory)
+    inventory.inc(action.item)
   }
 
   const complete = action.progress === target
@@ -134,8 +135,8 @@ function handleCraft(
   const complete = action.progress === 20
 
   if (complete) {
-    draft.inventory[action.item] =
-      (draft.inventory[action.item] ?? 0) + 1
+    const inventory = new InventoryApi(draft.inventory)
+    inventory.inc(action.item)
   }
 
   return { complete }
@@ -151,15 +152,15 @@ function handleSmelt(
   const target = action.count * 20
   invariant(action.progress <= target)
 
+  const inventory = new InventoryApi(draft.inventory)
+
   if (action.progress % 20 === 0) {
-    draft.inventory[action.item] =
-      (draft.inventory[action.item] ?? 0) + 1
+    inventory.inc(action.item)
   }
 
   const complete = action.progress === target
   if (complete) {
-    draft.inventory[ItemType.enum.StoneFurnace] =
-      (draft.inventory[ItemType.enum.StoneFurnace] ?? 0) + 1
+    inventory.inc(ItemType.enum.StoneFurnace)
   }
 
   return { complete }

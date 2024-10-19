@@ -5,10 +5,13 @@ import {
   useEffect,
   useMemo,
 } from 'react'
-import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { AppContext, Modal } from './app-context'
 import { Button } from './button'
+import {
+  InventoryApi,
+  ReadOnlyInventoryApi,
+} from './inventory-api'
 import { RobotCard } from './robot-card'
 import { RobotDialog } from './robot-dialog'
 import {
@@ -54,13 +57,23 @@ export function App() {
   const [state, setState] = useImmer<State>(INITIAL_STATE)
   const [modal, setModal] = useImmer<Modal | null>(null)
 
+  const inventory = useMemo(() => {
+    return new ReadOnlyInventoryApi(state.inventory)
+  }, [state.inventory])
+
   useTick(setState)
 
   return (
     <AppContext.Provider
       value={useMemo(
-        () => ({ state, setState, modal, setModal }),
-        [state, setState, modal, setModal],
+        () => ({
+          state,
+          setState,
+          inventory,
+          modal,
+          setModal,
+        }),
+        [state, setState, inventory, modal, setModal],
       )}
     >
       <div className="p-2">
@@ -97,7 +110,7 @@ export function App() {
                 trigger={
                   <Button
                     disabled={
-                      !state.inventory[ItemType.enum.Robot]
+                      !inventory.has(ItemType.enum.Robot)
                     }
                   >
                     Add Robot
@@ -110,14 +123,12 @@ export function App() {
             </div>
             <div>
               <div className="grid grid-cols-2 gap-2">
-                {Object.entries(state.inventory).map(
-                  ([item, count]) => (
-                    <Fragment key={item}>
-                      <div>{item}</div>
-                      <div>{count}</div>
-                    </Fragment>
-                  ),
-                )}
+                {inventory.map((item, count) => (
+                  <Fragment key={item}>
+                    <div>{item}</div>
+                    <div>{count}</div>
+                  </Fragment>
+                ))}
               </div>
             </div>
           </div>
@@ -216,31 +227,22 @@ interface CraftButtonProps {
 }
 
 function CraftButton({ item }: CraftButtonProps) {
-  const { state, setState } = useContext(AppContext)
+  const { setState, inventory } = useContext(AppContext)
 
   const recipe = useMemo(
     () => ITEM_TYPE_TO_RECIPE[item],
     [item],
   )
 
-  const disabled = useMemo(() => {
-    return Object.entries(recipe).some(
-      ([key, count]) =>
-        (state.inventory[ItemType.parse(key)] ?? 0) < count,
-    )
-  }, [state.inventory, recipe])
+  const disabled = useMemo(
+    () => !inventory.hasRecipe(recipe),
+    [inventory, recipe],
+  )
 
   const onClick = useCallback(() => {
     setState((draft) => {
-      for (const [key, count] of Object.entries(recipe)) {
-        const item = ItemType.parse(key)
-        invariant(draft.inventory[item]! >= count)
-        draft.inventory[item]! -= count
-        if (draft.inventory[item] === 0) {
-          delete draft.inventory[item]
-        }
-      }
-
+      const inventory = new InventoryApi(draft.inventory)
+      inventory.subRecipe(recipe)
       draft.queue.push({
         type: ActionType.enum.Craft,
         item,
@@ -261,7 +263,8 @@ interface SmeltButtonProps {
 }
 
 function SmeltButton({ item }: SmeltButtonProps) {
-  const { state, setState } = useContext(AppContext)
+  const { state, setState, inventory } =
+    useContext(AppContext)
 
   const recipe = useMemo(
     () => ({
@@ -272,13 +275,7 @@ function SmeltButton({ item }: SmeltButtonProps) {
   )
 
   const disabled = useMemo(() => {
-    if (
-      Object.entries(recipe).some(
-        ([key, count]) =>
-          (state.inventory[ItemType.parse(key)] ?? 0) <
-          count,
-      )
-    ) {
+    if (!inventory.hasRecipe(recipe)) {
       return true
     }
 
@@ -290,22 +287,13 @@ function SmeltButton({ item }: SmeltButtonProps) {
       return false
     }
 
-    return (
-      (state.inventory[ItemType.enum.StoneFurnace] ?? 0) ===
-      0
-    )
-  }, [state.inventory, state.queue, recipe])
+    return !inventory.has(ItemType.enum.StoneFurnace)
+  }, [inventory, state.queue, recipe])
 
   const onClick = useCallback(() => {
     setState((draft) => {
-      for (const [key, count] of Object.entries(recipe)) {
-        const item = ItemType.parse(key)
-        invariant(draft.inventory[item]! >= count)
-        draft.inventory[item]! -= count
-        if (draft.inventory[item] === 0) {
-          delete draft.inventory[item]
-        }
-      }
+      const inventory = new InventoryApi(draft.inventory)
+      inventory.subRecipe(recipe)
 
       const tail = draft.queue.at(-1)
       if (
@@ -314,16 +302,7 @@ function SmeltButton({ item }: SmeltButtonProps) {
       ) {
         tail.count += 1
       } else {
-        invariant(
-          draft.inventory[ItemType.enum.StoneFurnace]! > 0,
-        )
-        draft.inventory[ItemType.enum.StoneFurnace]! -= 1
-        if (
-          draft.inventory[ItemType.enum.StoneFurnace] === 0
-        ) {
-          delete draft.inventory[ItemType.enum.StoneFurnace]
-        }
-
+        inventory.dec(ItemType.enum.StoneFurnace)
         draft.queue.push({
           type: ActionType.enum.Smelt,
           item,

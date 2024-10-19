@@ -17,6 +17,7 @@ import invariant from 'tiny-invariant'
 import { AppContext } from './app-context'
 import { Button } from './button'
 import { Input } from './input'
+import { InventoryApi } from './inventory-api'
 import { ItemType, Robot, RobotAlgorithm } from './state'
 
 type RobotDialogProps = {
@@ -53,18 +54,11 @@ export function RobotDialog(props: RobotDialogProps) {
     defaultValues,
     onSubmit: async ({ value }) => {
       setState((draft) => {
+        const inventory = new InventoryApi(draft.inventory)
         if (value.id === `${draft.nextRobotId}`) {
           invariant(!draft.robots[value.id])
-
           draft.nextRobotId++
-
-          // prettier-ignore
-          invariant((draft.inventory[ItemType.enum.Robot] ?? 0) > 0)
-
-          draft.inventory[ItemType.enum.Robot]! -= 1
-          if (draft.inventory[ItemType.enum.Robot] === 0) {
-            delete draft.inventory[ItemType.enum.Robot]
-          }
+          inventory.dec(ItemType.enum.Robot)
         }
         draft.robots[value.id] = value
       })
