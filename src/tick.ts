@@ -8,7 +8,6 @@ import {
   ItemType,
   MineAction,
   Robot,
-  RobotAlgorithm,
   SmeltAction,
   State,
 } from './state'
@@ -75,30 +74,9 @@ function handleAction(
 
 function setRobotAction(robot: Robot) {
   invariant(robot.action === null)
-  let item: MineAction['item']
-  switch (robot.algorithm) {
-    case RobotAlgorithm.enum.MineCoal: {
-      item = ItemType.enum.Coal
-      break
-    }
-    case RobotAlgorithm.enum.MineStone: {
-      item = ItemType.enum.Stone
-      break
-    }
-    case RobotAlgorithm.enum.MineIronOre: {
-      item = ItemType.enum.IronOre
-      break
-    }
-    default: {
-      invariant(false, 'TODO')
-    }
-  }
-  robot.action = {
-    type: ActionType.enum.Mine,
-    count: 10,
-    item,
-    progress: 0,
-  }
+  const step = robot.algorithm[0]
+  invariant(step)
+  robot.action = step.action
 }
 
 function handleMine(

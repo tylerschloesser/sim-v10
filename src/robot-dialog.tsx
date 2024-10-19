@@ -5,6 +5,7 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { useForm } from '@tanstack/react-form'
 import { zodValidator } from '@tanstack/zod-form-adapter'
 import clsx from 'clsx'
+import { omit } from 'lodash-es'
 import React, {
   useCallback,
   useContext,
@@ -14,11 +15,12 @@ import React, {
   useState,
 } from 'react'
 import invariant from 'tiny-invariant'
+import { z } from 'zod'
 import { AppContext } from './app-context'
 import { Button } from './button'
 import { Input } from './input'
 import { InventoryApi } from './inventory-api'
-import { ItemType, Robot, RobotAlgorithm } from './state'
+import { ActionType, ItemType, Robot } from './state'
 
 type RobotDialogProps = {
   robotId?: string
@@ -35,21 +37,33 @@ export function RobotDialog(props: RobotDialogProps) {
     [props.robotId, state.nextRobotId],
   )
 
-  const defaultValues = useMemo<Robot>(() => {
-    return (
-      state.robots[id] ?? {
-        id,
-        action: null,
-        name: '',
-        algorithm: RobotAlgorithm.enum.MineCoal,
-      }
-    )
+  const defaultValues = useMemo<
+    Omit<Robot, 'action'>
+  >(() => {
+    const robot = state.robots[id]
+    if (robot) {
+      return omit(robot, 'action')
+    }
+    return {
+      id,
+      name: '',
+      algorithm: [
+        {
+          action: {
+            type: ActionType.enum.Mine,
+            item: ItemType.enum.Stone,
+            count: 10,
+            progress: 0,
+          },
+        },
+      ],
+    }
   }, [id, state.robots])
 
   const form = useForm({
     validatorAdapter: zodValidator(),
     validators: {
-      onChange: Robot,
+      onChange: Robot.omit({ action: true }),
     },
     defaultValues,
     onSubmit: async ({ value }) => {
@@ -60,7 +74,9 @@ export function RobotDialog(props: RobotDialogProps) {
           draft.nextRobotId++
           inventory.dec(ItemType.enum.Robot)
         }
-        draft.robots[value.id] = value
+        const action =
+          draft.robots[value.id]?.action ?? null
+        draft.robots[value.id] = { ...value, action }
       })
       setOpen(false)
     },
@@ -152,54 +168,82 @@ export function RobotDialog(props: RobotDialogProps) {
 
                   <form.Field
                     name="algorithm"
-                    children={(field) => (
-                      <FormField label="Algorithm">
-                        {({ id }) => (
-                          <Select.Root
-                            required
-                            name={field.name}
-                            value={field.state.value}
-                            onValueChange={(algorithm) => {
-                              field.handleChange(
-                                RobotAlgorithm.parse(
-                                  algorithm,
-                                ),
-                              )
-                            }}
-                          >
-                            <Select.Trigger
-                              id={id}
-                              className="bg-white text-black border p-2 flex items-center justify-between gap-2"
+                    mode="array"
+                    children={(field) =>
+                      field.state.value.map((step, i) => (
+                        <form.Field
+                          key={i}
+                          name={`algorithm[${i}].action`}
+                          children={(subField) => (
+                            <FormField
+                              label={`Step ${i + 1}`}
+                              key={i}
                             >
-                              <Select.Value />
-                              <Select.Icon>
-                                <ChevronDownIcon />
-                              </Select.Icon>
-                            </Select.Trigger>
-                            <Select.Portal>
-                              <Select.Content className="p-2 bg-white text-black">
-                                <Select.Viewport className="p-2">
-                                  {Object.values(
-                                    RobotAlgorithm.enum,
-                                  ).map((algorithm) => (
-                                    <Select.Item
-                                      key={algorithm}
-                                      value={algorithm}
-                                      className="p-2 data-[highlighted]:bg-gray-200 select-none"
-                                    >
-                                      <Select.ItemText>
-                                        {algorithm}
-                                      </Select.ItemText>
-                                      <Select.ItemIndicator className="bg-gray-200" />
-                                    </Select.Item>
-                                  ))}
-                                </Select.Viewport>
-                              </Select.Content>
-                            </Select.Portal>
-                          </Select.Root>
-                        )}
-                      </FormField>
-                    )}
+                              {({ id }) => (
+                                <Select.Root
+                                  required
+                                  name={field.name}
+                                  value={step.action.item}
+                                  onValueChange={(item) => {
+                                    subField.handleChange({
+                                      type: ActionType.enum
+                                        .Mine,
+                                      item: z
+                                        .union([
+                                          z.literal(
+                                            ItemType.enum
+                                              .Coal,
+                                          ),
+                                          z.literal(
+                                            ItemType.enum
+                                              .Stone,
+                                          ),
+                                        ])
+                                        .parse(item),
+                                      count: 10,
+                                      progress: 0,
+                                    })
+                                  }}
+                                >
+                                  <Select.Trigger
+                                    id={id}
+                                    className="bg-white text-black border p-2 flex items-center justify-between gap-2"
+                                  >
+                                    <Select.Value />
+                                    <Select.Icon>
+                                      <ChevronDownIcon />
+                                    </Select.Icon>
+                                  </Select.Trigger>
+                                  <Select.Portal>
+                                    <Select.Content className="p-2 bg-white text-black">
+                                      <Select.Viewport className="p-2">
+                                        {[
+                                          ItemType.enum
+                                            .Coal,
+                                          ItemType.enum
+                                            .Stone,
+                                        ].map((item) => (
+                                          <Select.Item
+                                            key={item}
+                                            value={item}
+                                            className="p-2 data-[highlighted]:bg-gray-200 select-none"
+                                          >
+                                            <Select.ItemText>
+                                              {item}
+                                            </Select.ItemText>
+                                            <Select.ItemIndicator className="bg-gray-200" />
+                                          </Select.Item>
+                                        ))}
+                                      </Select.Viewport>
+                                    </Select.Content>
+                                  </Select.Portal>
+                                </Select.Root>
+                              )}
+                            </FormField>
+                          )}
+                        />
+                      ))
+                    }
                   />
                 </div>
 

@@ -64,18 +64,18 @@ export const Action = z.discriminatedUnion('type', [
 ])
 export type Action = z.infer<typeof Action>
 
-export const RobotAlgorithm = z.enum([
-  'MineCoal',
-  'MineStone',
-  'MineIronOre',
-])
-export type RobotAlgorithm = z.infer<typeof RobotAlgorithm>
+export const RobotAlgorithmStep = z.strictObject({
+  action: Action,
+})
+export type RobotAlgorithmStep = z.infer<
+  typeof RobotAlgorithmStep
+>
 
 export const Robot = z.strictObject({
   id: z.string(),
   name: z.string(),
   action: Action.nullable(),
-  algorithm: RobotAlgorithm,
+  algorithm: RobotAlgorithmStep.array(),
 })
 export type Robot = z.infer<typeof Robot>
 
