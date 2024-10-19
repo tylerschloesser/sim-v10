@@ -31,15 +31,17 @@ export function RobotCard({ robot }: RobotCardProps) {
           <RobotDialog
             robotId={robot.id}
             trigger={
-              <div className="text-gray-400">Edit</div>
+              <button className="text-gray-400">
+                Edit
+              </button>
             }
           />
-          <div
+          <button
             className="text-gray-400"
             onClick={onClickDelete}
           >
             Delete
-          </div>
+          </button>
         </div>
       </div>
       <div>
