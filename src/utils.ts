@@ -23,3 +23,26 @@ export function getActionLabel(action: Action): string {
     }
   }
 }
+
+export function getActionTarget(action: Action): number {
+  let target: number
+  switch (action.type) {
+    case ActionType.enum.Mine: {
+      target = action.count * 10
+      break
+    }
+    case ActionType.enum.Craft: {
+      target = 20
+      break
+    }
+    case ActionType.enum.Smelt: {
+      target = action.count * 20
+      break
+    }
+    default: {
+      invariant(false, 'TODO')
+    }
+  }
+  invariant(target > 0)
+  return target
+}

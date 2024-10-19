@@ -20,7 +20,7 @@ import {
   State,
 } from './state'
 import { tick } from './tick'
-import { getActionLabel } from './utils'
+import { getActionLabel, getActionTarget } from './utils'
 
 const TICK_RATE = 100
 
@@ -155,27 +155,15 @@ function RenderAction({
     })
   }, [index, setState])
 
-  const target = useMemo(() => {
-    switch (action.type) {
-      case ActionType.enum.Mine: {
-        return action.count * 10
-      }
-      case ActionType.enum.Craft: {
-        return 20
-      }
-      case ActionType.enum.Smelt: {
-        return action.count * 20
-      }
-      default: {
-        invariant(false, 'TODO')
-      }
-    }
-  }, [action])
+  const target = useMemo(
+    () => getActionTarget(action),
+    [action],
+  )
 
   return (
     <div className="border p-2 relative">
       <div
-        className="absolute bg-green-800 top-0 left-0 bottom-0 right-0 transition-transform ease-linear origin-left"
+        className="absolute bg-green-800 inset-0 transition-transform ease-linear origin-left"
         style={{
           transform: `scale(${action.progress / target}, 1)`,
         }}

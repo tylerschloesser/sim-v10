@@ -1,9 +1,9 @@
-import { useCallback, useContext } from 'react'
+import { useCallback, useContext, useMemo } from 'react'
 import invariant from 'tiny-invariant'
 import { AppContext } from './app-context'
 import { RobotDialog } from './robot-dialog'
 import { ItemType, Robot } from './state'
-import { getActionLabel } from './utils'
+import { getActionLabel, getActionTarget } from './utils'
 
 interface RobotCardProps {
   robot: Robot
@@ -23,9 +23,18 @@ export function RobotCard({ robot }: RobotCardProps) {
     }
   }, [])
 
+  const progress = useMemo(() => {
+    if (!robot.action) {
+      return 0
+    }
+    return (
+      robot.action.progress / getActionTarget(robot.action)
+    )
+  }, [robot])
+
   return (
-    <div className="flex flex-col gap-2 p-2 border">
-      <div className="flex gap-2 justify-between">
+    <div className="flex flex-col">
+      <div className="flex gap-2 justify-between p-2 border border-b-0">
         <div>{robot.name}</div>
         <div className="flex gap-2">
           <RobotDialog
@@ -44,11 +53,19 @@ export function RobotCard({ robot }: RobotCardProps) {
           </button>
         </div>
       </div>
-      <div>
-        Action:{' '}
-        {robot.action
-          ? getActionLabel(robot.action)
-          : 'Idle'}
+      <div className="p-2 border relative">
+        <div
+          className="absolute bg-green-800 inset-0 transition-transform ease-linear origin-left"
+          style={{
+            transform: `scale(${progress}, 1)`,
+          }}
+        />
+        <div className="relative">
+          Action:{' '}
+          {robot.action
+            ? getActionLabel(robot.action)
+            : 'Idle'}
+        </div>
       </div>
     </div>
   )
