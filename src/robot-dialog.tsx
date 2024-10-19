@@ -118,43 +118,41 @@ export function RobotDialog(props: RobotDialogProps) {
                   <form.Field
                     name="id"
                     children={(field) => (
-                      <>
-                        <label htmlFor={field.name}>
-                          ID
-                        </label>
-                        <Input
-                          type="text"
-                          disabled
-                          id={field.name}
-                          name={field.name}
-                          value={field.state.value}
-                        />
-                      </>
+                      <FormField label="ID">
+                        {({ id }) => (
+                          <Input
+                            type="text"
+                            disabled
+                            id={id}
+                            name={field.name}
+                            value={field.state.value}
+                          />
+                        )}
+                      </FormField>
                     )}
                   />
 
                   <form.Field
                     name="name"
                     children={(field) => (
-                      <>
-                        <label htmlFor={field.name}>
-                          Name
-                        </label>
-                        <Input
-                          type="text"
-                          required
-                          id={field.name}
-                          name={field.name}
-                          autoComplete="off"
-                          value={field.state.value}
-                          onBlur={field.handleBlur}
-                          onChange={(e) =>
-                            field.handleChange(
-                              e.target.value,
-                            )
-                          }
-                        />
-                      </>
+                      <FormField label="Name">
+                        {({ id }) => (
+                          <Input
+                            type="text"
+                            required
+                            id={id}
+                            name={field.name}
+                            autoComplete="off"
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) =>
+                              field.handleChange(
+                                e.target.value,
+                              )
+                            }
+                          />
+                        )}
+                      </FormField>
                     )}
                   />
 
