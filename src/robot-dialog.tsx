@@ -59,6 +59,11 @@ export function RobotDialog(props: RobotDialogProps) {
             // prettier-ignore
             invariant((draft.inventory[ItemType.enum.Robot] ?? 0) > 0)
             draft.inventory[ItemType.enum.Robot]! -= 1
+            if (
+              draft.inventory[ItemType.enum.Robot] === 0
+            ) {
+              delete draft.inventory[ItemType.enum.Robot]
+            }
           }
           draft.robots[id] = robot
         })
