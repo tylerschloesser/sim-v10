@@ -208,6 +208,12 @@ export function App() {
                       </div>
                     </div>
                   </div>
+                  <div>
+                    Action:{' '}
+                    {robot.action
+                      ? getActionLabel(robot.action)
+                      : 'Idle'}
+                  </div>
                 </div>
               ))}
             </div>
