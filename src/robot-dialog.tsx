@@ -1,6 +1,4 @@
 import * as Dialog from '@radix-ui/react-dialog'
-import { ChevronDownIcon } from '@radix-ui/react-icons'
-import * as Select from '@radix-ui/react-select'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { useForm } from '@tanstack/react-form'
 import { zodValidator } from '@tanstack/zod-form-adapter'
@@ -19,6 +17,7 @@ import { AppContext } from './app-context'
 import { Button } from './button'
 import { Input } from './input'
 import { InventoryApi } from './inventory-api'
+import { Select } from './select'
 import {
   ActionType,
   ItemType,
@@ -185,52 +184,27 @@ export function RobotDialog(props: RobotDialogProps) {
                               key={i}
                             >
                               {({ id }) => (
-                                <Select.Root
+                                <Select
                                   required
+                                  id={id}
                                   name={field.name}
                                   value={step.action.item}
-                                  onValueChange={(item) => {
+                                  onChange={(item) => {
                                     subField.handleChange({
                                       type: ActionType.enum
                                         .Mine,
-                                      item: MineActionItemType.parse(
-                                        item,
-                                      ),
+                                      item,
                                       count: 10,
                                       progress: 0,
                                     })
                                   }}
-                                >
-                                  <Select.Trigger
-                                    id={id}
-                                    className="bg-white text-black border p-2 flex items-center justify-between gap-2"
-                                  >
-                                    <Select.Value />
-                                    <Select.Icon>
-                                      <ChevronDownIcon />
-                                    </Select.Icon>
-                                  </Select.Trigger>
-                                  <Select.Portal>
-                                    <Select.Content className="p-2 bg-white text-black">
-                                      <Select.Viewport className="p-2">
-                                        {Object.values(
-                                          MineActionItemType.Values,
-                                        ).map((item) => (
-                                          <Select.Item
-                                            key={item}
-                                            value={item}
-                                            className="p-2 data-[highlighted]:bg-gray-200 select-none"
-                                          >
-                                            <Select.ItemText>
-                                              {item}
-                                            </Select.ItemText>
-                                            <Select.ItemIndicator className="bg-gray-200" />
-                                          </Select.Item>
-                                        ))}
-                                      </Select.Viewport>
-                                    </Select.Content>
-                                  </Select.Portal>
-                                </Select.Root>
+                                  options={Object.values(
+                                    MineActionItemType.Values,
+                                  )}
+                                  parse={
+                                    MineActionItemType.parse
+                                  }
+                                />
                               )}
                             </FormField>
                           )}

@@ -77,7 +77,7 @@ const Condition = z.strictObject({
 type Condition = z.infer<typeof Condition>
 
 export const RobotAlgorithmStep = z.strictObject({
-  action: Action,
+  action: MineAction,
   condition: Condition.nullable(),
 })
 export type RobotAlgorithmStep = z.infer<
@@ -87,7 +87,7 @@ export type RobotAlgorithmStep = z.infer<
 export const Robot = z.strictObject({
   id: z.string(),
   name: z.string(),
-  action: Action.nullable(),
+  action: MineAction.nullable(),
   algorithm: RobotAlgorithmStep.array(),
 })
 export type Robot = z.infer<typeof Robot>
