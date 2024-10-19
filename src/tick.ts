@@ -77,9 +77,10 @@ function handleAction(
 
 function setRobotAction(robot: Robot) {
   invariant(robot.action === null)
-  const step = robot.algorithm[0]
-  invariant(step)
-  robot.action = step.action
+  for (const step of robot.algorithm) {
+    robot.action = step.action
+    break
+  }
 }
 
 function handleMine(
