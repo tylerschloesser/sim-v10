@@ -171,7 +171,8 @@ export function RobotDialog(props: RobotDialogProps) {
                       </FormField>
                     )}
                   />
-
+                </div>
+                <div className="grid grid-rows-[min-content_1fr] grid-flow-col gap-2">
                   <form.Field
                     name="algorithm"
                     mode="array"
@@ -182,7 +183,7 @@ export function RobotDialog(props: RobotDialogProps) {
                             name={`algorithm[${i}].action`}
                             children={(subField) => (
                               <FormField
-                                label={`Step ${i + 1}`}
+                                label="Item"
                                 key={i}
                               >
                                 {({ id }) => (
