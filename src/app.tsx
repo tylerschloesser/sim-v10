@@ -88,6 +88,9 @@ export function App() {
                 <MineButton item={ItemType.enum.Coal} />
                 <MineButton item={ItemType.enum.Stone} />
                 <MineButton item={ItemType.enum.IronOre} />
+                <MineButton
+                  item={ItemType.enum.CopperOre}
+                />
               </div>
               <h2>Craft</h2>
               <div className="flex">
@@ -103,6 +106,9 @@ export function App() {
               <div className="flex">
                 <SmeltButton
                   item={ItemType.enum.IronPlate}
+                />
+                <SmeltButton
+                  item={ItemType.enum.CopperPlate}
                 />
               </div>
               <h2>Robots</h2>
@@ -197,6 +203,7 @@ interface MineButtonProps {
     | typeof ItemType.enum.Coal
     | typeof ItemType.enum.Stone
     | typeof ItemType.enum.IronOre
+    | typeof ItemType.enum.CopperOre
 }
 
 function MineButton({ item }: MineButtonProps) {
@@ -259,7 +266,9 @@ function CraftButton({ item }: CraftButtonProps) {
 }
 
 interface SmeltButtonProps {
-  item: typeof ItemType.enum.IronPlate
+  item:
+    | typeof ItemType.enum.IronPlate
+    | typeof ItemType.enum.CopperPlate
 }
 
 function SmeltButton({ item }: SmeltButtonProps) {
@@ -267,10 +276,7 @@ function SmeltButton({ item }: SmeltButtonProps) {
     useContext(AppContext)
 
   const recipe = useMemo(
-    () => ({
-      [ItemType.enum.IronOre]: 1,
-      [ItemType.enum.Coal]: 1,
-    }),
+    () => ITEM_TYPE_TO_RECIPE[item],
     [],
   )
 

@@ -25,6 +25,7 @@ export const MineAction = z.strictObject({
     z.literal(ItemType.enum.Coal),
     z.literal(ItemType.enum.Stone),
     z.literal(ItemType.enum.IronOre),
+    z.literal(ItemType.enum.CopperOre),
   ]),
   count: z.number().nonnegative(),
   progress: z.number().nonnegative(),
@@ -45,7 +46,10 @@ export type CraftAction = z.infer<typeof CraftAction>
 
 export const SmeltAction = z.strictObject({
   type: z.literal(ActionType.enum.Smelt),
-  item: z.literal(ItemType.enum.IronPlate),
+  item: z.union([
+    z.literal(ItemType.enum.IronPlate),
+    z.literal(ItemType.enum.CopperPlate),
+  ]),
   count: z.number().nonnegative().int(),
   progress: z.number().nonnegative(),
 })
@@ -92,5 +96,13 @@ export const ITEM_TYPE_TO_RECIPE = {
   },
   [ItemType.enum.Robot]: {
     [ItemType.enum.IronPlate]: 10,
+  },
+  [ItemType.enum.IronPlate]: {
+    [ItemType.enum.IronOre]: 1,
+    [ItemType.enum.Coal]: 1,
+  },
+  [ItemType.enum.CopperPlate]: {
+    [ItemType.enum.CopperOre]: 1,
+    [ItemType.enum.Coal]: 1,
   },
 }
