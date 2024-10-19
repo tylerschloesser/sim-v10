@@ -1,6 +1,7 @@
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
+  Action,
   ActionType,
   CraftAction,
   ItemType,
@@ -30,24 +31,7 @@ function tickQueue(draft: State) {
     return
   }
 
-  let result: HandleActionResult
-  switch (head.type) {
-    case ActionType.enum.Mine: {
-      result = handleMine(head, draft)
-      break
-    }
-    case ActionType.enum.Craft: {
-      result = handleCraft(head, draft)
-      break
-    }
-    case ActionType.enum.Smelt: {
-      result = handleSmelt(head, draft)
-      break
-    }
-    default: {
-      invariant(false, 'TODO')
-    }
-  }
+  const result = handleAction(head, draft)
 
   if (result.complete) {
     draft.queue.shift()
@@ -60,28 +44,31 @@ function tickRobot(robot: Robot, draft: State) {
     invariant(robot.action)
   }
 
-  let result: HandleActionResult
-  switch (robot.action.type) {
-    case ActionType.enum.Mine: {
-      result = handleMine(robot.action, draft)
-      break
-    }
-    case ActionType.enum.Craft: {
-      result = handleCraft(robot.action, draft)
-      break
-    }
-    case ActionType.enum.Smelt: {
-      result = handleSmelt(robot.action, draft)
-      break
-    }
-    default: {
-      invariant(false, 'TODO')
-    }
-  }
+  const result = handleAction(robot.action, draft)
 
   if (result.complete) {
     robot.action = null
     setRobotAction(robot)
+  }
+}
+
+function handleAction(
+  action: Action,
+  draft: State,
+): HandleActionResult {
+  switch (action.type) {
+    case ActionType.enum.Mine: {
+      return handleMine(action, draft)
+    }
+    case ActionType.enum.Craft: {
+      return handleCraft(action, draft)
+    }
+    case ActionType.enum.Smelt: {
+      return handleSmelt(action, draft)
+    }
+    default: {
+      invariant(false, 'TODO')
+    }
   }
 }
 
