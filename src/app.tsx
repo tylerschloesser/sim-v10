@@ -85,34 +85,34 @@ export function App() {
               </div>
               <h2>Mine</h2>
               <div className="flex">
-                <MineButton item={ItemType.enum.Coal} />
-                <MineButton item={ItemType.enum.Stone} />
-                <MineButton item={ItemType.enum.IronOre} />
-                <MineButton
-                  item={ItemType.enum.CopperOre}
-                />
+                {[
+                  ItemType.enum.Coal,
+                  ItemType.enum.Stone,
+                  ItemType.enum.IronOre,
+                  ItemType.enum.CopperOre,
+                ].map((item) => (
+                  <MineButton item={item} />
+                ))}
               </div>
               <h2>Craft</h2>
               <div className="flex">
-                <CraftButton
-                  item={ItemType.enum.StoneFurnace}
-                />
-                <CraftButton
-                  item={ItemType.enum.BurnerMiningDrill}
-                />
-                <CraftButton item={ItemType.enum.Robot} />
-                <CraftButton
-                  item={ItemType.enum.ElectronicCircuit}
-                />
+                {[
+                  ItemType.enum.StoneFurnace,
+                  ItemType.enum.BurnerMiningDrill,
+                  ItemType.enum.Robot,
+                  ItemType.enum.ElectronicCircuit,
+                ].map((item) => (
+                  <CraftButton item={item} />
+                ))}
               </div>
               <h2>Smelt</h2>
               <div className="flex">
-                <SmeltButton
-                  item={ItemType.enum.IronPlate}
-                />
-                <SmeltButton
-                  item={ItemType.enum.CopperPlate}
-                />
+                {[
+                  ItemType.enum.IronPlate,
+                  ItemType.enum.CopperPlate,
+                ].map((item) => (
+                  <SmeltButton item={item} />
+                ))}
               </div>
               <h2>Robots</h2>
               <RobotDialog
