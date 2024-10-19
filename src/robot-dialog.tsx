@@ -9,11 +9,12 @@ import React, {
   useMemo,
   useState,
 } from 'react'
+import invariant from 'tiny-invariant'
 import { useImmer } from 'use-immer'
 import { AppContext } from './app-context'
 import { Button } from './button'
 import { Input } from './input'
-import { Robot } from './state'
+import { ItemType, Robot } from './state'
 
 type RobotDialogProps = {
   robotId?: string
@@ -53,10 +54,13 @@ export function RobotDialog(props: RobotDialogProps) {
     useCallback(
       (ev) => {
         setState((draft) => {
-          draft.robots[id] = robot
           if (id === `${draft.nextRobotId}`) {
             draft.nextRobotId++
+            // prettier-ignore
+            invariant((draft.inventory[ItemType.enum.Robot] ?? 0) > 0)
+            draft.inventory[ItemType.enum.Robot]! -= 1
           }
+          draft.robots[id] = robot
         })
         ev.preventDefault()
         setOpen(false)

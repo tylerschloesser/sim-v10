@@ -164,7 +164,17 @@ export function App() {
               </div>
               <h2>Robots</h2>
               <RobotDialog
-                trigger={<Button>Add Robot</Button>}
+                trigger={
+                  <Button
+                    disabled={
+                      state.inventory[
+                        ItemType.enum.Robot
+                      ] === 0
+                    }
+                  >
+                    Add Robot
+                  </Button>
+                }
               />
               {Object.values(state.robots).map((robot) => (
                 <div key={robot.id} className="flex gap-2">
@@ -173,6 +183,20 @@ export function App() {
                     robotId={robot.id}
                     trigger={<div>Edit</div>}
                   />
+                  <div
+                    onClick={() => {
+                      if (window.confirm('Are you sure?')) {
+                        setState((draft) => {
+                          invariant(draft.robots[robot.id])
+                          delete draft.robots[robot.id]
+                          // prettier-ignore
+                          draft.inventory[ItemType.enum.Robot] = (draft.inventory[ItemType.enum.Robot] ?? 0) + 1
+                        })
+                      }
+                    }}
+                  >
+                    Delete
+                  </div>
                 </div>
               ))}
             </div>
