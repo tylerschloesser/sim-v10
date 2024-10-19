@@ -9,41 +9,44 @@ import {
   State,
 } from './state'
 
+type HandleActionResult = { complete: boolean }
+
 export function tick(setState: Updater<State>) {
   setState((draft) => {
     draft.tick += 1
-
-    const head = draft.queue.at(0)
-    if (!head) {
-      return
-    }
-
-    let result: HandleActionResult | undefined
-    switch (head.type) {
-      case ActionType.enum.Mine: {
-        result = handleMine(head, draft)
-        break
-      }
-      case ActionType.enum.Craft: {
-        result = handleCraft(head, draft)
-        break
-      }
-      case ActionType.enum.Smelt: {
-        result = handleSmelt(head, draft)
-        break
-      }
-      default: {
-        invariant(false, 'TODO')
-      }
-    }
-
-    if (result?.complete) {
-      draft.queue.shift()
-    }
+    tickQueue(draft)
   })
 }
 
-type HandleActionResult = { complete: boolean }
+function tickQueue(draft: State) {
+  const head = draft.queue.at(0)
+  if (!head) {
+    return
+  }
+
+  let result: HandleActionResult | undefined
+  switch (head.type) {
+    case ActionType.enum.Mine: {
+      result = handleMine(head, draft)
+      break
+    }
+    case ActionType.enum.Craft: {
+      result = handleCraft(head, draft)
+      break
+    }
+    case ActionType.enum.Smelt: {
+      result = handleSmelt(head, draft)
+      break
+    }
+    default: {
+      invariant(false, 'TODO')
+    }
+  }
+
+  if (result?.complete) {
+    draft.queue.shift()
+  }
+}
 
 function handleMine(
   action: MineAction,
