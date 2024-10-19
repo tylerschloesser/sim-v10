@@ -23,6 +23,13 @@ export function RobotCard({ robot }: RobotCardProps) {
     }
   }, [])
 
+  const onClickCancel = useCallback(() => {
+    setState((draft) => {
+      invariant(draft.robots[robot.id])
+      draft.robots[robot.id]!.action = null
+    })
+  }, [robot.id])
+
   const progress = useMemo(() => {
     if (!robot.action) {
       return 0
@@ -40,13 +47,11 @@ export function RobotCard({ robot }: RobotCardProps) {
           <RobotDialog
             robotId={robot.id}
             trigger={
-              <button className="text-gray-400">
-                Edit
-              </button>
+              <button className="underline">Edit</button>
             }
           />
           <button
-            className="text-gray-400"
+            className="underline"
             onClick={onClickDelete}
           >
             Delete
@@ -60,11 +65,21 @@ export function RobotCard({ robot }: RobotCardProps) {
             transform: `scale(${progress}, 1)`,
           }}
         />
-        <div className="relative">
-          Action:{' '}
-          {robot.action
-            ? getActionLabel(robot.action)
-            : 'Idle'}
+        <div className="relative flex justify-between">
+          <div>
+            Action:{' '}
+            {robot.action
+              ? getActionLabel(robot.action)
+              : 'Idle'}
+          </div>
+          {robot.action && (
+            <button
+              className="underline"
+              onClick={onClickCancel}
+            >
+              Cancel
+            </button>
+          )}
         </div>
       </div>
     </div>
