@@ -30,10 +30,12 @@ export function RobotCard({ robot }: RobotCardProps) {
         <div className="flex gap-2">
           <RobotDialog
             robotId={robot.id}
-            trigger={<div>Edit</div>}
+            trigger={
+              <div className="text-gray-400">Edit</div>
+            }
           />
           <div
-            className="text-red-400"
+            className="text-gray-400"
             onClick={onClickDelete}
           >
             Delete
