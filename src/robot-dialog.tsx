@@ -59,6 +59,7 @@ export function RobotDialog(props: RobotDialogProps) {
             count: 10,
             progress: 0,
           },
+          condition: null,
         },
       ],
     }
