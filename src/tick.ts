@@ -5,6 +5,7 @@ import {
   CraftAction,
   ItemType,
   MineAction,
+  SmeltAction,
   State,
 } from './state'
 
@@ -28,24 +29,7 @@ export function tick(setState: Updater<State>) {
         break
       }
       case ActionType.enum.Smelt: {
-        invariant(head.progress >= 0)
-        head.progress += 1
-
-        const target = head.count * 20
-        invariant(head.progress <= target)
-
-        if (head.progress % 20 === 0) {
-          draft.inventory[head.item] =
-            (draft.inventory[head.item] ?? 0) + 1
-        }
-
-        if (head.progress === target) {
-          draft.queue.shift()
-
-          draft.inventory[ItemType.enum.StoneFurnace] =
-            (draft.inventory[ItemType.enum.StoneFurnace] ??
-              0) + 1
-        }
+        result = handleSmelt(head, draft)
         break
       }
       default: {
@@ -97,6 +81,30 @@ function handleCraft(
   if (complete) {
     draft.inventory[action.item] =
       (draft.inventory[action.item] ?? 0) + 1
+  }
+
+  return { complete }
+}
+
+function handleSmelt(
+  action: SmeltAction,
+  draft: State,
+): HandleActionResult {
+  invariant(action.progress >= 0)
+  action.progress += 1
+
+  const target = action.count * 20
+  invariant(action.progress <= target)
+
+  if (action.progress % 20 === 0) {
+    draft.inventory[action.item] =
+      (draft.inventory[action.item] ?? 0) + 1
+  }
+
+  const complete = action.progress === target
+  if (complete) {
+    draft.inventory[ItemType.enum.StoneFurnace] =
+      (draft.inventory[ItemType.enum.StoneFurnace] ?? 0) + 1
   }
 
   return { complete }
