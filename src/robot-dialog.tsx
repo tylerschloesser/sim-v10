@@ -44,7 +44,7 @@ export function RobotDialog(props: RobotDialogProps) {
 
   const robot = useMemo(() => {
     return Robot.parse({
-      ...({ id, name: '' } satisfies Robot),
+      ...({ id, name: '', action: null } satisfies Robot),
       ...(state.robots[id] ?? {}),
       ...local,
     })

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { AppContext } from './app-context'
 
 export const ItemType = z.enum([
   'Coal',
@@ -59,6 +60,7 @@ export type Action = z.infer<typeof Action>
 export const Robot = z.strictObject({
   id: z.string(),
   name: z.string(),
+  action: Action.nullable(),
 })
 export type Robot = z.infer<typeof Robot>
 
