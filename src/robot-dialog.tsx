@@ -100,99 +100,112 @@ export function RobotDialog(props: RobotDialogProps) {
           )}
         >
           <div className="fixed p-2 inset-0 flex items-center justify-center pointer-events-none">
-            <div className="border p-4 pointer-events-auto">
-              <Dialog.Title>Add Robot</Dialog.Title>
+            <div className="border p-4 flex flex-col gap-4 pointer-events-auto">
+              <Dialog.Title className="text-xl">
+                Add Robot
+              </Dialog.Title>
               <VisuallyHidden asChild>
                 <Dialog.Description>
                   TODO
                 </Dialog.Description>
               </VisuallyHidden>
-              <form onSubmit={onSubmit}>
-                <form.Field
-                  name="id"
-                  children={(field) => (
-                    <>
-                      <label htmlFor={field.name}>ID</label>
-                      <Input
-                        type="text"
-                        disabled
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                      />
-                    </>
-                  )}
-                />
+              <form
+                onSubmit={onSubmit}
+                className="flex flex-col gap-4"
+              >
+                <div className="grid grid-cols-2 gap-2">
+                  <form.Field
+                    name="id"
+                    children={(field) => (
+                      <>
+                        <label htmlFor={field.name}>
+                          ID
+                        </label>
+                        <Input
+                          type="text"
+                          disabled
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                        />
+                      </>
+                    )}
+                  />
 
-                <form.Field
-                  name="name"
-                  children={(field) => (
-                    <>
-                      <label htmlFor={field.name}>
-                        Name
-                      </label>
-                      <Input
-                        type="text"
-                        required
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) =>
-                          field.handleChange(e.target.value)
-                        }
-                      />
-                    </>
-                  )}
-                />
+                  <form.Field
+                    name="name"
+                    children={(field) => (
+                      <>
+                        <label htmlFor={field.name}>
+                          Name
+                        </label>
+                        <Input
+                          type="text"
+                          required
+                          id={field.name}
+                          name={field.name}
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) =>
+                            field.handleChange(
+                              e.target.value,
+                            )
+                          }
+                        />
+                      </>
+                    )}
+                  />
 
-                <form.Field
-                  name="algorithm"
-                  children={(field) => (
-                    <>
-                      <label htmlFor={field.name}>
-                        Algorithm
-                      </label>
-                      <Select.Root
-                        required
-                        name={field.name}
-                        value={field.state.value}
-                        onValueChange={(algorithm) => {
-                          field.handleChange(
-                            RobotAlgorithm.parse(algorithm),
-                          )
-                        }}
-                      >
-                        <Select.Trigger className="bg-white text-black border p-2 flex items-center gap-2">
-                          <Select.Value />
-                          <Select.Icon>
-                            <ChevronDownIcon />
-                          </Select.Icon>
-                        </Select.Trigger>
-                        <Select.Portal>
-                          <Select.Content className="p-2 bg-white text-black">
-                            <Select.Viewport className="p-2">
-                              {Object.values(
-                                RobotAlgorithm.enum,
-                              ).map((algorithm) => (
-                                <Select.Item
-                                  key={algorithm}
-                                  value={algorithm}
-                                  className="p-2 data-[highlighted]:bg-gray-200 select-none"
-                                >
-                                  <Select.ItemText>
-                                    {algorithm}
-                                  </Select.ItemText>
-                                  <Select.ItemIndicator className="bg-gray-200" />
-                                </Select.Item>
-                              ))}
-                            </Select.Viewport>
-                          </Select.Content>
-                        </Select.Portal>
-                      </Select.Root>
-                    </>
-                  )}
-                />
+                  <form.Field
+                    name="algorithm"
+                    children={(field) => (
+                      <>
+                        <label htmlFor={field.name}>
+                          Algorithm
+                        </label>
+                        <Select.Root
+                          required
+                          name={field.name}
+                          value={field.state.value}
+                          onValueChange={(algorithm) => {
+                            field.handleChange(
+                              RobotAlgorithm.parse(
+                                algorithm,
+                              ),
+                            )
+                          }}
+                        >
+                          <Select.Trigger className="bg-white text-black border p-2 flex items-center justify-between gap-2">
+                            <Select.Value />
+                            <Select.Icon>
+                              <ChevronDownIcon />
+                            </Select.Icon>
+                          </Select.Trigger>
+                          <Select.Portal>
+                            <Select.Content className="p-2 bg-white text-black">
+                              <Select.Viewport className="p-2">
+                                {Object.values(
+                                  RobotAlgorithm.enum,
+                                ).map((algorithm) => (
+                                  <Select.Item
+                                    key={algorithm}
+                                    value={algorithm}
+                                    className="p-2 data-[highlighted]:bg-gray-200 select-none"
+                                  >
+                                    <Select.ItemText>
+                                      {algorithm}
+                                    </Select.ItemText>
+                                    <Select.ItemIndicator className="bg-gray-200" />
+                                  </Select.Item>
+                                ))}
+                              </Select.Viewport>
+                            </Select.Content>
+                          </Select.Portal>
+                        </Select.Root>
+                      </>
+                    )}
+                  />
+                </div>
 
                 <form.Subscribe
                   selector={(state) => [state.canSubmit]}
