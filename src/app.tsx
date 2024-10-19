@@ -91,7 +91,7 @@ export function App() {
                   ItemType.enum.IronOre,
                   ItemType.enum.CopperOre,
                 ].map((item) => (
-                  <MineButton item={item} />
+                  <MineButton key={item} item={item} />
                 ))}
               </div>
               <h2>Craft</h2>
@@ -102,7 +102,7 @@ export function App() {
                   ItemType.enum.Robot,
                   ItemType.enum.ElectronicCircuit,
                 ].map((item) => (
-                  <CraftButton item={item} />
+                  <CraftButton key={item} item={item} />
                 ))}
               </div>
               <h2>Smelt</h2>
@@ -111,7 +111,7 @@ export function App() {
                   ItemType.enum.IronPlate,
                   ItemType.enum.CopperPlate,
                 ].map((item) => (
-                  <SmeltButton item={item} />
+                  <SmeltButton key={item} item={item} />
                 ))}
               </div>
               <h2>Robots</h2>
