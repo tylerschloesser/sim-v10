@@ -3,6 +3,7 @@ import invariant from 'tiny-invariant'
 import { AppContext } from './app-context'
 import { RobotDialog } from './robot-dialog'
 import { ItemType, Robot } from './state'
+import { getActionLabel } from './utils'
 
 interface RobotCardProps {
   robot: Robot

@@ -9,6 +9,7 @@ import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { AppContext, Modal } from './app-context'
 import { Button } from './button'
+import { RobotCard } from './robot-card'
 import { RobotDialog } from './robot-dialog'
 import {
   Action,
@@ -19,6 +20,7 @@ import {
   State,
 } from './state'
 import { tick } from './tick'
+import { getActionLabel } from './utils'
 
 const TICK_RATE = 100
 
@@ -191,29 +193,6 @@ function RenderAction({
       </div>
     </div>
   )
-}
-
-function getActionLabel(action: Action): string {
-  switch (action.type) {
-    case ActionType.enum.Mine: {
-      if (action.count === 1) {
-        return `Mine ${action.item}`
-      }
-      return `Mine ${action.item} (${action.count})`
-    }
-    case ActionType.enum.Craft: {
-      return `Craft ${action.item}`
-    }
-    case ActionType.enum.Smelt: {
-      if (action.count === 1) {
-        return `Smelt ${action.item}`
-      }
-      return `Smelt ${action.item} (${action.count})`
-    }
-    default: {
-      invariant(false, 'TODO')
-    }
-  }
 }
 
 interface MineButtonProps {
