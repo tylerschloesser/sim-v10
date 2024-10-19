@@ -10,6 +10,7 @@ export const ItemType = z.enum([
   'CopperOre',
   'CopperPlate',
   'Robot',
+  'ElectronicCircuit',
 ])
 export type ItemType = z.infer<typeof ItemType>
 
@@ -38,6 +39,7 @@ export const CraftAction = z.strictObject({
     z.literal(ItemType.enum.StoneFurnace),
     z.literal(ItemType.enum.BurnerMiningDrill),
     z.literal(ItemType.enum.Robot),
+    z.literal(ItemType.enum.ElectronicCircuit),
   ]),
   count: z.literal(1),
   progress: z.number().nonnegative(),
@@ -104,5 +106,9 @@ export const ITEM_TYPE_TO_RECIPE = {
   [ItemType.enum.CopperPlate]: {
     [ItemType.enum.CopperOre]: 1,
     [ItemType.enum.Coal]: 1,
+  },
+  [ItemType.enum.ElectronicCircuit]: {
+    [ItemType.enum.IronPlate]: 2,
+    [ItemType.enum.CopperPlate]: 3,
   },
 }
