@@ -9,10 +9,7 @@ import invariant from 'tiny-invariant'
 import { Updater, useImmer } from 'use-immer'
 import { AppContext, Modal } from './app-context'
 import { Button } from './button'
-import {
-  RobotDialog,
-  RobotDialogTrigger,
-} from './robot-dialog'
+import { RobotDialog } from './robot-dialog'
 import {
   Action,
   ActionType,

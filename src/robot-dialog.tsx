@@ -126,5 +126,3 @@ export function RobotDialog(props: RobotDialogProps) {
     </Dialog.Root>
   )
 }
-
-export const RobotDialogTrigger = Dialog.Trigger
