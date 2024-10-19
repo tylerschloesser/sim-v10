@@ -14,7 +14,7 @@ import { useImmer } from 'use-immer'
 import { AppContext } from './app-context'
 import { Button } from './button'
 import { Input } from './input'
-import { ItemType, Robot } from './state'
+import { ItemType, Robot, RobotAlgorithm } from './state'
 
 type RobotDialogProps = {
   robotId?: string
@@ -44,7 +44,12 @@ export function RobotDialog(props: RobotDialogProps) {
 
   const robot = useMemo(() => {
     return Robot.parse({
-      ...({ id, name: '', action: null } satisfies Robot),
+      ...({
+        id,
+        name: '',
+        action: null,
+        algorithm: RobotAlgorithm.enum.MineCoal,
+      } satisfies Robot),
       ...(state.robots[id] ?? {}),
       ...local,
     })
