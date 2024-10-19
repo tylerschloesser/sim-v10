@@ -108,7 +108,7 @@ export function RobotDialog(props: RobotDialogProps) {
                 onSubmit={onSubmit}
                 className="flex flex-col gap-4"
               >
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 items-center">
                   <form.Field
                     name="id"
                     children={(field) => (
