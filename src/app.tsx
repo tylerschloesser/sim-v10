@@ -97,9 +97,7 @@ export function App() {
                 trigger={
                   <Button
                     disabled={
-                      state.inventory[
-                        ItemType.enum.Robot
-                      ] === 0
+                      !state.inventory[ItemType.enum.Robot]
                     }
                   >
                     Add Robot

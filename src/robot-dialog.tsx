@@ -1,5 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import * as Form from '@radix-ui/react-form'
+import { ChevronDownIcon } from '@radix-ui/react-icons'
 import * as Select from '@radix-ui/react-select'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import clsx from 'clsx'
@@ -126,7 +127,10 @@ export function RobotDialog(props: RobotDialogProps) {
                     />
                   </Form.Control>
                 </Form.Field>
-                <Form.Field name="algorithm">
+                <Form.Field
+                  name="algorithm"
+                  className="flex items-center"
+                >
                   <Form.Label>Algorithm</Form.Label>
                   <Form.Control asChild>
                     <Select.Root
@@ -138,19 +142,22 @@ export function RobotDialog(props: RobotDialogProps) {
                         })
                       }}
                     >
-                      <Select.Trigger className="bg-white text-black border p-2">
+                      <Select.Trigger className="bg-white text-black border p-2 flex items-center gap-2">
                         <Select.Value />
-                        <Select.Icon />
+                        <Select.Icon>
+                          <ChevronDownIcon />
+                        </Select.Icon>
                       </Select.Trigger>
                       <Select.Portal>
                         <Select.Content className="p-2 bg-white text-black">
-                          <Select.Viewport>
+                          <Select.Viewport className="p-2">
                             {Object.values(
                               RobotAlgorithm.enum,
                             ).map((algorithm) => (
                               <Select.Item
                                 key={algorithm}
                                 value={algorithm}
+                                className="p-2 data-[highlighted]:bg-gray-200 select-none"
                               >
                                 <Select.ItemText>
                                   {algorithm}
