@@ -20,14 +20,19 @@ export type Inventory = z.infer<typeof Inventory>
 export const ActionType = z.enum(['Mine', 'Craft', 'Smelt'])
 export type ActionType = z.infer<typeof ActionType>
 
+export const MineActionItemType = z.enum([
+  ItemType.enum.Coal,
+  ItemType.enum.Stone,
+  ItemType.enum.IronOre,
+  ItemType.enum.CopperOre,
+])
+export type MineActionItemType = z.infer<
+  typeof MineActionItemType
+>
+
 export const MineAction = z.strictObject({
   type: z.literal(ActionType.enum.Mine),
-  item: z.union([
-    z.literal(ItemType.enum.Coal),
-    z.literal(ItemType.enum.Stone),
-    z.literal(ItemType.enum.IronOre),
-    z.literal(ItemType.enum.CopperOre),
-  ]),
+  item: MineActionItemType,
   count: z.number().nonnegative(),
   progress: z.number().nonnegative(),
 })

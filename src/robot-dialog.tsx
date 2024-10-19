@@ -15,12 +15,16 @@ import React, {
   useState,
 } from 'react'
 import invariant from 'tiny-invariant'
-import { z } from 'zod'
 import { AppContext } from './app-context'
 import { Button } from './button'
 import { Input } from './input'
 import { InventoryApi } from './inventory-api'
-import { ActionType, ItemType, Robot } from './state'
+import {
+  ActionType,
+  ItemType,
+  MineActionItemType,
+  Robot,
+} from './state'
 
 type RobotDialogProps = {
   robotId?: string
@@ -188,18 +192,9 @@ export function RobotDialog(props: RobotDialogProps) {
                                     subField.handleChange({
                                       type: ActionType.enum
                                         .Mine,
-                                      item: z
-                                        .union([
-                                          z.literal(
-                                            ItemType.enum
-                                              .Coal,
-                                          ),
-                                          z.literal(
-                                            ItemType.enum
-                                              .Stone,
-                                          ),
-                                        ])
-                                        .parse(item),
+                                      item: MineActionItemType.parse(
+                                        item,
+                                      ),
                                       count: 10,
                                       progress: 0,
                                     })
@@ -217,12 +212,9 @@ export function RobotDialog(props: RobotDialogProps) {
                                   <Select.Portal>
                                     <Select.Content className="p-2 bg-white text-black">
                                       <Select.Viewport className="p-2">
-                                        {[
-                                          ItemType.enum
-                                            .Coal,
-                                          ItemType.enum
-                                            .Stone,
-                                        ].map((item) => (
+                                        {Object.values(
+                                          MineActionItemType.Values,
+                                        ).map((item) => (
                                           <Select.Item
                                             key={item}
                                             value={item}
