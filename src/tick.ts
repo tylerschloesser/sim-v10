@@ -55,7 +55,8 @@ function tickQueue(draft: State) {
 
 function tickRobot(robot: Robot, draft: State) {
   if (!robot.action) {
-    return
+    setRobotAction(robot)
+    invariant(robot.action)
   }
 
   let result: HandleActionResult
@@ -79,6 +80,17 @@ function tickRobot(robot: Robot, draft: State) {
 
   if (result.complete) {
     robot.action = null
+    setRobotAction(robot)
+  }
+}
+
+function setRobotAction(robot: Robot) {
+  invariant(robot.action === null)
+  robot.action = {
+    type: ActionType.enum.Mine,
+    count: 10,
+    item: ItemType.enum.Coal,
+    progress: 0,
   }
 }
 
