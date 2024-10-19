@@ -1,9 +1,9 @@
 import React from 'react'
 
-export type ButtonProps = React.PropsWithChildren<{
-  onClick?(): void
-  disabled?: boolean
-}>
+export type ButtonProps = React.DetailedHTMLProps<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+>
 
 export const Button = React.forwardRef<
   HTMLButtonElement,

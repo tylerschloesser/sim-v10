@@ -1,8 +1,9 @@
 import * as Dialog from '@radix-ui/react-dialog'
-import * as Form from '@radix-ui/react-form'
 import { ChevronDownIcon } from '@radix-ui/react-icons'
 import * as Select from '@radix-ui/react-select'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
+import { useForm } from '@tanstack/react-form'
+import { zodValidator } from '@tanstack/zod-form-adapter'
 import clsx from 'clsx'
 import React, {
   useCallback,
@@ -12,7 +13,6 @@ import React, {
   useState,
 } from 'react'
 import invariant from 'tiny-invariant'
-import { useImmer } from 'use-immer'
 import { AppContext } from './app-context'
 import { Button } from './button'
 import { Input } from './input'
@@ -25,59 +25,66 @@ type RobotDialogProps = {
 
 export function RobotDialog(props: RobotDialogProps) {
   const [open, setOpen] = useState(false)
-  const [local, setLocal] = useImmer<Partial<Robot>>({})
+
+  const { state, setState } = useContext(AppContext)
+
+  const id = useMemo(
+    () => props.robotId ?? `${state.nextRobotId}`,
+    [props.robotId, state.nextRobotId],
+  )
+
+  const defaultValues = useMemo<Robot>(() => {
+    return (
+      state.robots[id] ?? {
+        id,
+        action: null,
+        name: '',
+        algorithm: RobotAlgorithm.enum.MineCoal,
+      }
+    )
+  }, [id, state.robots])
+
+  const form = useForm({
+    validatorAdapter: zodValidator(),
+    validators: {
+      onChange: Robot,
+    },
+    defaultValues,
+    onSubmit: async ({ value }) => {
+      setState((draft) => {
+        if (value.id === `${draft.nextRobotId}`) {
+          invariant(!draft.robots[value.id])
+
+          draft.nextRobotId++
+
+          // prettier-ignore
+          invariant((draft.inventory[ItemType.enum.Robot] ?? 0) > 0)
+
+          draft.inventory[ItemType.enum.Robot]! -= 1
+          if (draft.inventory[ItemType.enum.Robot] === 0) {
+            delete draft.inventory[ItemType.enum.Robot]
+          }
+        }
+        draft.robots[value.id] = value
+      })
+      setOpen(false)
+    },
+  })
 
   useEffect(() => {
     if (open) {
-      setLocal({})
+      form.reset()
     }
-  }, [open, props.robotId])
-
-  const { state, setState } = useContext(AppContext)
-  const nextRobotId = useMemo(
-    () => `${state.nextRobotId}`,
-    [state.nextRobotId],
-  )
-
-  const id = useMemo(
-    () => props.robotId ?? nextRobotId,
-    [props.robotId, nextRobotId],
-  )
-
-  const robot = useMemo(() => {
-    return Robot.parse({
-      ...({
-        id,
-        name: '',
-        action: null,
-        algorithm: RobotAlgorithm.enum.MineCoal,
-      } satisfies Robot),
-      ...(state.robots[id] ?? {}),
-      ...local,
-    })
-  }, [id, local, state.robots])
+  }, [open])
 
   const onSubmit: React.FormEventHandler<HTMLFormElement> =
     useCallback(
-      (ev) => {
-        setState((draft) => {
-          if (id === `${draft.nextRobotId}`) {
-            draft.nextRobotId++
-            // prettier-ignore
-            invariant((draft.inventory[ItemType.enum.Robot] ?? 0) > 0)
-            draft.inventory[ItemType.enum.Robot]! -= 1
-            if (
-              draft.inventory[ItemType.enum.Robot] === 0
-            ) {
-              delete draft.inventory[ItemType.enum.Robot]
-            }
-          }
-          draft.robots[id] = robot
-        })
-        ev.preventDefault()
-        setOpen(false)
+      (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        form.handleSubmit()
       },
-      [id, robot],
+      [form.handleSubmit],
     )
 
   return (
@@ -100,81 +107,105 @@ export function RobotDialog(props: RobotDialogProps) {
                   TODO
                 </Dialog.Description>
               </VisuallyHidden>
-              <Form.Root onSubmit={onSubmit}>
-                <Form.Field name="id">
-                  <Form.Label>ID</Form.Label>
-                  <Form.Control asChild>
-                    <Input
-                      type="text"
-                      disabled
-                      value={id}
-                    />
-                  </Form.Control>
-                </Form.Field>
-                <Form.Field name="name">
-                  <Form.Label>Name</Form.Label>
-                  <Form.Control asChild>
-                    <Input
-                      type="text"
-                      required
-                      onChange={(e) => {
-                        setLocal((draft) => {
-                          draft.name = e.target.value
-                        })
-                      }}
-                      min={1}
-                      value={robot.name}
-                    />
-                  </Form.Control>
-                </Form.Field>
-                <Form.Field
+              <form onSubmit={onSubmit}>
+                <form.Field
+                  name="id"
+                  children={(field) => (
+                    <>
+                      <label htmlFor={field.name}>ID</label>
+                      <Input
+                        type="text"
+                        disabled
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                      />
+                    </>
+                  )}
+                />
+
+                <form.Field
+                  name="name"
+                  children={(field) => (
+                    <>
+                      <label htmlFor={field.name}>
+                        Name
+                      </label>
+                      <Input
+                        type="text"
+                        required
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) =>
+                          field.handleChange(e.target.value)
+                        }
+                      />
+                    </>
+                  )}
+                />
+
+                <form.Field
                   name="algorithm"
-                  className="flex items-center"
-                >
-                  <Form.Label>Algorithm</Form.Label>
-                  <Form.Control asChild>
-                    <Select.Root
-                      value={robot.algorithm}
-                      onValueChange={(algorithm) => {
-                        setLocal((draft) => {
-                          draft.algorithm =
-                            RobotAlgorithm.parse(algorithm)
-                        })
-                      }}
+                  children={(field) => (
+                    <>
+                      <label htmlFor={field.name}>
+                        Algorithm
+                      </label>
+                      <Select.Root
+                        required
+                        name={field.name}
+                        value={field.state.value}
+                        onValueChange={(algorithm) => {
+                          field.handleChange(
+                            RobotAlgorithm.parse(algorithm),
+                          )
+                        }}
+                      >
+                        <Select.Trigger className="bg-white text-black border p-2 flex items-center gap-2">
+                          <Select.Value />
+                          <Select.Icon>
+                            <ChevronDownIcon />
+                          </Select.Icon>
+                        </Select.Trigger>
+                        <Select.Portal>
+                          <Select.Content className="p-2 bg-white text-black">
+                            <Select.Viewport className="p-2">
+                              {Object.values(
+                                RobotAlgorithm.enum,
+                              ).map((algorithm) => (
+                                <Select.Item
+                                  key={algorithm}
+                                  value={algorithm}
+                                  className="p-2 data-[highlighted]:bg-gray-200 select-none"
+                                >
+                                  <Select.ItemText>
+                                    {algorithm}
+                                  </Select.ItemText>
+                                  <Select.ItemIndicator className="bg-gray-200" />
+                                </Select.Item>
+                              ))}
+                            </Select.Viewport>
+                          </Select.Content>
+                        </Select.Portal>
+                      </Select.Root>
+                    </>
+                  )}
+                />
+
+                <form.Subscribe
+                  selector={(state) => [state.canSubmit]}
+                  children={([canSubmit]) => (
+                    <Button
+                      type="submit"
+                      disabled={!canSubmit}
                     >
-                      <Select.Trigger className="bg-white text-black border p-2 flex items-center gap-2">
-                        <Select.Value />
-                        <Select.Icon>
-                          <ChevronDownIcon />
-                        </Select.Icon>
-                      </Select.Trigger>
-                      <Select.Portal>
-                        <Select.Content className="p-2 bg-white text-black">
-                          <Select.Viewport className="p-2">
-                            {Object.values(
-                              RobotAlgorithm.enum,
-                            ).map((algorithm) => (
-                              <Select.Item
-                                key={algorithm}
-                                value={algorithm}
-                                className="p-2 data-[highlighted]:bg-gray-200 select-none"
-                              >
-                                <Select.ItemText>
-                                  {algorithm}
-                                </Select.ItemText>
-                                <Select.ItemIndicator className="bg-gray-200" />
-                              </Select.Item>
-                            ))}
-                          </Select.Viewport>
-                        </Select.Content>
-                      </Select.Portal>
-                    </Select.Root>
-                  </Form.Control>
-                </Form.Field>
-                <Form.Submit asChild>
-                  <Button>Save</Button>
-                </Form.Submit>
-              </Form.Root>
+                      Save
+                    </Button>
+                  )}
+                />
+              </form>
             </div>
           </div>
         </Dialog.Content>

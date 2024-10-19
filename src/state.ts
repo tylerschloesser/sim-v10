@@ -7,6 +7,8 @@ export const ItemType = z.enum([
   'BurnerMiningDrill',
   'IronOre',
   'IronPlate',
+  'CopperOre',
+  'CopperPlate',
   'Robot',
 ])
 export type ItemType = z.infer<typeof ItemType>
