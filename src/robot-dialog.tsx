@@ -112,9 +112,19 @@ export function RobotDialog(props: RobotDialogProps) {
             )}
           >
             <div className="border p-4 flex flex-col gap-4 pointer-events-auto">
-              <Dialog.Title className="text-xl">
-                Add Robot
-              </Dialog.Title>
+              <div className="flex justify-between items-center">
+                <Dialog.Title className="text-xl">
+                  Add Robot
+                </Dialog.Title>
+                <Dialog.Close asChild>
+                  <button
+                    type="button"
+                    className="underline"
+                  >
+                    Close
+                  </button>
+                </Dialog.Close>
+              </div>
               <VisuallyHidden asChild>
                 <Dialog.Description>
                   TODO
