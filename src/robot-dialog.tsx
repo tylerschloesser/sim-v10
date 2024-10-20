@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
-import { useForm } from '@tanstack/react-form'
+import { FieldApi, useForm } from '@tanstack/react-form'
 import { zodValidator } from '@tanstack/zod-form-adapter'
 import clsx from 'clsx'
 import { omit } from 'lodash-es'
@@ -24,6 +24,7 @@ import {
   MineActionItemType,
   Operator,
   Robot,
+  RobotAlgorithmStep,
 } from './state'
 
 type RobotDialogProps = {
@@ -185,14 +186,14 @@ export function RobotDialog(props: RobotDialogProps) {
                     name="algorithm"
                     mode="array"
                     children={(field) => (
-                      <div className="flex flex-col">
+                      <div className="flex flex-col gap-4">
                         {field.state.value.map(
                           (step, i) => (
                             <div
                               key={i}
                               className="flex gap-2 items-end"
                             >
-                              <div className="grid grid-cols-[min-content_1fr] gap-2">
+                              <div className="grid grid-cols-[min-content_1fr] items-center gap-2">
                                 <form.Field
                                   name={`algorithm[${i}].action`}
                                   children={(subField) => (
