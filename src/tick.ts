@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash-es'
 import invariant from 'tiny-invariant'
 import { Updater } from 'use-immer'
 import {
@@ -9,14 +10,19 @@ import {
   ActionType,
   Condition,
   CraftAction,
+  ITEM_TYPE_TO_RECIPE,
   ItemType,
   MineAction,
   Robot,
   SmeltAction,
   State,
 } from './state'
+import { multiplyRecipe } from './utils'
 
-type HandleActionResult = { complete: boolean }
+type HandleActionResult = {
+  active: boolean
+  complete: boolean
+}
 
 export function tick(setState: Updater<State>) {
   setState((draft) => {
@@ -83,7 +89,7 @@ function setRobotAction(robot: Robot, draft: State) {
   invariant(robot.action === null)
   for (const step of robot.algorithm) {
     if (isConditionSatisified(step.condition, draft)) {
-      robot.action = step.action
+      robot.action = cloneDeep(step.action)
       break
     }
   }
@@ -130,6 +136,7 @@ function handleMine(
   draft: State,
 ): HandleActionResult {
   invariant(action.progress >= 0)
+
   action.progress += 1
 
   const target = action.count * 10
@@ -142,7 +149,7 @@ function handleMine(
 
   const complete = action.progress === target
 
-  return { complete }
+  return { active: true, complete }
 }
 
 function handleCraft(
@@ -152,18 +159,29 @@ function handleCraft(
   invariant(action.progress >= 0)
   invariant(action.count === 1)
 
-  action.progress += 1
+  const inventory = new InventoryApi(draft.inventory)
+  let active: boolean = false
+  let complete: boolean = false
 
+  if (action.progress === 0) {
+    const recipe = ITEM_TYPE_TO_RECIPE[action.item]
+    if (inventory.hasRecipe(recipe)) {
+      inventory.subRecipe(recipe)
+    } else {
+      return { active, complete }
+    }
+  }
+
+  active = true
+  action.progress += 1
   invariant(action.progress <= 20)
 
-  const complete = action.progress === 20
-
+  complete = action.progress === 20
   if (complete) {
-    const inventory = new InventoryApi(draft.inventory)
     inventory.inc(action.item)
   }
 
-  return { complete }
+  return { active, complete }
 }
 
 function handleSmelt(
@@ -171,23 +189,38 @@ function handleSmelt(
   draft: State,
 ): HandleActionResult {
   invariant(action.progress >= 0)
+  const inventory = new InventoryApi(draft.inventory)
+  let complete: boolean = false
+  let active: boolean = false
+
+  if (action.progress === 0) {
+    const recipe = multiplyRecipe(
+      ITEM_TYPE_TO_RECIPE[action.item],
+      action.count,
+    )
+    if (inventory.hasRecipe(recipe)) {
+      inventory.subRecipe(recipe)
+    } else {
+      return { active, complete }
+    }
+  }
+
+  active = true
   action.progress += 1
 
   const target = action.count * 20
   invariant(action.progress <= target)
 
-  const inventory = new InventoryApi(draft.inventory)
-
   if (action.progress % 20 === 0) {
     inventory.inc(action.item)
   }
 
-  const complete = action.progress === target
+  complete = action.progress === target
   if (complete) {
     inventory.inc(ItemType.enum.StoneFurnace)
   }
 
-  return { complete }
+  return { active, complete }
 }
 
 function resolveConditionValue(

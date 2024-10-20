@@ -46,3 +46,17 @@ export function getActionTarget(action: Action): number {
   invariant(target > 0)
   return target
 }
+
+export function multiplyRecipe(
+  recipe: Record<string, number>,
+  count: number,
+): Record<string, number> {
+  invariant(count > 0)
+  invariant(Number.isInteger(count))
+
+  const result: Record<string, number> = {}
+  for (const [key, value] of Object.entries(recipe)) {
+    result[key] = value * count
+  }
+  return result
+}
