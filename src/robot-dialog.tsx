@@ -322,6 +322,42 @@ export function RobotDialog(props: RobotDialogProps) {
                                               </FormField>
                                             )}
                                           />
+                                          <form.Field
+                                            name={`algorithm[${i}].action.count`}
+                                            children={(
+                                              subSubField,
+                                            ) => (
+                                              <FormField label="Count">
+                                                {({
+                                                  id,
+                                                }) => (
+                                                  <Input
+                                                    type="number"
+                                                    id={id}
+                                                    name={
+                                                      subSubField.name
+                                                    }
+                                                    value={
+                                                      subSubField
+                                                        .state
+                                                        .value
+                                                    }
+                                                    onChange={(
+                                                      e,
+                                                    ) =>
+                                                      subSubField.handleChange(
+                                                        parseInt(
+                                                          e
+                                                            .target
+                                                            .value,
+                                                        ),
+                                                      )
+                                                    }
+                                                  />
+                                                )}
+                                              </FormField>
+                                            )}
+                                          />
                                         </>
                                       )}
                                     </>
