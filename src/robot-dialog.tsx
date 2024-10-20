@@ -24,6 +24,7 @@ import {
   MineActionItemType,
   Operator,
   Robot,
+  SmeltActionItemType,
 } from './state'
 
 type RobotDialogProps = {
@@ -242,7 +243,7 @@ export function RobotDialog(props: RobotDialogProps) {
                                                       item: ItemType
                                                         .enum
                                                         .IronPlate,
-                                                      count: 10,
+                                                      count: 1,
                                                       progress: 0,
                                                     },
                                                   )
@@ -392,10 +393,46 @@ export function RobotDialog(props: RobotDialogProps) {
                                                       )
                                                     }
                                                     options={Object.values(
-                                                      ItemType.Values,
+                                                      SmeltActionItemType.Values,
                                                     )}
                                                     parse={
-                                                      ItemType.parse
+                                                      SmeltActionItemType.parse
+                                                    }
+                                                  />
+                                                )}
+                                              </FormField>
+                                            )}
+                                          />
+                                          <form.Field
+                                            name={`algorithm[${i}].action.count`}
+                                            children={(
+                                              subSubField,
+                                            ) => (
+                                              <FormField label="Count">
+                                                {({
+                                                  id,
+                                                }) => (
+                                                  <Input
+                                                    type="number"
+                                                    id={id}
+                                                    name={
+                                                      subSubField.name
+                                                    }
+                                                    value={
+                                                      subSubField
+                                                        .state
+                                                        .value
+                                                    }
+                                                    onChange={(
+                                                      e,
+                                                    ) =>
+                                                      subSubField.handleChange(
+                                                        parseInt(
+                                                          e
+                                                            .target
+                                                            .value,
+                                                        ),
+                                                      )
                                                     }
                                                   />
                                                 )}
