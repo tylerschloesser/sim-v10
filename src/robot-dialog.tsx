@@ -36,6 +36,11 @@ export function RobotDialog(props: RobotDialogProps) {
 
   const { state, setState } = useContext(AppContext)
 
+  const title = useMemo(
+    () => (props.robotId ? 'Add Robot' : 'Edit Robot'),
+    [props.robotId],
+  )
+
   const id = useMemo(
     () => props.robotId ?? `${state.nextRobotId}`,
     [props.robotId, state.nextRobotId],
@@ -114,7 +119,7 @@ export function RobotDialog(props: RobotDialogProps) {
               <div className="border p-4 flex flex-col gap-4">
                 <div className="flex justify-between items-center">
                   <Dialog.Title className="text-xl">
-                    Add Robot
+                    {title}
                   </Dialog.Title>
                   <Dialog.Close asChild>
                     <button
