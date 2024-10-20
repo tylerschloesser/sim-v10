@@ -24,7 +24,6 @@ import {
   MineActionItemType,
   Operator,
   Robot,
-  RobotAlgorithmStep,
 } from './state'
 
 type RobotDialogProps = {
@@ -188,7 +187,7 @@ export function RobotDialog(props: RobotDialogProps) {
                     children={(field) => (
                       <div className="flex flex-col gap-4">
                         {field.state.value.map(
-                          (step, i) => (
+                          (_step, i) => (
                             <div
                               key={i}
                               className="flex gap-2 items-end"
@@ -197,43 +196,135 @@ export function RobotDialog(props: RobotDialogProps) {
                                 <form.Field
                                   name={`algorithm[${i}].action`}
                                   children={(subField) => (
-                                    <FormField
-                                      label="Item"
-                                      key={i}
-                                    >
-                                      {({ id }) => (
-                                        <Select
-                                          required
-                                          id={id}
-                                          name={
-                                            subField.name
-                                          }
-                                          value={
-                                            step.action.item
-                                          }
-                                          onChange={(
-                                            item,
-                                          ) => {
-                                            subField.handleChange(
-                                              {
-                                                type: ActionType
+                                    <>
+                                      <FormField
+                                        label="Type"
+                                        key={i}
+                                      >
+                                        {({ id }) => (
+                                          <Select
+                                            required
+                                            id={id}
+                                            name={
+                                              subField.name
+                                            }
+                                            value={
+                                              subField.state
+                                                .value.type
+                                            }
+                                            onChange={(
+                                              type,
+                                            ) => {
+                                              switch (
+                                                type
+                                              ) {
+                                                case ActionType
                                                   .enum
-                                                  .Mine,
-                                                item,
-                                                count: 10,
-                                                progress: 0,
-                                              },
-                                            )
-                                          }}
-                                          options={Object.values(
-                                            MineActionItemType.Values,
-                                          )}
-                                          parse={
-                                            MineActionItemType.parse
-                                          }
-                                        />
+                                                  .Mine: {
+                                                  subField.handleChange(
+                                                    {
+                                                      type,
+                                                      item: ItemType
+                                                        .enum
+                                                        .Coal,
+                                                      count: 10,
+                                                      progress: 0,
+                                                    },
+                                                  )
+                                                  break
+                                                }
+                                                case ActionType
+                                                  .enum
+                                                  .Smelt: {
+                                                  subField.handleChange(
+                                                    {
+                                                      type,
+                                                      item: ItemType
+                                                        .enum
+                                                        .IronPlate,
+                                                      count: 10,
+                                                      progress: 0,
+                                                    },
+                                                  )
+                                                  break
+                                                }
+                                                case ActionType
+                                                  .enum
+                                                  .Craft: {
+                                                  subField.handleChange(
+                                                    {
+                                                      type,
+                                                      item: ItemType
+                                                        .enum
+                                                        .ElectronicCircuit,
+                                                      count: 1,
+                                                      progress: 0,
+                                                    },
+                                                  )
+                                                  break
+                                                }
+                                                default: {
+                                                  invariant(
+                                                    false,
+                                                    'TODO',
+                                                  )
+                                                }
+                                              }
+                                            }}
+                                            options={Object.values(
+                                              ActionType.Values,
+                                            )}
+                                            parse={
+                                              ActionType.parse
+                                            }
+                                          />
+                                        )}
+                                      </FormField>
+                                      {subField.state.value
+                                        .type ===
+                                        ActionType.enum
+                                          .Mine && (
+                                        <>
+                                          <form.Field
+                                            name={`algorithm[${i}].action.item`}
+                                            children={(
+                                              subSubField,
+                                            ) => (
+                                              <FormField label="Item">
+                                                {({
+                                                  id,
+                                                }) => (
+                                                  <Select
+                                                    id={id}
+                                                    name={
+                                                      subSubField.name
+                                                    }
+                                                    value={
+                                                      subSubField
+                                                        .state
+                                                        .value
+                                                    }
+                                                    onChange={(
+                                                      item,
+                                                    ) =>
+                                                      subSubField.handleChange(
+                                                        item,
+                                                      )
+                                                    }
+                                                    options={Object.values(
+                                                      MineActionItemType.Values,
+                                                    )}
+                                                    parse={
+                                                      MineActionItemType.parse
+                                                    }
+                                                  />
+                                                )}
+                                              </FormField>
+                                            )}
+                                          />
+                                        </>
                                       )}
-                                    </FormField>
+                                    </>
                                   )}
                                 />
                                 <form.Field
