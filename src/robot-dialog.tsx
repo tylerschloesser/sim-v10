@@ -37,7 +37,7 @@ export function RobotDialog(props: RobotDialogProps) {
   const { state, setState } = useContext(AppContext)
 
   const title = useMemo(
-    () => (props.robotId ? 'Add Robot' : 'Edit Robot'),
+    () => (props.robotId ? 'Edit Robot' : 'Add Robot'),
     [props.robotId],
   )
 
