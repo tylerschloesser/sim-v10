@@ -54,12 +54,33 @@ const INITIAL_STATE: State = {
 }
 
 function getInitialState(): State {
+  const json = localStorage.getItem('state')
+  if (json) {
+    const state = State.safeParse(JSON.parse(json))
+    if (state.success) {
+      return state.data
+    }
+    if (!self.confirm('Failed to parse state. Reset?')) {
+      throw Error('Failed to parse state')
+    }
+  }
   return INITIAL_STATE
+}
+
+function useSaveState(state: State) {
+  useEffect(() => {
+    localStorage.setItem(
+      'state',
+      JSON.stringify(State.parse(state)),
+    )
+  }, [state])
 }
 
 export function App() {
   const [state, setState] = useImmer<State>(getInitialState)
   const [modal, setModal] = useImmer<Modal | null>(null)
+
+  useSaveState(state)
 
   const inventory = useMemo(() => {
     return new ReadOnlyInventoryApi(state.inventory)
