@@ -105,7 +105,12 @@ export function RobotDialog(props: RobotDialogProps) {
             'data-[state=open]:animate-dialog-in data-[state=closed]:animate-dialog-out',
           )}
         >
-          <div className="fixed p-2 inset-0 flex items-center justify-center pointer-events-none">
+          <div
+            className={clsx(
+              'max-h-dvh overflow-y-auto',
+              'fixed p-2 inset-0 flex [align-items:safe_center] [justify-content:safe_center] pointer-events-none',
+            )}
+          >
             <div className="border p-4 flex flex-col gap-4 pointer-events-auto">
               <Dialog.Title className="text-xl">
                 Add Robot
@@ -171,7 +176,7 @@ export function RobotDialog(props: RobotDialogProps) {
                           key={i}
                           className="flex gap-2 items-end"
                         >
-                          <div className="grid grid-rows-[min-content_1fr] grid-flow-col gap-2">
+                          <div className="grid grid-cols-[min-content_1fr] gap-2">
                             <form.Field
                               name={`algorithm[${i}].action`}
                               children={(subField) => (

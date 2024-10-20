@@ -78,13 +78,23 @@ export function App() {
     >
       <div className="p-2">
         <div className="flex flex-col gap-2">
-          <div className="flex flex-row gap-2">
+          <div className="flex flex-col gap-2">
+            <div>
+              <div className="grid grid-cols-2 gap-2">
+                {inventory.map((item, count) => (
+                  <Fragment key={item}>
+                    <div>{item}</div>
+                    <div>{count}</div>
+                  </Fragment>
+                ))}
+              </div>
+            </div>
             <div className="flex flex-col gap-2">
               <div className="opacity-50">
                 tick: {state.tick}
               </div>
               <h2>Mine</h2>
-              <div className="flex">
+              <div className="flex flex-wrap">
                 {[
                   ItemType.enum.Coal,
                   ItemType.enum.Stone,
@@ -95,7 +105,7 @@ export function App() {
                 ))}
               </div>
               <h2>Craft</h2>
-              <div className="flex">
+              <div className="flex flex-wrap">
                 {[
                   ItemType.enum.StoneFurnace,
                   ItemType.enum.BurnerMiningDrill,
@@ -106,7 +116,7 @@ export function App() {
                 ))}
               </div>
               <h2>Smelt</h2>
-              <div className="flex">
+              <div className="flex flex-wrap">
                 {[
                   ItemType.enum.IronPlate,
                   ItemType.enum.CopperPlate,
@@ -129,16 +139,6 @@ export function App() {
               {Object.values(state.robots).map((robot) => (
                 <RobotCard key={robot.id} robot={robot} />
               ))}
-            </div>
-            <div>
-              <div className="grid grid-cols-2 gap-2">
-                {inventory.map((item, count) => (
-                  <Fragment key={item}>
-                    <div>{item}</div>
-                    <div>{count}</div>
-                  </Fragment>
-                ))}
-              </div>
             </div>
           </div>
           <div className="flex flex-col gap-2">
