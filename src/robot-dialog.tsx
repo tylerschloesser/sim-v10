@@ -20,6 +20,7 @@ import { InventoryApi } from './inventory-api'
 import { Select } from './select'
 import {
   ActionType,
+  CraftActionItemType,
   ItemType,
   MineActionItemType,
   Operator,
@@ -397,6 +398,86 @@ export function RobotDialog(props: RobotDialogProps) {
                                                     )}
                                                     parse={
                                                       SmeltActionItemType.parse
+                                                    }
+                                                  />
+                                                )}
+                                              </FormField>
+                                            )}
+                                          />
+                                          <form.Field
+                                            name={`algorithm[${i}].action.count`}
+                                            children={(
+                                              subSubField,
+                                            ) => (
+                                              <FormField label="Count">
+                                                {({
+                                                  id,
+                                                }) => (
+                                                  <Input
+                                                    type="number"
+                                                    id={id}
+                                                    name={
+                                                      subSubField.name
+                                                    }
+                                                    value={
+                                                      subSubField
+                                                        .state
+                                                        .value
+                                                    }
+                                                    onChange={(
+                                                      e,
+                                                    ) =>
+                                                      subSubField.handleChange(
+                                                        parseInt(
+                                                          e
+                                                            .target
+                                                            .value,
+                                                        ),
+                                                      )
+                                                    }
+                                                  />
+                                                )}
+                                              </FormField>
+                                            )}
+                                          />
+                                        </>
+                                      )}
+                                      {subField.state.value
+                                        .type ===
+                                        ActionType.enum
+                                          .Craft && (
+                                        <>
+                                          <form.Field
+                                            name={`algorithm[${i}].action.item`}
+                                            children={(
+                                              subSubField,
+                                            ) => (
+                                              <FormField label="Item">
+                                                {({
+                                                  id,
+                                                }) => (
+                                                  <Select
+                                                    id={id}
+                                                    name={
+                                                      subSubField.name
+                                                    }
+                                                    value={
+                                                      subSubField
+                                                        .state
+                                                        .value
+                                                    }
+                                                    onChange={(
+                                                      item,
+                                                    ) =>
+                                                      subSubField.handleChange(
+                                                        item,
+                                                      )
+                                                    }
+                                                    options={Object.values(
+                                                      CraftActionItemType.Values,
+                                                    )}
+                                                    parse={
+                                                      CraftActionItemType.parse
                                                     }
                                                   />
                                                 )}
