@@ -1,6 +1,6 @@
 import * as Dialog from '@radix-ui/react-dialog'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
-import { FieldApi, useForm } from '@tanstack/react-form'
+import { useForm } from '@tanstack/react-form'
 import { zodValidator } from '@tanstack/zod-form-adapter'
 import clsx from 'clsx'
 import { omit } from 'lodash-es'
