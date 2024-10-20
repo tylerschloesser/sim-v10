@@ -53,8 +53,12 @@ const INITIAL_STATE: State = {
   nextRobotId: 0,
 }
 
+function getInitialState(): State {
+  return INITIAL_STATE
+}
+
 export function App() {
-  const [state, setState] = useImmer<State>(INITIAL_STATE)
+  const [state, setState] = useImmer<State>(getInitialState)
   const [modal, setModal] = useImmer<Modal | null>(null)
 
   const inventory = useMemo(() => {
