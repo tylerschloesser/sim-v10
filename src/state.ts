@@ -38,25 +38,35 @@ export const MineAction = z.strictObject({
 })
 export type MineAction = z.infer<typeof MineAction>
 
+export const CraftActionItemType = z.enum([
+  ItemType.enum.StoneFurnace,
+  ItemType.enum.BurnerMiningDrill,
+  ItemType.enum.Robot,
+  ItemType.enum.ElectronicCircuit,
+])
+export type CraftActionItemType = z.infer<
+  typeof CraftActionItemType
+>
+
 export const CraftAction = z.strictObject({
   type: z.literal(ActionType.enum.Craft),
-  item: z.union([
-    z.literal(ItemType.enum.StoneFurnace),
-    z.literal(ItemType.enum.BurnerMiningDrill),
-    z.literal(ItemType.enum.Robot),
-    z.literal(ItemType.enum.ElectronicCircuit),
-  ]),
+  item: CraftActionItemType,
   count: z.literal(1),
   progress: z.number().nonnegative(),
 })
 export type CraftAction = z.infer<typeof CraftAction>
 
+export const SmeltActionItemType = z.enum([
+  ItemType.enum.IronPlate,
+  ItemType.enum.CopperPlate,
+])
+export type SmeltActionItemType = z.infer<
+  typeof SmeltActionItemType
+>
+
 export const SmeltAction = z.strictObject({
   type: z.literal(ActionType.enum.Smelt),
-  item: z.union([
-    z.literal(ItemType.enum.IronPlate),
-    z.literal(ItemType.enum.CopperPlate),
-  ]),
+  item: SmeltActionItemType,
   count: z.number().nonnegative().int(),
   progress: z.number().nonnegative(),
 })

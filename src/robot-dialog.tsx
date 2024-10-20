@@ -360,6 +360,50 @@ export function RobotDialog(props: RobotDialogProps) {
                                           />
                                         </>
                                       )}
+                                      {subField.state.value
+                                        .type ===
+                                        ActionType.enum
+                                          .Smelt && (
+                                        <>
+                                          <form.Field
+                                            name={`algorithm[${i}].action.item`}
+                                            children={(
+                                              subSubField,
+                                            ) => (
+                                              <FormField label="Item">
+                                                {({
+                                                  id,
+                                                }) => (
+                                                  <Select
+                                                    id={id}
+                                                    name={
+                                                      subSubField.name
+                                                    }
+                                                    value={
+                                                      subSubField
+                                                        .state
+                                                        .value
+                                                    }
+                                                    onChange={(
+                                                      item,
+                                                    ) =>
+                                                      subSubField.handleChange(
+                                                        item,
+                                                      )
+                                                    }
+                                                    options={Object.values(
+                                                      ItemType.Values,
+                                                    )}
+                                                    parse={
+                                                      ItemType.parse
+                                                    }
+                                                  />
+                                                )}
+                                              </FormField>
+                                            )}
+                                          />
+                                        </>
+                                      )}
                                     </>
                                   )}
                                 />
