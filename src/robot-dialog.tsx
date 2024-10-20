@@ -289,12 +289,14 @@ export function RobotDialog(props: RobotDialogProps) {
                           </div>
                           <div>
                             <Button
+                              type="button"
                               onClick={(ev) => {
                                 ev.preventDefault()
                                 field.handleChange(
                                   (value) => {
-                                    value.splice(i, 1)
-                                    return value
+                                    const next = [...value]
+                                    next.splice(i, 1)
+                                    return next
                                   },
                                 )
                               }}
@@ -306,6 +308,7 @@ export function RobotDialog(props: RobotDialogProps) {
                       ))}
                       <div className="flex justify-end">
                         <Button
+                          type="button"
                           onClick={(ev) => {
                             ev.preventDefault()
                             field.pushValue({
