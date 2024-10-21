@@ -36,15 +36,16 @@ export function tick(setState: Updater<State>) {
 }
 
 function tickQueue(draft: State) {
-  const head = draft.queue.at(0)
-  if (!head) {
-    return
-  }
-
-  const result = handleAction(head, draft)
-
-  if (result.complete) {
-    draft.queue.shift()
+  for (const action of draft.queue) {
+    const result = handleAction(action, draft)
+    if (!result.active) {
+      invariant(!result.complete)
+      continue
+    }
+    if (result.complete) {
+      draft.queue.shift()
+    }
+    break
   }
 }
 
