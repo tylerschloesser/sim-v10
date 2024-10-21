@@ -100,8 +100,8 @@ export function App() {
       <div className="p-2">
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-2">
-            <div>
-              <div className="grid grid-cols-2 gap-2">
+            <div className="fixed top-0 right-0 pointer-events-none bg-slate-800 opacity-50">
+              <div className="p-2 grid grid-cols-[min-content_min-content] gap-2">
                 {inventory.map((item, count) => (
                   <Fragment key={item}>
                     <div>{item}</div>
