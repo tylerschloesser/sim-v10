@@ -199,8 +199,12 @@ function handleSmelt(
       ITEM_TYPE_TO_RECIPE[action.item],
       action.count,
     )
-    if (inventory.hasRecipe(recipe)) {
+    if (
+      inventory.hasRecipe(recipe) &&
+      inventory.has(ItemType.enum.StoneFurnace)
+    ) {
       inventory.subRecipe(recipe)
+      inventory.dec(ItemType.enum.StoneFurnace)
     } else {
       return { active, complete }
     }

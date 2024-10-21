@@ -8,17 +8,13 @@ import {
 import { Updater, useImmer } from 'use-immer'
 import { AppContext, Modal } from './app-context'
 import { Button } from './button'
-import {
-  InventoryApi,
-  ReadOnlyInventoryApi,
-} from './inventory-api'
+import { ReadOnlyInventoryApi } from './inventory-api'
 import { RobotCard } from './robot-card'
 import { RobotDialog } from './robot-dialog'
 import {
   Action,
   ActionType,
   Inventory,
-  ITEM_TYPE_TO_RECIPE,
   ItemType,
   State,
 } from './state'
@@ -176,6 +172,17 @@ export function App() {
             ))}
           </div>
         </div>
+        <button
+          className="underline text-gray-400"
+          onClick={() => {
+            if (!self.confirm('Are you sure?')) {
+              return
+            }
+            setState(INITIAL_STATE)
+          }}
+        >
+          Reset
+        </button>
       </div>
     </AppContext.Provider>
   )
@@ -263,22 +270,9 @@ interface CraftButtonProps {
 }
 
 function CraftButton({ item }: CraftButtonProps) {
-  const { setState, inventory } = useContext(AppContext)
-
-  const recipe = useMemo(
-    () => ITEM_TYPE_TO_RECIPE[item],
-    [item],
-  )
-
-  const disabled = useMemo(
-    () => !inventory.hasRecipe(recipe),
-    [inventory, recipe],
-  )
-
+  const { setState } = useContext(AppContext)
   const onClick = useCallback(() => {
     setState((draft) => {
-      const inventory = new InventoryApi(draft.inventory)
-      inventory.subRecipe(recipe)
       draft.queue.push({
         type: ActionType.enum.Craft,
         item,
@@ -286,12 +280,8 @@ function CraftButton({ item }: CraftButtonProps) {
         progress: 0,
       })
     })
-  }, [item, setState, recipe])
-  return (
-    <Button onClick={onClick} disabled={disabled}>
-      {item}
-    </Button>
-  )
+  }, [item, setState])
+  return <Button onClick={onClick}>{item}</Button>
 }
 
 interface SmeltButtonProps {
@@ -301,56 +291,17 @@ interface SmeltButtonProps {
 }
 
 function SmeltButton({ item }: SmeltButtonProps) {
-  const { state, setState, inventory } =
-    useContext(AppContext)
-
-  const recipe = useMemo(
-    () => ITEM_TYPE_TO_RECIPE[item],
-    [],
-  )
-
-  const disabled = useMemo(() => {
-    if (!inventory.hasRecipe(recipe)) {
-      return true
-    }
-
-    const tail = state.queue.at(-1)
-    if (
-      tail?.type === ActionType.enum.Smelt &&
-      tail.item === item
-    ) {
-      return false
-    }
-
-    return !inventory.has(ItemType.enum.StoneFurnace)
-  }, [inventory, state.queue, recipe])
-
+  const { setState } = useContext(AppContext)
   const onClick = useCallback(() => {
     setState((draft) => {
-      const inventory = new InventoryApi(draft.inventory)
-      inventory.subRecipe(recipe)
-
-      const tail = draft.queue.at(-1)
-      if (
-        tail?.type === ActionType.enum.Smelt &&
-        tail.item === item
-      ) {
-        tail.count += 1
-      } else {
-        inventory.dec(ItemType.enum.StoneFurnace)
-        draft.queue.push({
-          type: ActionType.enum.Smelt,
-          item,
-          count: 1,
-          progress: 0,
-        })
-      }
+      draft.queue.push({
+        type: ActionType.enum.Smelt,
+        item,
+        count: 1,
+        progress: 0,
+      })
     })
-  }, [setState, recipe])
+  }, [setState])
 
-  return (
-    <Button onClick={onClick} disabled={disabled}>
-      {item}
-    </Button>
-  )
+  return <Button onClick={onClick}>{item}</Button>
 }
